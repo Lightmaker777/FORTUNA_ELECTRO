@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}">
+    {{ form.hidden_tag() }} <!-- CSRF-Schutz -->
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form.date.label(class="form-label") }}
+                {{ form.date(class="form-control", type="date") }}
+                {% if form.date.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.date.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form.hours.label(class="form-label") }}
+                <div class="input-group">
+                    {{ form.hours(class="form-control") }}
+                    <span class="input-group-text">Stunden</span>
+                </div>
+                {% if form.hours.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.hours.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tätigkeitsauswahl -->
+    <div class="mb-3">
+        {{ form.activity.label(class="form-label") }}
+        {{ form.activity(class="form-control", id="activity-select") }}
+        {% if form.activity.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.activity.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Textfeld für andere Tätigkeit -->
+    <div id="other-activity-div" style="display:none;" class="mb-3">
+        {{ form.other_activity.label(class="form-label") }}
+        {{ form.other_activity(class="form-control") }}
+        {% if form.other_activity.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.other_activity.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Notizen -->
+    <div class="mb-3">
+        {{ form.notes.label(class="form-label") }}
+        {{ form.notes(class="form-control", rows=4) }}
+        {% if form.notes.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.notes.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Speichern-Button -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Speichern
+        </button>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activitySelect = document.getElementById('activity-select');
+    const otherActivityDiv = document.getElementById('other-activity-div');
+    
+    function toggleOtherActivity() {
+        if (activitySelect.value === 'andere') {
+            otherActivityDiv.style.display = 'block';
+        } else {
+            otherActivityDiv.style.display = 'none';
+        }
+    }
+    
+    activitySelect.addEventListener('change', toggleOtherActivity);
+    toggleOtherActivity(); // Initial check
+});
+</script>
+
+{% endblock %}

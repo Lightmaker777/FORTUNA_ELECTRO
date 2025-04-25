@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Neues Projekt erstellen</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control") }}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Projekt speichern</button>
+</form>
+{% endblock %}

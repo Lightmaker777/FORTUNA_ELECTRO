@@ -1,0 +1,85 @@
+<!-- app/templates/dashboard/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-th-large"></i> Dashboard</h1>
+    <a href="{{ url_for('projects.new_project') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Neues Projekt
+    </a>
+</div>
+
+<div class="row mt-4">
+    <!-- Projekte in Bearbeitung -->
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-hammer"></i> Projekte in Bearbeitung</h5>
+            </div>
+            <div class="card-body">
+                {% if in_progress %}
+                    <div class="list-group">
+                        {% for project in in_progress %}
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ project.name }}</h5>
+                                    <small>Erstellt: {{ project.start_date.strftime('%d.%m.%Y') }}</small>
+                                </div>
+                                {% if project.description %}
+                                    <p class="mb-1">{{ project.description }}</p>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Keine Projekte in Bearbeitung.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Abgeschlossene Projekte -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Abgeschlossene Projekte</h5>
+            </div>
+            <div class="card-body">
+                {% if completed %}
+                    <div class="list-group">
+                        {% for project in completed %}
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                {{ project.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Keine abgeschlossenen Projekte.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Archivierte Projekte -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-archive"></i> Archivierte Projekte</h5>
+            </div>
+            <div class="card-body">
+                {% if archived %}
+                    <div class="list-group">
+                        {% for project in archived %}
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                                {{ project.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Keine archivierten Projekte.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,256 @@
+<!-- app/templates/admin/users.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users-cog"></i> Mitarbeiterverwaltung</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-user-plus"></i> Neuer Mitarbeiter
+    </button>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Mitarbeiter</h5>
+    </div>
+    <div class="card-body">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Benutzername</th>
+                        <th>Rolle</th>
+                        <th>Erstellt am</th>
+                        <th>Status</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                            <span class="badge bg-danger">Administrator</span>
+                            {% else %}
+                            <span class="badge bg-info">Installateur</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Aktiv</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inaktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="editUser('{{ user.id }}', '{{ user.username }}', {{ 'true' if user.is_admin else 'false' }}, {{ 'true' if user.is_active else 'false' }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        {% if user.id == current_user.id %}disabled{% endif %}
+                                        data-bs-toggle="modal" data-bs-target="#deleteUserModal"
+                                        data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning"
+                                        data-bs-toggle="modal" data-bs-target="#resetPasswordModal"
+                                        data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Keine Mitarbeiter gefunden.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Neuer Mitarbeiter Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addUserModalLabel">Neuen Mitarbeiter anlegen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.add_user') }}">
+                <div class="modal-body">
+                    {{ add_user_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ add_user_form.username.label(class="form-label") }}
+                        {{ add_user_form.username(class="form-control", id='username-add') }}
+                        {% if add_user_form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in add_user_form.username.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_user_form.password.label(class="form-label") }}
+                        {{ add_user_form.password(class="form-control", id='password-add') }}
+                        {% if add_user_form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in add_user_form.password.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_user_form.confirm_password.label(class="form-label") }}
+                        {{ add_user_form.confirm_password(class="form-control", id='confirm-password-add') }}
+                        {% if add_user_form.confirm_password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in add_user_form.confirm_password.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ add_user_form.is_admin(class="form-check-input", id="is_admin_add") }}
+                        {{ add_user_form.is_admin.label(class="form-check-label", for="is_admin_add") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Mitarbeiter bearbeiten Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editUserModalLabel">Mitarbeiter bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.edit_user') }}">
+                <div class="modal-body">
+                    {{ edit_user_form.hidden_tag() }}
+                    {{ edit_user_form.user_id(id="user_id") }}
+                    <div class="mb-3">
+                        {{ edit_user_form.username.label(class="form-label") }}
+                        {{ edit_user_form.username(class="form-control", id="username") }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ edit_user_form.is_admin(class="form-check-input", id="is_admin") }}
+                        {{ edit_user_form.is_admin.label(class="form-check-label", for="is_admin") }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ edit_user_form.is_active(class="form-check-input", id="is_active") }}
+                        {{ edit_user_form.is_active.label(class="form-check-label", for="is_active") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Passwort zurücksetzen Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="resetPasswordModalLabel">Passwort zurücksetzen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.reset_password') }}">
+                <div class="modal-body">
+                    {{ reset_password_form.hidden_tag() }}
+                    {{ reset_password_form.user_id(id="user_id-reset") }}
+                    <p>Passwort für <strong id="resetPasswordUsername"></strong> zurücksetzen?</p>
+                    <div class="mb-3">
+                        {{ reset_password_form.new_password.label(class="form-label") }}
+                        {{ reset_password_form.new_password(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ reset_password_form.confirm_password.label(class="form-label") }}
+                        {{ reset_password_form.confirm_password(class="form-control") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-warning">Passwort zurücksetzen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Mitarbeiter löschen Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel">Mitarbeiter löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.delete_user') }}">
+                <div class="modal-body">
+                    {{ delete_user_form.hidden_tag() }}
+                    {{ delete_user_form.user_id(id="user_id-delete") }}
+                    <p>Möchten Sie den Mitarbeiter <strong id="deleteUsername"></strong> wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function editUser(userId, username, isAdmin, isActive) {
+        document.getElementById('user_id').value = userId;
+        document.getElementById('username').value = username;
+        document.getElementById('is_admin').checked = isAdmin;
+        document.getElementById('is_active').checked = isActive;
+
+        var editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        editUserModal.show();
+    }
+
+    document.getElementById('resetPasswordModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var userId = button.getAttribute('data-user-id');
+        var username = button.getAttribute('data-username');
+
+        var modal = document.getElementById('resetPasswordModal');
+        modal.querySelector('#user_id-reset').value = userId;
+        modal.querySelector('#resetPasswordUsername').textContent = username;
+    });
+
+    document.getElementById('deleteUserModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var userId = button.getAttribute('data-user-id');
+        var username = button.getAttribute('data-username');
+
+        var modal = document.getElementById('deleteUserModal');
+        modal.querySelector('#user_id-delete').value = userId;
+        modal.querySelector('#deleteUsername').textContent = username;
+    });
+</script>
+{% endblock %}

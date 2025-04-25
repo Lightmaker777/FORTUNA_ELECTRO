@@ -1,0 +1,279 @@
+<!-- app/templates/files/list.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-folder-open"></i> Dateiverwaltung: {{ project.name }}</h1>
+    <div>
+        <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Zurück zum Projekt
+        </a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+            <i class="fas fa-upload"></i> Datei hochladen
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Kategorien</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='all') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'all' %}active{% endif %}">
+                    <i class="fas fa-folder"></i> Alle Dateien
+                    <span class="badge bg-secondary float-end">{{ files|length }}</span>
+                </a>
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='photos') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'photos' %}active{% endif %}">
+                    <i class="fas fa-camera"></i> Fotos
+                    <span class="badge bg-secondary float-end">{{ files|selectattr('category', 'equalto', 'photos')|list|length }}</span>
+                </a>
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='videos') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'videos' %}active{% endif %}">
+                    <i class="fas fa-video"></i> Videos
+                    <span class="badge bg-secondary float-end">{{ files|selectattr('category', 'equalto', 'videos')|list|length }}</span>
+                </a>
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='timesheets') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'timesheets' %}active{% endif %}">
+                    <i class="fas fa-clock"></i> Stundenberichte
+                    <span class="badge bg-secondary float-end">{{ files|selectattr('category', 'equalto', 'timesheets')|list|length }}</span>
+                </a>
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='reports') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'reports' %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i> Prüfberichte
+                    <span class="badge bg-secondary float-end">{{ files|selectattr('category', 'equalto', 'reports')|list|length }}</span>
+                </a>
+                <a href="{{ url_for('files.list_files', project_id=project.id, category='other') }}" 
+                   class="list-group-item list-group-item-action {% if selected_category == 'other' %}active{% endif %}">
+                    <i class="fas fa-file"></i> Sonstiges
+                    <span class="badge bg-secondary float-end">{{ files|selectattr('category', 'equalto', 'other')|list|length }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        {% if selected_category == 'all' %}
+                            Alle Dateien
+                        {% elif selected_category == 'photos' %}
+                            Fotos
+                        {% elif selected_category == 'videos' %}
+                            Videos
+                        {% elif selected_category == 'timesheets' %}
+                            Stundenberichte
+                        {% elif selected_category == 'reports' %}
+                            Prüfberichte
+                        {% elif selected_category == 'other' %}
+                            Sonstige Dateien
+                        {% endif %}
+                    </h5>
+                    <div class="input-group" style="max-width: 300px;">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Dateien suchen...">
+                        <button class="btn btn-outline-light" type="button" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if filtered_files %}
+                <div class="row" id="fileGallery">
+                    {% for file in filtered_files %}
+                    <div class="col-md-4 col-lg-3 mb-4 file-card" data-filename="{{ file.filename }}">
+                        <div class="card h-100">
+                            <div class="card-img-top file-preview">
+                                {% if file.content_type.startswith('image/') %}
+                                <img src="{{ url_for('files.get_file', file_id=file.id) }}" class="img-fluid file-thumbnail" alt="{{ file.filename }}">
+                                {% elif file.content_type.startswith('video/') %}
+                                <div class="video-thumbnail">
+                                    <i class="fas fa-film fa-3x"></i>
+                                </div>
+                                {% elif file.content_type == 'application/pdf' %}
+                                <div class="pdf-thumbnail">
+                                    <i class="fas fa-file-pdf fa-3x"></i>
+                                </div>
+                                {% else %}
+                                <div class="file-thumbnail">
+                                    <i class="fas fa-file fa-3x"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate" title="{{ file.filename }}">{{ file.filename }}</h6>
+                                <p class="card-text small text-muted">
+                                    <span>{{ (file.size / 1024)|round|int }} KB</span><br>
+                                    <span>{{ file.upload_date.strftime('%d.%m.%Y') }}</span><br>
+                                    <span>{{ file.uploaded_by.username }}</span>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="btn-group w-100">
+                                    <a href="{{ url_for('files.get_file', file_id=file.id) }}" class="btn btn-sm btn-outline-primary" download>
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a href="{{ url_for('files.view_file', file_id=file.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if current_user.is_admin or file.uploaded_by_id == current_user.id %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            data-bs-toggle="modal" data-bs-target="#deleteFileModal"
+                                            data-file-id="{{ file.id }}" data-filename="{{ file.filename }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Keine Dateien in dieser Kategorie gefunden.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Datei hochladen Modal -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="uploadFileModalLabel">Datei hochladen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('files.upload_file', project_id=project.id) }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ upload_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ upload_form.file.label(class="form-label") }}
+                        {{ upload_form.file(class="form-control") }}
+                        {% if upload_form.file.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in upload_form.file.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ upload_form.category.label(class="form-label") }}
+                        {{ upload_form.category(class="form-select") }}
+                        {% if upload_form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in upload_form.category.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ upload_form.description.label(class="form-label") }}
+                        {{ upload_form.description(class="form-control", rows=3) }}
+                        {% if upload_form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in upload_form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Hochladen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Datei löschen Modal -->
+<div class="modal fade" id="deleteFileModal" tabindex="-1" aria-labelledby="deleteFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteFileModalLabel">Datei löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('files.delete_file') }}">
+                <div class="modal-body">
+                    {{ delete_form.hidden_tag() }}
+                    {{ delete_form.file_id }}
+                    <p>Möchten Sie die Datei <strong id="deleteFilename"></strong> wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dateisuche
+    document.getElementById('searchInput').addEventListener('keyup', filterFiles);
+    document.getElementById('searchButton').addEventListener('click', filterFiles);
+    
+    function filterFiles() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const fileCards = document.querySelectorAll('.file-card');
+        
+        fileCards.forEach(card => {
+            const filename = card.getAttribute('data-filename').toLowerCase();
+            if (filename.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Datei löschen
+    document.getElementById('deleteFileModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var fileId = button.getAttribute('data-file-id');
+        var filename = button.getAttribute('data-filename');
+        
+        var modal = document.getElementById('deleteFileModal');
+        modal.querySelector('#file_id').value = fileId;
+        modal.querySelector('#deleteFilename').textContent = filename;
+    });
+</script>
+
+<style>
+    .file-preview {
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        overflow: hidden;
+    }
+    
+    .file-thumbnail {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    
+    .video-thumbnail, .pdf-thumbnail {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
