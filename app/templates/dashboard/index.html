@@ -1,85 +1,1882 @@
-<!-- app/templates/dashboard/index.html -->
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-th-large"></i> Dashboard</h1>
-    <a href="{{ url_for('projects.new_project') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Neues Projekt
-    </a>
+<div class="container-fluid py-4">
+    <!-- Dashboard Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div class="position-relative">
+            <div class="dashboard-heading-decoration"></div>
+            <h1 class="fw-bold mb-1 display-5 position-relative">Alles Watt ihr Volt</h1>
+            <p class="text-muted mb-0 lead"></p>
+        </div>
+        <div class="d-flex">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-light me-2 btn-refresh" aria-label="Aktualisieren">
+                <i class="fas fa-sync-alt"></i>
+            </a>
+            <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient">
+                <i class="fas fa-plus me-1"></i> Neues Projekt
+            </a>
+        </div>
+    </div>
+
+<!-- Statistikkarten -->
+<div class="row g-4 mb-5">
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="in-progress-tab">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-hammer fa-3x text-primary"></i>
+                        <span class="text-muted fw-bold fs-5">Aktuell</span>
+                    </div>
+                    <h3 class="mb-0">{{ in_progress|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="calendar-tab">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-calendar-alt fa-3x text-success"></i>
+                        <span class="text-muted fw-bold fs-5">Kalender</span>
+                    </div>
+                    <h3 class="mb-0">{{ completed|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="archived-tab">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-archive fa-3x text-warning"></i>
+                        <span class="text-muted fw-bold fs-5">Archiviert</span>
+                    </div>
+                    <h3 class="mb-0">{{ archived|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="all-tab">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-tasks fa-3x text-info"></i>
+                        <span class="text-muted fw-bold fs-5">Gesamt</span>
+                    </div>
+                    <h3 class="mb-0">{{ (in_progress|length) + (completed|length) + (archived|length) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row mt-4">
-    <!-- Projekte in Bearbeitung -->
-    <div class="col-12 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-hammer"></i> Projekte in Bearbeitung</h5>
+
+    <!-- Aktuelle Projekte Vorschau -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-hover aktuelle-projekte">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i> Aktuelle Projekte</h5>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectsModal">
+                        Alle anzeigen <i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 {% if in_progress %}
-                    <div class="list-group">
-                        {% for project in in_progress %}
-                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ project.name }}</h5>
-                                    <small>Erstellt: {{ project.start_date.strftime('%d.%m.%Y') }}</small>
-                                </div>
-                                {% if project.description %}
-                                    <p class="mb-1">{{ project.description }}</p>
-                                {% endif %}
-                            </a>
-                        {% endfor %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Projektname</th>
+                                    <th class="d-none d-md-table-cell">Startdatum</th>
+                                    <th class="d-none d-lg-table-cell">Status</th>
+                                    <th class="text-end">Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in in_progress[:5] %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="project-icon me-3">
+                                                    <i class="fas fa-folder text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ project.name }}</h6>
+                                                    <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="d-none d-md-table-cell">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                        <td class="d-none d-lg-table-cell">
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                                Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 {% else %}
-                    <p class="text-muted">Keine Projekte in Bearbeitung.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- Abgeschlossene Projekte -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Abgeschlossene Projekte</h5>
-            </div>
-            <div class="card-body">
-                {% if completed %}
-                    <div class="list-group">
-                        {% for project in completed %}
-                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
-                                {{ project.name }}
+                    <div class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <h5>Keine laufenden Projekte</h5>
+                            <p class="text-muted">Erstellen Sie ein neues Projekt, um loszulegen</p>
+                            <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient mt-2">
+                                <i class="fas fa-plus me-2"></i>Neues Projekt erstellen
                             </a>
-                        {% endfor %}
+                        </div>
                     </div>
-                {% else %}
-                    <p class="text-muted">Keine abgeschlossenen Projekte.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- Archivierte Projekte -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0"><i class="fas fa-archive"></i> Archivierte Projekte</h5>
-            </div>
-            <div class="card-body">
-                {% if archived %}
-                    <div class="list-group">
-                        {% for project in archived %}
-                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
-                                {{ project.name }}
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-muted">Keine archivierten Projekte.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+</div>
+
+<!-- Verbessertes Projekte Modal -->
+<div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectsModalLabel"><i class="fas fa-folder-open me-2 text-primary"></i>Projekte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Suche und Filter -->
+                <div class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="input-group search-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-primary"></i></span>
+                                <input type="text" class="form-control border-start-0 py-2" placeholder="Projekte suchen..." id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-lg py-2" id="statusFilter">
+                                <option value="all">Alle Status</option>
+                                <option value="in_progress">In Bearbeitung</option>
+                                <option value="completed">Kalender</option>
+                                <option value="archived">Archiviert</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-select-lg py-2" id="sortProjects">
+                                <option value="newest">Neueste zuerst</option>
+                                <option value="oldest">Älteste zuerst</option>
+                                <option value="az">A-Z</option>
+                                <option value="za">Z-A</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tab-navigation mb-3">
+                    <select class="form-select form-select-lg d-md-none py-2" id="tabSelector">
+                        <option value="all">Alle Projekte</option>
+                        <option value="in-progress">In Bearbeitung</option>
+                        <option value="calendar">Kalender</option>
+                        <option value="archived">Archiviert</option>
+                    </select>
+                    <ul class="nav nav-pills nav-justified custom-nav-pills d-none d-md-flex" id="projectTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active btn-lg w-100" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
+                                <i class="fas fa-list me-1"></i> Alle
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-lg w-100" id="in-progress-tab" data-bs-toggle="tab" data-bs-target="#in-progress" type="button" role="tab" aria-controls="in-progress" aria-selected="false">
+                                <i class="fas fa-hammer me-1"></i> In Bearbeitung
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-lg w-100" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab" aria-controls="calendar" aria-selected="false">
+                                <i class="fas fa-calendar-alt me-1"></i> Kalender
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-lg w-100" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived" type="button" role="tab" aria-controls="archived" aria-selected="false">
+                                <i class="fas fa-archive me-1"></i> Archiviert
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content pt-2" id="projectTabContent">
+                    <!-- Alle Projekte Tab -->
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        {% set all_projects = in_progress + completed + archived %}
+                        {% if all_projects %}
+                            <div class="row g-3 project-cards">
+                                {% for project in all_projects %}
+                                    <div class="col-xl-4 col-md-6 project-item" 
+                                         data-status="{% if project in in_progress %}in_progress{% elif project in completed %}completed{% else %}archived{% endif %}"
+                                         data-name="{{ project.name|lower }}"
+                                         data-date="{{ project.start_date.strftime('%Y-%m-%d') }}">
+                                        <div class="card project-card h-100 border-0 shadow-hover">
+                                            <div class="card-header d-flex justify-content-between align-items-center 
+                                                        {% if project in in_progress %}project-card-progress
+                                                        {% elif project in completed %}project-card-completed
+                                                        {% else %}project-card-archived{% endif %} border-top-0 border-start-0 border-end-0">
+                                                <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
+                                                <span class="badge rounded-pill ms-2
+                                                      {% if project in in_progress %}bg-primary-custom
+                                                      {% elif project in completed %}bg-success-custom
+                                                      {% else %}bg-secondary-custom{% endif %}">
+                                                    {% if project in in_progress %}In Bearbeitung
+                                                    {% elif project in completed %}Abgeschlossen
+                                                    {% else %}Archiviert{% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if project.description %}
+                                                    <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
+                                                {% else %}
+                                                    <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
+                                                {% endif %}
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
+                                                    </small>
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm 
+                                                              {% if project in in_progress %}btn-project-progress
+                                                              {% elif project in completed %}btn-project-completed
+                                                              {% else %}btn-project-archived{% endif %}">
+                                                        Details <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                                    <h5>Keine Projekte vorhanden</h5>
+                                    <p class="text-muted">Erstellen Sie ein neues Projekt, um loszulegen</p>
+                                    <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient mt-2">
+                                        <i class="fas fa-plus me-2"></i>Neues Projekt erstellen
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- In Bearbeitung Tab -->
+                    <div class="tab-pane fade" id="in-progress" role="tabpanel" aria-labelledby="in-progress-tab">
+                        {% if in_progress %}
+                            <div class="row g-3">
+                                {% for project in in_progress %}
+                                    <div class="col-xl-4 col-md-6">
+                                        <div class="card project-card h-100 border-0 shadow-hover">
+                                            <div class="card-header d-flex justify-content-between align-items-center project-card-progress border-top-0 border-start-0 border-end-0">
+                                                <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
+                                                <span class="badge bg-primary-custom rounded-pill ms-2">In Bearbeitung</span>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if project.description %}
+                                                    <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
+                                                {% else %}
+                                                    <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
+                                                {% endif %}
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
+                                                    </small>
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-project-progress">
+                                                        Details <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-hammer fa-4x text-primary mb-3"></i>
+                                    <h5>Keine Projekte in Bearbeitung</h5>
+                                    <p class="text-muted">Erstellen Sie ein neues Projekt oder aktivieren Sie ein archiviertes Projekt</p>
+                                    <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient mt-2">
+                                        <i class="fas fa-plus me-2"></i>Neues Projekt erstellen
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Kalender Tab -->
+<div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
+    <!-- Kalender Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button id="prevMonth" class="btn btn-outline-primary">< </button>
+        <h4 id="currentMonthYear" class="mb-0"></h4>
+        <button id="nextMonth" class="btn btn-outline-primary"> ></button>
+    </div>
+    
+    <!-- Kalender Grid -->
+    <div id="calendarDays" class="calendar-grid row gx-1 gy-1 mb-4"></div>
+    
+    <!-- Urlaubsliste -->
+    <div>
+        <h5 class="mb-3">Urlaubsübersicht</h5>
+        <ul id="vacationList" class="list-group mb-4">
+            <!-- Dynamische Einträge kommen hier hin -->
+        </ul>       
+        
+    </div>
+    
+    <!-- Modal für neuen Urlaub -->
+    <div class="modal fade" id="newVacationModal" tabindex="-1" aria-labelledby="newVacationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newVacationModalLabel">Neuen Urlaub hinzufügen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="vacationForm">
+                        <div class="mb-3">
+                            <label for="vacationName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="vacationName" required>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label for="startDate" class="form-label">Startdatum</label>
+                                <input type="date" class="form-control" id="startDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="endDate" class="form-label">Enddatum</label>
+                                <input type="date" class="form-control" id="endDate" required>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label for="vacationType" class="form-label">Art des Urlaubs</label>
+                            <select class="form-select" id="vacationType">
+                                <option value="urlaub">Urlaub</option>
+                                <option value="krankheit">Krankheit</option>
+                                <option value="sonstiges">Sonstiges</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="saveVacation">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <!-- Archivierte Projekte Tab -->
+                    <div class="tab-pane fade" id="archived" role="tabpanel" aria-labelledby="archived-tab">
+                        {% if archived %}
+                            <div class="row g-3">
+                                {% for project in archived %}
+                                    <div class="col-xl-4 col-md-6">
+                                        <div class="card project-card h-100 border-0 shadow-hover">
+                                            <div class="card-header d-flex justify-content-between align-items-center project-card-archived border-top-0 border-start-0 border-end-0">
+                                                <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
+                                                <span class="badge bg-secondary-custom rounded-pill ms-2">Archiviert</span>
+                                            </div>
+                                            <div class="card-body">
+                                                {% if project.description %}
+                                                    <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
+                                                {% else %}
+                                                    <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
+                                                {% endif %}
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
+                                                    </small>
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-project-archived">
+                                                        Details <i class="fas fa-arrow-right ms-1"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-archive fa-4x text-secondary mb-3"></i>
+                                    <h5>Keine archivierten Projekte</h5>
+                                    <p class="text-muted">Archivierte Projekte werden hier angezeigt</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient">
+                    <i class="fas fa-plus me-1"></i> Neues Projekt
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+/* Dark Dashboard Design - Striking and Simple */
+:root {
+    /* Dark color palette with bright accents inspired by the image */
+    --primary: #0B0C10;         /* Dark background */
+    --primary-light: #1F2833;   /* Slightly lighter dark background */
+    --primary-dark: #000000;    /* Black */
+    --accent: #66FCF1;          /* Bright turquoise accent */
+    --accent-light: #45A29E;    /* Muted turquoise */
+    --success: #45A29E;         /* Success using muted turquoise */
+    --success-light: #66FCF1;   /* Success light using bright turquoise */
+    --secondary: #C5C6C7;       /* Light gray */
+    --secondary-dark: #1F2833;  /* Dark gray */
+    --archived: #3f7c4c;        /* Archived using muted turquoise */
+    --archived-light: #66FCF1;  /* Archived light using bright turquoise */
+    --total: #757978;           /* Total using bright turquoise */
+    --danger: #FF3B3B;          /* Bright red for danger */
+    --light-bg: #1F2833;        /* Light background (still dark) */
+    --card-bg: #0B0C10;         /* Card background */
+    --text-dark: #FFFFFF;       /* Text dark (actually white for contrast) */
+    --text-muted: #C5C6C7;      /* Text muted (light gray) */
+    --dark-bg: #1e1e2f; /* Dunkler Hintergrund */
+    --dark-bg-lighter: #2a2a3d; /* Etwas hellerer Hintergrund */
+    --light-text: #ffffff; /* Helle Schriftfarbe */
+    --accent: #00bcd4; /* Akzentfarbe (blau-grün) */
+    --border-color: #3a3a4d; /* Subtile Rahmenfarbe */
+    --hover-bg: #33334d; /* Hover-Hintergrund */
+}
+
+/* Dark background for dashboard */
+body {
+    background: var(--primary);
+    color: var(--text-dark);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Remove the subtle pattern in background */
+body::before {
+    display: none;
+}
+
+
+/* Dashboard Header with simpler styling */
+.dashboard-heading-decoration {
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 0; /* Square corners */
+    top: -10px;
+    left: 0;
+}
+
+h1.display-5 {
+    color: var(--accent);
+    font-weight: 700 !important;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+
+/* Square Button Design */
+.btn-gradient {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0; /* Square corners */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.btn-gradient:hover, .btn-gradient:focus {
+    background: var(--accent-light);
+    color: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-refresh {
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    border-radius: 0; /* Square corners */
+    padding: 10px 12px;
+    color: var(--accent);
+    transition: all 0.4s ease;
+}
+
+.btn-refresh:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    transform: none;
+}
+
+/* Square Stat Cards */
+.custom-stat-card {
+    border-radius: 0; /* Square corners */
+    overflow: hidden;
+    box-shadow: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+}
+
+.custom-stat-card:hover {
+    transform: none;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+}
+
+/* Stat Card Content Styling */
+.stat-card-content {
+    display: flex;
+    align-items: center;
+    padding: 1.75rem;
+    z-index: 10;
+    position: relative;
+    background: var(--primary-light);
+}
+
+.stat-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    border-radius: 0; /* Square corners */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    box-shadow: none;
+    background: var(--accent);
+}
+
+.stat-icon-wrapper i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Simple backgrounds for status icons */
+.bg-progress-gradient {
+    background: var(--accent);
+}
+
+.bg-completed-gradient {
+    background: var(--success);
+}
+
+.bg-archived-gradient {
+    background: var(--archived);
+}
+
+.bg-total-gradient {
+    background: var(--total);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    color: var(--accent);
+    -webkit-text-fill-color: var(--accent);
+    letter-spacing: -1px;
+}
+
+/* Remove wave backgrounds */
+.stat-card-wave {
+    display: none;
+}
+
+/* Square Project Cards */
+.project-card {
+    border-radius: 0; /* Square corners */
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent) !important;
+}
+
+.project-card:hover {
+    transform: none;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2) !important;
+}
+
+.project-card .card-header {
+    padding: 1.25rem;
+    background: var(--primary-light);
+    border-bottom: 1px solid var(--accent);
+}
+
+.shadow-hover {
+    box-shadow: none;
+}
+
+/* Simple card headers with colored borders */
+.project-card-progress {
+    border-left: 3px solid var(--accent) !important;
+    border-bottom: none !important;
+}
+
+.project-card-completed {
+    border-left: 3px solid var(--success) !important;
+    border-bottom: none !important;
+}
+
+.project-card-archived {
+    border-left: 3px solid var(--secondary) !important;
+    border-bottom: none !important;
+}
+
+/* Square Badges */
+.badge {
+    padding: 0.45em 0.8em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    border-radius: 0; /* Square corners */
+}
+
+.bg-primary-custom {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+.bg-success-custom {
+    background-color: var(--success);
+    color: var(--primary);
+}
+
+.bg-secondary-custom {
+    background-color: var(--secondary);
+    color: var(--primary);
+}
+
+/* Square Button Designs */
+.btn-project-progress {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: 0; /* Square corners */
+}
+
+.btn-project-progress:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.btn-project-completed {
+    color: var(--success);
+    border: 1px solid var(--success);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: 0; /* Square corners */
+}
+
+.btn-project-completed:hover {
+    background-color: var(--success);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.btn-project-archived {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: 0; /* Square corners */
+}
+
+.btn-project-archived:hover {
+    background-color: var(--secondary);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+/* Project Table Styling */
+.table {
+    --bs-table-hover-bg: rgba(102, 252, 241, 0.1);
+    color: var(--text-dark);
+}
+
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+}
+
+.project-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 0; /* Square corners */
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+}
+
+/* Square Tabs & Navigation */
+.custom-nav-pills {
+    gap: 0;
+}
+
+.custom-nav-pills .nav-link {
+    border-radius: 0; /* Square corners */
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: var(--text-dark);
+    border: none;
+    border-bottom: 3px solid transparent;
+    background-color: transparent;
+    margin-right: 5px;
+}
+
+.custom-nav-pills .nav-link:hover:not(.active) {
+    background-color: rgba(102, 252, 241, 0.1);
+    border-bottom: 3px solid var(--accent-light);
+}
+
+.custom-nav-pills .nav-link.active {
+    background: transparent;
+    border-bottom: 3px solid var(--accent);
+    color: var(--accent);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Square Search Field */
+.search-group .form-control {
+    border-radius: 0; /* Square corners */
+    padding-left: 50px;
+    height: 48px;
+    font-size: 1rem;
+    box-shadow: none;
+    border: 1px solid var(--accent);
+    background: var(--primary-light);
+    color: var(--text-dark);
+}
+
+.search-group .form-control:focus {
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+    border-color: var(--accent);
+}
+
+.search-group .input-group-text {
+    position: absolute;
+    z-index: 10;
+    background: transparent;
+    border: none;
+    height: 100%;
+    color: var(--accent);
+}
+
+/* Square Select Dropdown */
+.form-select {
+    height: 48px;
+    box-shadow: none;
+    border: 1px solid var(--accent);
+    border-radius: 0; /* Square corners */
+    padding-left: 1rem;
+    background-position: right 1rem center;
+    background-color: var(--primary-light);
+    color: var(--text-dark);
+}
+
+.form-select:focus {
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+    border-color: var(--accent);
+}
+
+/* Square Modal Styling */
+.modal-content {
+    border-radius: 0; /* Square corners */
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 40px rgba(102, 252, 241, 0.2);
+    background: var(--primary);
+}
+
+.modal-header {
+    background: var(--primary-light);
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    padding: 1.5rem;
+    border-radius: 0; /* Square corners */
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.modal-header .btn-close {
+    background-color: var(--accent);
+    opacity: 1;
+    padding: 0.6rem;
+    margin: -0.6rem -0.6rem -0.6rem auto;
+    border-radius: 0; /* Square corners */
+}
+
+.modal-header .btn-close:hover {
+    background-color: var(--accent-light);
+}
+
+.modal-body {
+    padding: 2rem;
+    background-color: var(--primary);
+    color: var(--text-dark);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--accent);
+    padding: 1.5rem;
+    background-color: var(--primary);
+    border-radius: 0; /* Square corners */
+}
+
+/* Empty State Styling */
+.empty-state {
+    padding: 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--primary-light);
+    border-radius: 0; /* Square corners */
+    border: 1px solid var(--accent);
+}
+
+.empty-state i {
+    opacity: 0.8;
+    color: var(--accent);
+}
+
+.empty-state h5 {
+    font-weight: 600;
+    margin: 1rem 0;
+    color: var(--text-dark);
+}
+
+/* Project Description Display */
+.project-description {
+    min-height: 60px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Card Styling */
+.card {
+    transition: all 0.3s ease;
+    background-color: var(--primary-light);
+    border-radius: 0; /* Square corners */
+    border: 1px solid var(--accent);
+}
+
+.card:hover {
+    transform: none;
+}
+
+.card:after {
+    display: none;
+}
+
+/* Container Styling */
+.container-fluid {
+    padding: 2rem 3rem;
+}
+
+/* Remove Button Animation */
+.btn-gradient::after {
+    display: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary);
+    border-radius: 0; /* Square corners */
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 0; /* Square corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding: 1.5rem;
+    }
+    
+    .tab-navigation {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: var(--primary);
+        padding-top: 0.5rem;
+        margin-top: -0.5rem;
+    }
+    
+    .stat-icon-wrapper {
+        width: 55px;
+        height: 55px;
+        margin-right: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+    }
+    
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+    
+    .modal-body {
+        padding: a.5rem;
+    }
+}
+
+/* Remove card glass effects */
+.card.shadow-hover::before {
+    display: none;
+}
+
+/* Dashboard Header with simpler styling */
+.d-flex.flex-column.flex-md-row {
+    position: relative;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.d-flex.flex-column.flex-md-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+}
+
+/* Remove background patterns */
+.card-header {
+    background-image: none;
+}
+
+/* Update text colors for readability */
+.card-title, .card-text {
+    color: var(--text-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--accent);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Big, bold HELLO-like headers if needed */
+.hero-text {
+    font-size: 5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+}
+/* Kalender Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.calendar-day.other-month {
+    background-color: #918c8c;
+}
+
+.calendar-day.today {
+    background-color: #4d9bc2;
+    font-weight: bold;
+}
+
+.calendar-day.has-vacation {
+    background-color: #ecaa54;
+}
+
+.calendar-day.has-holiday {
+    background-color: #58a763;
+}
+
+.list-group-item {
+    position: relative;
+    padding-right: 4rem;
+}
+
+.vacation-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Aktuelle Projekte Vorschau - Dark Mode Anpassung */
+.card.aktuelle-projekte {
+    background-color: var(--dark-bg); /* Dunkler Hintergrund */
+    border: none;
+    color: var(--light-text); /* Hellere Schriftfarbe */
+}
+
+.card.aktuelle-projekte .card-header {
+    background-color: var(--dark-bg-lighter); /* Etwas heller als der Haupt-Hintergrund */
+    border-bottom: 1px solid var(--border-color); /* Subtile Trennlinie */
+    color: var(--light-text);
+}
+
+.card.aktuelle-projekte .card-body {
+    background-color: var(--dark-bg); /* Dunkler Hintergrund für den Inhalt */
+}
+
+.card.aktuelle-projekte .table {
+    color: var(--light-text); /* Hellere Schriftfarbe für die Tabelle */
+}
+
+.card.aktuelle-projekte .table thead {
+    background-color: var(--dark-bg-lighter); /* Hintergrund für Tabellenkopf */
+    color: var(--accent); /* Akzentfarbe für Kopfzeile */
+}
+
+.card.aktuelle-projekte .table tbody tr:hover {
+    background-color: var(--hover-bg); /* Hover-Effekt für Tabellenzeilen */
+}
+
+.card.aktuelle-projekte .empty-state {
+    color: var(--light-text); /* Hellere Schriftfarbe für leeren Zustand */
+}
+
+.card.aktuelle-projekte .btn-outline-primary {
+    color: var(--accent); /* Akzentfarbe für Buttons */
+    border-color: var(--accent);
+}
+
+.card.aktuelle-projekte .btn-outline-primary:hover {
+    background-color: var(--accent); /* Hover-Effekt für Buttons */
+    color: var(--light-text);
+}
+
+.card.aktuelle-projekte .progress {
+    background-color: var(--dark-bg-lighter); /* Hintergrund für Fortschrittsbalken */
+}
+
+.card.aktuelle-projekte .progress-bar {
+    background-color: var(--accent); /* Akzentfarbe für Fortschrittsbalken */
+}
+/* Statistik-Karte - Horizontaler Layout */
+.stat-card-content {
+    display: flex;
+    align-items: center; /* Vertikale Ausrichtung zentrieren */
+    padding: 1.75rem; /* Platz für Inhalte */
+}
+
+.stat-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    margin-right: 1.5rem; /* Abstand zwischen Icon und Text */
+}
+
+.stat-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Horizontale Ausrichtung zentrieren */
+    font-size: 3rem; /* statt normal 0.75-1rem */
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    color: var(--accent);
+    -webkit-text-fill-color: var(--accent);
+    letter-spacing: -1px;
+}
+</style>
+
+<!-- Script für Kalenderfunktionen -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Kalenderinitalisierung
+    const calendarDays = document.getElementById('calendarDays');
+    const currentMonthYearEl = document.getElementById('currentMonthYear');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    
+    // Projektmodal und Tab-Steuerung
+    const projectsModal = document.getElementById('projectsModal');
+    const statCards = document.querySelectorAll('.stat-card');
+    const tabSelector = document.getElementById('tabSelector');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortSelect = document.getElementById('sortProjects');
+    const projectItems = document.querySelectorAll('.project-item');
+
+    // Aktuelles Datum festlegen
+    let currentDate = new Date();
+    let currentMonth = currentDate.getMonth();
+    let currentYear = currentDate.getFullYear();
+
+    // Urlaubsdaten und Feiertage
+    let vacations = [];
+    
+    // Feiertage (kann durch echte Daten ersetzt werden)
+    const holidays = [
+        { name: 'Neujahr', date: new Date(currentYear, 0, 1) },
+        { name: 'Tag der Arbeit', date: new Date(currentYear, 4, 1) }
+    ];
+
+    // Local Storage Key für Urlaubsdaten
+    const VACATIONS_STORAGE_KEY = 'vacation_data';
+
+    // Lade Urlaubsdaten aus localStorage
+    function loadLocalVacations() {
+        const savedVacations = localStorage.getItem(VACATIONS_STORAGE_KEY);
+        if (savedVacations) {
+            try {
+                // Parse gespeicherte Daten und konvertiere Strings zu Date-Objekten
+                const parsedVacations = JSON.parse(savedVacations);
+                return parsedVacations.map(vacation => ({
+                    ...vacation,
+                    start: new Date(vacation.start),
+                    end: new Date(vacation.end)
+                }));
+            } catch (e) {
+                console.error('Fehler beim Laden der gespeicherten Urlaubsdaten:', e);
+                return [];
+            }
+        }
+        return [];
+    }
+
+    // Speichere Urlaubsdaten im localStorage
+    function saveLocalVacations() {
+        try {
+            localStorage.setItem(VACATIONS_STORAGE_KEY, JSON.stringify(vacations));
+        } catch (e) {
+            console.error('Fehler beim Speichern der Urlaubsdaten:', e);
+        }
+    }
+
+    // Beim Laden der Seite Urlaubsdaten abrufen
+    async function loadVacations() {
+        try {
+            // Versuche zuerst, Daten von der API zu laden
+            const response = await fetch('/api/vacations');
+            if (response.ok) {
+                const data = await response.json();
+                // Konvertiere Datumsstrings zu Date-Objekten
+                vacations = data.map(vacation => ({
+                    ...vacation,
+                    start: new Date(vacation.start),
+                    end: new Date(vacation.end)
+                }));
+            } else {
+                // Wenn API-Aufruf fehlschlägt, lade aus localStorage
+                console.warn('API-Aufruf fehlgeschlagen, verwende lokale Daten');
+                vacations = loadLocalVacations();
+            }
+        } catch (error) {
+            console.error('Fehler beim Laden der Urlaubsdaten:', error);
+            // Bei Fehler lokale Daten laden
+            vacations = loadLocalVacations();
+        }
+        
+        // Kalender und Liste aktualisieren
+        renderCalendar();
+        updateVacationList();
+    }
+
+    // Lade Urlaubsdaten beim Start
+    if (calendarDays) {
+        loadVacations();
+    }
+
+    // Event Listener für Monatswechsel
+    if (prevMonthBtn && nextMonthBtn) {
+        prevMonthBtn.addEventListener('click', function() {
+            if (currentMonth === 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else {
+                currentMonth--;
+            }
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', function() {
+            if (currentMonth === 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else {
+                currentMonth++;
+            }
+            renderCalendar();
+        });
+    }
+
+    // Speichern eines neuen Urlaubs
+    const saveVacationBtn = document.getElementById('saveVacation');
+    if (saveVacationBtn) {
+        saveVacationBtn.addEventListener('click', async function() {
+            const nameInput = document.getElementById('vacationName');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const typeInput = document.getElementById('vacationType');
+            
+            if (!nameInput || !startDateInput || !endDateInput || !typeInput) {
+                console.error('Urlaubsformular-Elemente nicht gefunden');
+                return;
+            }
+            
+            const name = nameInput.value;
+            const startDateStr = startDateInput.value;
+            const endDateStr = endDateInput.value;
+            const type = typeInput.value;
+
+            if (!name || !startDateStr || !endDateStr) {
+                alert('Bitte alle Pflichtfelder ausfüllen!');
+                return;
+            }
+
+            try {
+                // Versuche, den Urlaub über die API zu speichern
+                const response = await fetch('/api/vacations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        name, 
+                        start_date: startDateStr, 
+                        end_date: endDateStr, 
+                        type 
+                    }),
+                });
+
+                if (response.ok) {
+                    await loadVacations(); // Aktualisiere die Anzeige
+                } else {
+                    // Wenn API-Aufruf fehlschlägt, speichere lokal
+                    console.warn('API-Speicherung fehlgeschlagen, speichere lokal');
+                    addLocalVacation(name, startDateStr, endDateStr, type);
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern des Urlaubs:', error);
+                // Fallback: Lokal speichern
+                addLocalVacation(name, startDateStr, endDateStr, type);
+            }
+
+            // Modal schließen und Formular zurücksetzen
+            const newVacationModal = bootstrap.Modal.getInstance(document.getElementById('newVacationModal'));
+            if (newVacationModal) {
+                newVacationModal.hide();
+            }
+            
+            const vacationForm = document.getElementById('vacationForm');
+            if (vacationForm) {
+                vacationForm.reset();
+            }
+        });
+    }
+
+    // Funktion zum lokalen Hinzufügen eines Urlaubs
+    function addLocalVacation(name, startDateStr, endDateStr, type) {
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(endDateStr);
+        
+        // Neuen Urlaub zum Array hinzufügen
+        vacations.push({
+            id: Date.now(), // Verwende Timestamp als eindeutige ID
+            name: name,
+            start: startDate,
+            end: endDate,
+            type: type
+        });
+
+        // Speichere im localStorage
+        saveLocalVacations();
+
+        // Kalender neu rendern
+        renderCalendar();
+
+        // Liste der Urlaube aktualisieren
+        updateVacationList();
+    }
+
+    // Aktualisiert die Liste der Urlaube
+    function updateVacationList() {
+        const vacationList = document.getElementById('vacationList');
+        if (!vacationList) return;
+
+        vacationList.innerHTML = '';
+
+        if (vacations.length === 0) {
+            const emptyItem = document.createElement('li');
+            emptyItem.className = 'list-group-item text-muted';
+            emptyItem.textContent = 'Keine Urlaube eingetragen';
+            vacationList.appendChild(emptyItem);
+            return;
+        }
+
+        vacations.forEach((vacation, index) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+            const infoDiv = document.createElement('div');
+            const nameEl = document.createElement('h6');
+            nameEl.className = 'mb-0';
+            nameEl.textContent = vacation.name;
+
+            const dateEl = document.createElement('small');
+            dateEl.className = 'text-muted d-block';
+            const startDate = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
+            const endDate = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
+            dateEl.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+
+            infoDiv.appendChild(nameEl);
+            infoDiv.appendChild(dateEl);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'vacation-actions';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-icon btn-sm text-danger';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+
+            deleteBtn.addEventListener('click', async function() {
+                if (confirm('Urlaub wirklich löschen?')) {
+                    try {
+                        // Versuche erst, über die API zu löschen
+                        const vacationId = vacation.id || index;
+                        const response = await fetch(`/api/vacations/${vacationId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (response.ok) {
+                            await loadVacations();
+                        } else {
+                            // Fallback: Lokal löschen
+                            vacations.splice(index, 1);
+                            saveLocalVacations(); // Speichere die Änderung
+                            updateVacationList();
+                            renderCalendar();
+                        }
+                    } catch (error) {
+                        console.error('Fehler beim Löschen des Urlaubs:', error);
+                        // Fallback: Lokal löschen
+                        vacations.splice(index, 1);
+                        saveLocalVacations(); // Speichere die Änderung
+                        updateVacationList();
+                        renderCalendar();
+                    }
+                }
+            });
+
+            actionsDiv.appendChild(deleteBtn);
+            listItem.appendChild(infoDiv);
+            listItem.appendChild(actionsDiv);
+            vacationList.appendChild(listItem);
+        });
+    }
+
+    // Formatiert ein Datum im deutschen Format
+    function formatDate(date) {
+        if (!(date instanceof Date) || isNaN(date)) {
+            console.error('Ungültiges Datum:', date);
+            return 'Ungültiges Datum';
+        }
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    }
+
+    // Hilfsfunktion für Datumsformatierung in Input-Felder
+    function formatDateForInput(date) {
+        if (!(date instanceof Date) || isNaN(date)) {
+            console.error('Ungültiges Datum für Input:', date);
+            return '';
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Rendert den Kalender
+    function renderCalendar() {
+        if (!calendarDays || !currentMonthYearEl) return;
+
+        const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
+                           'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+        currentMonthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+        // Kalender leeren
+        calendarDays.innerHTML = '';
+
+        // Ersten Tag des Monats bestimmen
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        let startingDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sonntag, 1 = Montag,...
+        // Anpassen für Montag als ersten Tag der Woche
+        if (startingDayOfWeek === 0) startingDayOfWeek = 7;
+        startingDayOfWeek--; // 0 = Montag, 1 = Dienstag,...
+
+        // Letzten Tag des Monats bestimmen
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+
+        // Tage des vorherigen Monats anzeigen
+        const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            const dayEl = createDayElement(prevMonthDays - startingDayOfWeek + i + 1, 'other-month');
+            calendarDays.appendChild(dayEl);
+        }
+
+        // Tage des aktuellen Monats anzeigen
+        const today = new Date();
+        for (let i = 1; i <= daysInMonth; i++) {
+            const isToday = today.getDate() === i && 
+                            today.getMonth() === currentMonth && 
+                            today.getFullYear() === currentYear;
+            const dayEl = createDayElement(i, 'current-month' + (isToday ? ' today' : ''));
+
+            // Prüfen, ob an diesem Tag ein Urlaub ist
+            const currentDateObj = new Date(currentYear, currentMonth, i);
+            const hasVacation = checkForVacation(currentDateObj);
+            const hasHoliday = checkForHoliday(currentDateObj);
+
+            if (hasVacation) {
+                dayEl.classList.add('has-vacation');
+                // Tooltips für Urlaub
+                dayEl.setAttribute('data-bs-toggle', 'tooltip');
+                dayEl.setAttribute('data-bs-html', 'true');
+
+                // Erhalte alle Urlaubspersonen für diesen Tag
+                const vacationPersons = getVacationPersons(currentDateObj);
+                dayEl.setAttribute('data-bs-title', vacationPersons.join('<br>'));
+            }
+
+            if (hasHoliday) {
+                dayEl.classList.add('has-holiday');
+                // Tooltips für Feiertage
+                const holiday = holidays.find(h => h.date.getDate() === i && 
+                                    h.date.getMonth() === currentMonth &&
+                                    h.date.getFullYear() === currentYear);
+                if (holiday) {
+                    dayEl.setAttribute('data-bs-toggle', 'tooltip');
+                    dayEl.setAttribute('data-bs-title', holiday.name);
+                }
+            }
+
+            calendarDays.appendChild(dayEl);
+        }
+
+        // Tage des nächsten Monats anzeigen
+        const totalDaysShown = startingDayOfWeek + daysInMonth;
+        const nextMonthDays = 42 - totalDaysShown; // 6 Reihen x 7 Tage = 42
+        for (let i = 1; i <= nextMonthDays; i++) {
+            const dayEl = createDayElement(i, 'other-month');
+            calendarDays.appendChild(dayEl);
+        }
+
+        // Tooltips initialisieren
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // Helfer-Funktion zum Erstellen von Tageselementen
+    function createDayElement(day, className) {
+        const dayEl = document.createElement('div');
+        dayEl.className = `calendar-day col ${className}`;
+        dayEl.textContent = day;
+
+        // Klick-Event für den Tag
+        dayEl.addEventListener('click', function() {
+            showDayDetails(day, className);
+        });
+
+        return dayEl;
+    }
+
+    // Prüft, ob an einem bestimmten Tag ein Urlaub ist
+    function checkForVacation(date) {
+        return vacations.some(vacation => {
+            const start = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
+            const end = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
+            
+            // Setze Zeiten auf 00:00:00 für korrekten Vergleich
+            const checkDate = new Date(date);
+            checkDate.setHours(0, 0, 0, 0);
+            
+            const checkStart = new Date(start);
+            checkStart.setHours(0, 0, 0, 0);
+            
+            const checkEnd = new Date(end);
+            checkEnd.setHours(0, 0, 0, 0);
+            
+            return checkDate >= checkStart && checkDate <= checkEnd;
+        });
+    }
+
+    // Prüft, ob ein bestimmter Tag ein Feiertag ist
+    function checkForHoliday(date) {
+        return holidays.some(holiday => {
+            return date.getDate() === holiday.date.getDate() &&
+                   date.getMonth() === holiday.date.getMonth() &&
+                   date.getFullYear() === holiday.date.getFullYear();
+        });
+    }
+
+    // Gibt alle Personen zurück, die an einem bestimmten Tag im Urlaub sind
+    function getVacationPersons(date) {
+        const personsOnVacation = [];
+        vacations.forEach(vacation => {
+            const start = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
+            const end = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
+            
+            // Setze Zeiten auf 00:00:00 für korrekten Vergleich
+            const checkDate = new Date(date);
+            checkDate.setHours(0, 0, 0, 0);
+            
+            const checkStart = new Date(start);
+            checkStart.setHours(0, 0, 0, 0);
+            
+            const checkEnd = new Date(end);
+            checkEnd.setHours(0, 0, 0, 0);
+            
+            if (checkDate >= checkStart && checkDate <= checkEnd) {
+                personsOnVacation.push(vacation.name);
+            }
+        });
+        return personsOnVacation;
+    }
+
+    // Zeigt Details zu einem bestimmten Tag an
+    function showDayDetails(day, className) {
+        if (className.includes('other-month')) return;
+        const selectedDate = new Date(currentYear, currentMonth, day);
+
+        const vacationPersons = getVacationPersons(selectedDate);
+        if (vacationPersons.length > 0) {
+            alert(`Urlaub am ${day}.${currentMonth + 1}.${currentYear}:\n${vacationPersons.join('\n')}`);
+        } else {
+            // Hier könnte man ein Modal zum Hinzufügen eines neuen Urlaubs öffnen
+            const newVacationModal = new bootstrap.Modal(document.getElementById('newVacationModal'));
+            if (newVacationModal) {
+                // Datum im Modal vorausfüllen
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                
+                if (startDateInput && endDateInput) {
+                    startDateInput.value = formatDateForInput(selectedDate);
+                    endDateInput.value = formatDateForInput(selectedDate);
+                }
+                
+                newVacationModal.show();
+            }
+        }
+    }
+
+    // Projektmodal-Funktionalitäten
+    if (projectsModal) {
+        projectsModal.addEventListener('show.bs.modal', function(event) {
+            // Button, der das Modal ausgelöst hat
+            const button = event.relatedTarget;
+            
+            // Tabziel aus dem data-tab-target-Attribut extrahieren
+            const tabTarget = button && button.getAttribute('data-tab-target');
+            
+            if (tabTarget) {
+                // Entsprechenden Tab aktivieren
+                const tab = document.getElementById(tabTarget);
+                if (tab) {
+                    // Bootstrap Tab-Objekt erstellen und aktivieren
+                    const bsTab = new bootstrap.Tab(tab);
+                    bsTab.show();
+                    
+                    // Dropdown für mobile Ansicht aktualisieren
+                    if (tabSelector) {
+                        tabSelector.value = tabTarget.replace('-tab', '');
+                    }
+                }
+            }
+        });
+
+        // Animation für Modal hinzufügen
+        projectsModal.addEventListener('shown.bs.modal', function() {
+            const projectItems = document.querySelectorAll('.project-item');
+            projectItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    }
+    
+    // Hover-Animation für Statistikkarten
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const iconWrapper = this.querySelector('.stat-icon-wrapper');
+            if (iconWrapper) {
+                iconWrapper.style.animation = 'pulse 1s infinite';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const iconWrapper = this.querySelector('.stat-icon-wrapper');
+            if (iconWrapper) {
+                iconWrapper.style.animation = '';
+            }
+        });
+    });
+    
+    // Mobile Tab-Selector
+    if (tabSelector) {
+        tabSelector.addEventListener('change', function() {
+            const selectedValue = this.value;
+            const tabId = selectedValue + '-tab';
+            const tab = document.getElementById(tabId);
+            
+            if (tab) {
+                const bsTab = new bootstrap.Tab(tab);
+                bsTab.show();
+            }
+        });
+    }
+    
+    // Event-Listener für Tab-Wechsel zur Synchronisierung des Dropdown-Selectors
+    const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabElements.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const tabId = event.target.id;
+            const tabValue = tabId.replace('-tab', '');
+            
+            if (tabSelector) {
+                tabSelector.value = tabValue;
+            }
+        });
+    });
+    
+    // Filter- und Suchfunktion für Projekte
+    function filterProjects() {
+        if (!searchInput || !statusFilter || !projectItems.length) return;
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        let visibleCount = 0;
+        
+        projectItems.forEach(item => {
+            const projectName = item.getAttribute('data-name').toLowerCase();
+            const projectStatus = item.getAttribute('data-status');
+            
+            const matchesSearch = projectName.includes(searchTerm);
+            const matchesStatus = statusValue === 'all' || projectStatus === statusValue;
+            
+            if (matchesSearch && matchesStatus) {
+                item.style.display = '';
+                visibleCount++;
+                
+                // Animation beim Anzeigen hinzufügen
+                item.style.animation = 'fadeIn 0.3s ease forwards';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Wenn keine Ergebnisse gefunden wurden, zeige eine Nachricht an
+        const noResultsMsg = document.getElementById('noResultsMessage');
+        const projectContainer = document.querySelector('.project-cards');
+        
+        if (visibleCount === 0 && projectContainer) {
+            if (!noResultsMsg) {
+                const msgDiv = document.createElement('div');
+                msgDiv.id = 'noResultsMessage';
+                msgDiv.className = 'text-center py-4 mt-3';
+                msgDiv.innerHTML = `
+                    <i class="fas fa-search fa-2x text-muted mb-3"></i>
+                    <h5>Keine Projekte gefunden</h5>
+                    <p class="text-muted">Versuchen Sie es mit anderen Suchbegriffen oder Filtern</p>
+                `;
+                
+                projectContainer.appendChild(msgDiv);
+            }
+        } else if (noResultsMsg) {
+            noResultsMsg.remove();
+        }
+    }
+    
+    // Sortierung von Projekten
+    function sortProjects() {
+        if (!sortSelect || !projectItems.length) return;
+        
+        const sortValue = sortSelect.value;
+        const projectContainer = document.querySelector('.project-cards');
+        if (!projectContainer) return;
+        
+        const projectsArray = Array.from(projectItems);
+        
+        projectsArray.sort((a, b) => {
+            const aName = a.getAttribute('data-name').toLowerCase();
+            const bName = b.getAttribute('data-name').toLowerCase();
+            const aDate = a.getAttribute('data-date');
+            const bDate = b.getAttribute('data-date');
+            
+            if (sortValue === 'az') {
+                return aName.localeCompare(bName);
+            } else if (sortValue === 'za') {
+                return bName.localeCompare(aName);
+            } else if (sortValue === 'newest') {
+                return bDate.localeCompare(aDate);
+            } else if (sortValue === 'oldest') {
+                return aDate.localeCompare(bDate);
+            }
+            return 0;
+        });
+        
+        projectsArray.forEach(project => {
+            projectContainer.appendChild(project);
+        });
+    }
+    
+    // Event-Listener für Suchfunktionen
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(filterProjects, 300);
+        });
+    }
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterProjects);
+    }
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            sortProjects();
+            filterProjects();
+        });
+    }
+    
+    // Direkter Aufruf des Modals mit URL-Parameter
+    function checkForModalParameter() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modalParam = urlParams.get('modal');
+        const tabParam = urlParams.get('tab');
+        
+        if (modalParam === 'projects' && projectsModal) {
+            const modal = new bootstrap.Modal(projectsModal);
+            modal.show();
+            
+            if (tabParam) {
+                const tabId = tabParam + '-tab';
+                const tabElement = document.getElementById(tabId);
+                
+                if (tabElement) {
+                    const tab = new bootstrap.Tab(tabElement);
+                    tab.show();
+                    
+                    // Dropdown für mobile Ansicht aktualisieren
+                    if (tabSelector) {
+                        tabSelector.value = tabParam;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Prüfen, ob das Modal angezeigt werden soll
+    checkForModalParameter();
+    
+    // Touch-optimierte Interaktionen für mobile Geräte
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('touchstart', function() {
+            this.classList.add('nav-link-touch');
+        });
+        
+        link.addEventListener('touchend', function() {
+            this.classList.remove('nav-link-touch');
+        });
+    });
+    
+    // Verbessertes visuelles Feedback beim Hover für alle interaktiven Elemente
+    const hoverCards = document.querySelectorAll('.hover-card, .project-card');
+    hoverCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transition = 'all 0.3s ease';
+        });
+    });
+    
+    // Initialer Kalender-Render, wenn die Elemente existieren
+    if (calendarDays) {
+        renderCalendar();
+    }
+});
+</script>
 {% endblock %}

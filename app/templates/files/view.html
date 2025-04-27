@@ -1,7 +1,5 @@
 <!-- app/templates/files/view.html -->
-
 {% extends "base.html" %}
-
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-file"></i> {{ file.filename }}</h1>
@@ -24,30 +22,30 @@
             <div class="card-body text-center p-3">
                 <div class="file-preview-container">
                     {% if file.content_type.startswith('image/') %}
-                        <img src="{{ url_for('files.get_file', file_id=file.id) }}" class="img-fluid" alt="{{ file.filename }}">
+                    <img src="{{ url_for('files.get_file', file_id=file.id) }}" class="img-fluid" alt="{{ file.filename }}">
                     {% elif file.content_type.startswith('video/') %}
-                        <video controls class="img-fluid w-100">
-                            <source src="{{ url_for('files.get_file', file_id=file.id) }}" type="{{ file.content_type }}">
-                            Ihr Browser unterstützt keine Videowiedergabe.
-                        </video>
+                    <video controls class="img-fluid w-100">
+                        <source src="{{ url_for('files.get_file', file_id=file.id) }}" type="{{ file.content_type }}">
+                        Ihr Browser unterstützt keine Videowiedergabe.
+                    </video>
                     {% elif file.content_type == 'application/pdf' %}
-                        <div class="ratio ratio-16x9">
-                            <embed src="{{ url_for('files.get_file', file_id=file.id) }}" type="application/pdf" width="100%" height="600px">
-                        </div>
+                    <div class="ratio ratio-16x9">
+                        <embed src="{{ url_for('files.get_file', file_id=file.id) }}" type="application/pdf" width="100%" height="600px">
+                    </div>
                     {% else %}
-                        <div class="no-preview">
-                            <i class="fas fa-file fa-5x mb-3"></i>
-                            <p>Keine Vorschau verfügbar für diesen Dateityp</p>
-                            <a href="{{ url_for('files.get_file', file_id=file.id) }}" class="btn btn-primary" download>
-                                <i class="fas fa-download"></i> Datei herunterladen
-                            </a>
-                        </div>
+                    <div class="no-preview">
+                        <i class="fas fa-file fa-5x mb-3"></i>
+                        <p>Keine Vorschau verfügbar für diesen Dateityp</p>
+                        <a href="{{ url_for('files.get_file', file_id=file.id) }}" class="btn btn-primary" download>
+                            <i class="fas fa-download"></i> Datei herunterladen
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
+    
     <div class="col-md-4">
         <div class="card shadow mb-4">
             <div class="card-header bg-primary text-white">
@@ -64,42 +62,166 @@
                             <th scope="row">Kategorie:</th>
                             <td>
                                 {% if file.category == 'photos' %}
-                                    <span class="badge bg-info">Fotos</span>
+                                <!-- app/templates/files/view.html (Fortsetzung) -->
+                                <span class="badge bg-info">Fotos</span>
                                 {% elif file.category == 'videos' %}
-                                    <span class="badge bg-warning">Videos</span>
-                                {% elif file.category == 'reports' %}
-                                    <span class="badge bg-success">Prüfberichte</span>
+                                <span class="badge bg-danger">Videos</span>
                                 {% elif file.category == 'timesheets' %}
-                                    <span class="badge bg-secondary">Arbeitsstunden</span>
+                                <span class="badge bg-warning">Stundenberichte</span>
+                                {% elif file.category == 'reports' %}
+                                <span class="badge bg-success">Prüfberichte</span>
                                 {% else %}
-                                    <span class="badge bg-light text-dark">Sonstiges</span>
+                                <span class="badge bg-secondary">Sonstiges</span>
                                 {% endif %}
                             </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Dateigröße:</th>
+                            <td>{{ (file.size / 1024)|round|int }} KB</td>
                         </tr>
                         <tr>
                             <th scope="row">Dateityp:</th>
                             <td>{{ file.content_type }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Dateigröße:</th>
-                            <td>{{ (file.size / 1024 / 1024) | round(2) }} MB</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Hochgeladen am:</th>
+                            <th scope="row">Hochgeladen:</th>
                             <td>{{ file.upload_date.strftime('%d.%m.%Y %H:%M') }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Hochgeladen von:</th>
-                            <td>{{ file.uploader.username }}</td>
+                            <td>{{ file.uploaded_by.username }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Projekt-ID:</th>
-                            <td>{{ file.project_id }}</td>
+                            <th scope="row">Projekt:</th>
+                            <td>
+                                <a href="{{ url_for('projects.view_project', project_id=file.project_id) }}">
+                                    {{ file.project.name }}
+                                </a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+                
+                <hr>
+                
+                <h6>Beschreibung:</h6>
+                <p>{{ file.description or 'Keine Beschreibung vorhanden.' }}</p>
+                
+                {% if current_user.is_admin or file.uploaded_by_id == current_user.id %}
+                <hr>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editFileModal">
+                        <i class="fas fa-edit"></i> Bearbeiten
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteFileModal">
+                        <i class="fas fa-trash"></i> Löschen
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Datei bearbeiten Modal -->
+<div class="modal fade" id="editFileModal" tabindex="-1" aria-labelledby="editFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="editFileModalLabel">Datei bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('files.edit_file', file_id=file.id) }}">
+                <div class="modal-body">
+                    {{ edit_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ edit_form.filename.label(class="form-label") }}
+                        {{ edit_form.filename(class="form-control", value=file.filename) }}
+                        {% if edit_form.filename.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in edit_form.filename.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ edit_form.category.label(class="form-label") }}
+                        {{ edit_form.category(class="form-select") }}
+                        {% if edit_form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in edit_form.category.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ edit_form.description.label(class="form-label") }}
+                        {{ edit_form.description(class="form-control", rows=3, value=file.description) }}
+                        {% if edit_form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in edit_form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-warning">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Datei löschen Modal -->
+<div class="modal fade" id="deleteFileModal" tabindex="-1" aria-labelledby="deleteFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteFileModalLabel">Datei löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('files.delete_file') }}">
+                <div class="modal-body">
+                    {{ delete_form.hidden_tag() }}
+                    {{ delete_form.file_id(value=file.id) }}
+                    <p>Möchten Sie die Datei <strong>{{ file.filename }}</strong> wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Kategorie im Edit-Formular vorauswählen
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('category');
+        if (categorySelect) {
+            categorySelect.value = '{{ file.category }}';
+        }
+    });
+</script>
+
+<style>
+    .file-preview-container {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .no-preview {
+        text-align: center;
+        color: #6c757d;
+        padding: 50px 0;
+    }
+</style>
 {% endblock %}

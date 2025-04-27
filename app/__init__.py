@@ -6,6 +6,7 @@ from config import Config
 import os
 from flask_migrate import Migrate
 
+
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -39,5 +40,8 @@ def create_app(config_class=Config):
     
     from app.routes.admin import admin as admin_bp
     app.register_blueprint(admin_bp)
+
+    from app.routes.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     return app

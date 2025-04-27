@@ -1,92 +1,262 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form method="POST" action="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}">
-    {{ form.hidden_tag() }} <!-- CSRF-Schutz -->
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="mb-3">
-                {{ form.date.label(class="form-label") }}
-                {{ form.date(class="form-control", type="date") }}
-                {% if form.date.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.date.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                {{ form.hours.label(class="form-label") }}
-                <div class="input-group">
-                    {{ form.hours(class="form-control") }}
-                    <span class="input-group-text">Stunden</span>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Stundenerfassung
+                    </h3>
+                    <span class="badge bg-light text-primary">{{ project.name }}</span>
                 </div>
-                {% if form.hours.errors %}
-                    <div class="invalid-feedback d-block">
-                        {% for error in form.hours.errors %}
-                            {{ error }}
-                        {% endfor %}
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">Erfassen Sie Ihre Arbeitszeit für das Projekt "{{ project.name }}"</p>
+
+                    <form method="POST" action="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" id="timesheet-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date", id="date-input") }}
+                                    <label for="date-input" class="form-label">
+                                        <i class="far fa-calendar-alt me-2"></i>{{ form.date.label.text }}
+                                    </label>
+                                    {% if form.date.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <div class="input-group">
+                                        {{ form.hours(class="form-control" + (" is-invalid" if form.hours.errors else ""), id="hours-input", placeholder="0.00") }}
+                                        <span class="input-group-text bg-light">Stunden</span>
+                                    </div>
+                                    <label for="hours-input" class="form-label ps-4">
+                                        <i class="fas fa-hourglass-half me-2"></i>{{ form.hours.label.text }}
+                                    </label>
+                                    {% if form.hours.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.hours.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Zeit-Slider (optionale visuelle Hilfe) -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Schnellauswahl</label>
+                                <span id="time-display" class="badge bg-primary">4 Stunden</span>
+                            </div>
+                            <input type="range" class="form-range" min="0.5" max="10" step="0.5" id="time-slider" value="4">
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span>0.5h</span>
+                                <span>2h</span>
+                                <span>4h</span>
+                                <span>6h</span>
+                                <span>8h</span>
+                                <span>10h</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Tätigkeitsauswahl mit Icons -->
+                        <div class="mb-4">
+                            <label for="activity-select" class="form-label fw-bold">
+                                <i class="fas fa-tasks me-2"></i>{{ form.activity.label.text }}
+                            </label>
+                            <div class="activity-cards mb-3">
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <div class="activity-card" data-value="entwicklung">
+                                            <i class="fas fa-code fa-2x mb-2"></i>
+                                            <span>Entwicklung</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="activity-card" data-value="konzeption">
+                                            <i class="fas fa-sitemap fa-2x mb-2"></i>
+                                            <span>Konzeption</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="activity-card" data-value="meeting">
+                                            <i class="fas fa-users fa-2x mb-2"></i>
+                                            <span>Meeting</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="activity-card" data-value="andere">
+                                            <i class="fas fa-plus fa-2x mb-2"></i>
+                                            <span>Andere</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ form.activity(class="form-select" + (" is-invalid" if form.activity.errors else ""), id="activity-select") }}
+                            {% if form.activity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.activity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Textfeld für andere Tätigkeit -->
+                        <div id="other-activity-div" style="display:none;" class="mb-4 animate__animated animate__fadeIn">
+                            <label for="{{ form.other_activity.id }}" class="form-label fw-bold">
+                                <i class="fas fa-edit me-2"></i>{{ form.other_activity.label.text }}
+                            </label>
+                            {{ form.other_activity(class="form-control" + (" is-invalid" if form.other_activity.errors else ""), placeholder="Bitte geben Sie Ihre Tätigkeit ein...") }}
+                            {% if form.other_activity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.other_activity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Notizen mit Markdown-Hinweis -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id }}" class="form-label fw-bold">
+                                <i class="fas fa-sticky-note me-2"></i>{{ form.notes.label.text }}
+                            </label>
+                            <div class="notes-container position-relative">
+                                {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows=4, placeholder="Beschreiben Sie Ihre durchgeführten Tätigkeiten...") }}
+                                <div class="character-counter small text-muted position-absolute bottom-0 end-0 m-2">
+                                    <span id="char-count">0</span>/500
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <small>Markdown wird unterstützt. Verwenden Sie *kursiv* oder **fett** für Formatierungen.</small>
+                            </div>
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tagging-System (optional) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tags me-2"></i>Tags (optional)
+                            </label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" placeholder="Neuen Tag eingeben..." id="tag-input">
+                                <button class="btn btn-outline-secondary" type="button" id="add-tag-btn">Hinzufügen</button>
+                            </div>
+                            <div id="tags-container" class="d-flex flex-wrap gap-2 mt-2">
+                                <!-- Tags werden hier per JS eingefügt -->
+                            </div>
+                            <input type="hidden" name="tags" id="tags-hidden">
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Speichern-Button mit Keyboard Shortcut -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-2"></i>Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i class="fas fa-save me-2"></i>Speichern (Strg+Enter)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light py-3">
+                    <div class="small text-muted">
+                        <i class="fas fa-info-circle me-1"></i> Änderungen können später noch vorgenommen werden
                     </div>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Tätigkeitsauswahl -->
-    <div class="mb-3">
-        {{ form.activity.label(class="form-label") }}
-        {{ form.activity(class="form-control", id="activity-select") }}
-        {% if form.activity.errors %}
-            <div class="invalid-feedback d-block">
-                {% for error in form.activity.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+<style>
+.activity-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
-    <!-- Textfeld für andere Tätigkeit -->
-    <div id="other-activity-div" style="display:none;" class="mb-3">
-        {{ form.other_activity.label(class="form-label") }}
-        {{ form.other_activity(class="form-control") }}
-        {% if form.other_activity.errors %}
-            <div class="invalid-feedback d-block">
-                {% for error in form.other_activity.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+.activity-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-color: var(--bs-primary);
+}
 
-    <!-- Notizen -->
-    <div class="mb-3">
-        {{ form.notes.label(class="form-label") }}
-        {{ form.notes(class="form-control", rows=4) }}
-        {% if form.notes.errors %}
-            <div class="invalid-feedback d-block">
-                {% for error in form.notes.errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+.activity-card.active {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
 
-    <!-- Speichern-Button -->
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i> Speichern
-        </button>
-    </div>
-</form>
+.notes-container {
+    position: relative;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    margin-right: 5px;
+    font-size: 0.875rem;
+}
+
+.tag .remove-tag {
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate__fadeIn {
+    animation: fadeIn 0.3s ease;
+}
+
+.form-floating > .input-group {
+    flex-direction: row;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tätigkeitsauswahl Logik
     const activitySelect = document.getElementById('activity-select');
     const otherActivityDiv = document.getElementById('other-activity-div');
+    const activityCards = document.querySelectorAll('.activity-card');
     
     function toggleOtherActivity() {
         if (activitySelect.value === 'andere') {
@@ -94,11 +264,122 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             otherActivityDiv.style.display = 'none';
         }
+        updateActiveCard();
     }
+    
+    function updateActiveCard() {
+        activityCards.forEach(card => {
+            if (card.getAttribute('data-value') === activitySelect.value) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
+            }
+        });
+    }
+    
+    activityCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const value = this.getAttribute('data-value');
+            activitySelect.value = value;
+            toggleOtherActivity();
+        });
+    });
     
     activitySelect.addEventListener('change', toggleOtherActivity);
     toggleOtherActivity(); // Initial check
+    
+    // Zeit-Slider
+    const timeSlider = document.getElementById('time-slider');
+    const timeDisplay = document.getElementById('time-display');
+    const hoursInput = document.getElementById('hours-input');
+    
+    function updateTimeDisplay() {
+        const hours = timeSlider.value;
+        timeDisplay.textContent = `${hours} Stunden`;
+        hoursInput.value = hours;
+    }
+    
+    timeSlider.addEventListener('input', updateTimeDisplay);
+    hoursInput.addEventListener('input', function() {
+        if (this.value && !isNaN(this.value) && this.value >= 0.5 && this.value <= 10) {
+            timeSlider.value = this.value;
+            timeDisplay.textContent = `${this.value} Stunden`;
+        }
+    });
+    
+    // Tagging-System
+    const tagInput = document.getElementById('tag-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const tagsContainer = document.getElementById('tags-container');
+    const tagsHidden = document.getElementById('tags-hidden');
+    let tags = [];
+    
+    function updateTags() {
+        tagsContainer.innerHTML = '';
+        tags.forEach(tag => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag';
+            tagEl.innerHTML = `${tag} <span class="remove-tag" data-tag="${tag}">×</span>`;
+            tagsContainer.appendChild(tagEl);
+        });
+        
+        tagsHidden.value = JSON.stringify(tags);
+        
+        // Event für Tag-Entfernung
+        document.querySelectorAll('.remove-tag').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tagToRemove = this.getAttribute('data-tag');
+                tags = tags.filter(tag => tag !== tagToRemove);
+                updateTags();
+            });
+        });
+    }
+    
+    addTagBtn.addEventListener('click', function() {
+        const tag = tagInput.value.trim();
+        if (tag && !tags.includes(tag)) {
+            tags.push(tag);
+            updateTags();
+            tagInput.value = '';
+        }
+    });
+    
+    tagInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTagBtn.click();
+        }
+    });
+    
+    // Zeichenzähler für Notizen
+    const notesTextarea = document.getElementById('{{ form.notes.id }}');
+    const charCount = document.getElementById('char-count');
+    
+    notesTextarea.addEventListener('input', function() {
+        charCount.textContent = this.value.length;
+        if (this.value.length > 450) {
+            charCount.classList.add('text-danger');
+        } else {
+            charCount.classList.remove('text-danger');
+        }
+    });
+    
+    // Tastenkürzel (Strg+Enter zum Speichern)
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            document.getElementById('save-btn').click();
+        }
+    });
+    
+    // Heutiges Datum als Standard
+    const dateInput = document.getElementById('date-input');
+    if (!dateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
 });
 </script>
-
 {% endblock %}

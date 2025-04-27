@@ -1,0 +1,260 @@
+<!-- app/templates/admin/projects.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-briefcase"></i> Projektverwaltung</h1>
+    <div>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Zurück zum Admin Dashboard
+        </a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+            <i class="fas fa-plus"></i> Neues Projekt
+        </button>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Projektübersicht</h5>
+        <div class="input-group" style="max-width: 300px;">
+            <input type="text" id="searchInput" class="form-control" placeholder="Projekte suchen...">
+            <button class="btn btn-outline-light" type="button" id="searchButton">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="btn-group mb-3">
+            <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">Alle</button>
+            <button type="button" class="btn btn-outline-primary filter-btn" data-filter="in_progress">In Bearbeitung</button>
+            <button type="button" class="btn btn-outline-primary filter-btn" data-filter="completed">Abgeschlossen</button>
+            <button type="button" class="btn btn-outline-primary filter-btn" data-filter="archived">Archiviert</button>
+        </div>
+        
+        {% if projects %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="projectsTable">
+                <thead>
+                    <tr>
+                        <th>Projektname</th>
+                        <th>Erstellt am</th>
+                        <th>Erstellt von</th>
+                        <th>Status</th>
+                        <th>Dateien</th>
+                        <th>Stundenberichte</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr class="project-row" data-status="{{ project.status }}">
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ project.created_by.username }}</td>
+                        <td>
+                            {% if project.status == 'in_progress' %}
+                            <span class="badge bg-info">In Bearbeitung</span>
+                            {% elif project.status == 'completed' %}
+                            <span class="badge bg-success">Abgeschlossen</span>
+                            {% elif project.status == 'archived' %}
+                            <span class="badge bg-secondary">Archiviert</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ project.files|length }}</td>
+                        <td>{{ project.timesheets|length }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" 
+                                        data-bs-target="#changeStatusModal" data-project-id="{{ project.id }}" 
+                                        data-project-name="{{ project.name }}" data-project-status="{{ project.status }}">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+                                        data-bs-target="#deleteProjectModal" data-project-id="{{ project.id }}" 
+                                        data-project-name="{{ project.name }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Keine Projekte gefunden.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Neues Projekt Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addProjectModalLabel">Neues Projekt anlegen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.add_project') }}">
+                <div class="modal-body">
+                    {{ add_project_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ add_project_form.name.label(class="form-label") }}
+                        {{ add_project_form.name(class="form-control", placeholder="Adresse des Projekts") }}
+                        {% if add_project_form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in add_project_form.name.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ add_project_form.description.label(class="form-label") }}
+                        {{ add_project_form.description(class="form-control", rows=3) }}
+                        {% if add_project_form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in add_project_form.description.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Anlegen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Status ändern Modal -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="changeStatusModalLabel">Projektstatus ändern</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.change_project_status') }}">
+                <div class="modal-body">
+                    {{ status_form.hidden_tag() }}
+                    {{ status_form.project_id }}
+                    <p>Projektstatus für <strong id="statusProjectName"></strong> ändern:</p>
+                    <div class="mb-3">
+                        {{ status_form.status.label(class="form-label") }}
+                        {{ status_form.status(class="form-select") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Status ändern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Projekt löschen Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteProjectModalLabel">Projekt löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.delete_project') }}">
+                <div class="modal-body">
+                    {{ delete_form.hidden_tag() }}
+                    {{ delete_form.project_id }}
+                    <p>Möchten Sie das Projekt <strong id="deleteProjectName"></strong> wirklich löschen?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Achtung: Alle zugehörigen Dateien und Stundenberichte werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Status ändern Modal
+    document.getElementById('changeStatusModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var projectId = button.getAttribute('data-project-id');
+        var projectName = button.getAttribute('data-project-name');
+        var projectStatus = button.getAttribute('data-project-status');
+        
+        var modal = document.getElementById('changeStatusModal');
+        modal.querySelector('#project_id-status').value = projectId;
+        modal.querySelector('#statusProjectName').textContent = projectName;
+        modal.querySelector('#status').value = projectStatus;
+    });
+    
+    // Projekt löschen Modal
+    document.getElementById('deleteProjectModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var projectId = button.getAttribute('data-project-id');
+        var projectName = button.getAttribute('data-project-name');
+        
+        var modal = document.getElementById('deleteProjectModal');
+        modal.querySelector('#project_id-delete').value = projectId;
+        modal.querySelector('#deleteProjectName').textContent = projectName;
+    });
+    
+    // Projektfilter
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Toggle active class
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Filter projects
+            const filter = this.getAttribute('data-filter');
+            const rows = document.querySelectorAll('.project-row');
+            
+            rows.forEach(row => {
+                if (filter === 'all' || row.getAttribute('data-status') === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Projektsuche
+    document.getElementById('searchInput').addEventListener('keyup', searchProjects);
+    document.getElementById('searchButton').addEventListener('click', searchProjects);
+    
+    function searchProjects() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.project-row');
+        
+        rows.forEach(row => {
+            const projectName = row.querySelector('td:first-child').textContent.toLowerCase();
+            if (projectName.includes(searchTerm)) {
+                if (row.style.display !== 'none' || document.querySelector('.filter-btn.active').getAttribute('data-filter') === 'all' || 
+                    row.getAttribute('data-status') === document.querySelector('.filter-btn.active').getAttribute('data-filter')) {
+                    row.style.display = '';
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

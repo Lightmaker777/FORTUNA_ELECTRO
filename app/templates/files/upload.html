@@ -1,18 +1,153 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Datei hochladen</h1>
-  <form method="POST" enctype="multipart/form-data">
-      {{ form.hidden_tag() }}
-      <div class="form-group">
-          {{ form.file_type.label }}<br>
-          {{ form.file_type(class="form-control") }}
-      </div>
-      <div class="form-group">
-          {{ form.file.label }}<br>
-          {{ form.file(class="form-control-file") }}
-      </div>
-      <button type="submit" class="btn btn-primary">Hochladen</button>
-  </form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Datei hochladen</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">Wählen Sie den Dateityp und die hochzuladende Datei aus</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" id="upload-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.file_type.id }}" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2"></i>{{ form.file_type.label.text }}
+                            </label>
+                            {{ form.file_type(class="form-select") }}
+                            <div class="form-text">Bitte wählen Sie einen passenden Dateityp aus</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.file.id }}" class="form-label fw-bold">
+                                <i class="fas fa-file me-2"></i>{{ form.file.label.text }}
+                            </label>
+                            <div class="upload-area p-5 border rounded text-center mb-3" id="drop-area">
+                                <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                                <p class="mb-2">Dateien hier ablegen oder klicken zum Auswählen</p>
+                                <p class="small text-muted">Maximale Dateigröße: 10 MB</p>
+                                {{ form.file(class="form-control", style="display: none;") }}
+                                <button type="button" class="btn btn-outline-primary" id="browse-button">
+                                    <i class="fas fa-folder-open me-2"></i>Durchsuchen
+                                </button>
+                            </div>
+                            <div id="file-info" class="d-none alert alert-info">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-alt me-3 fa-2x"></i>
+                                    <div>
+                                        <span id="file-name">Keine Datei ausgewählt</span>
+                                        <div class="progress mt-2" style="height: 5px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm text-danger ms-auto" id="remove-file">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="upload-button">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>Hochladen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('{{ form.file.id }}');
+    const browseButton = document.getElementById('browse-button');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const removeFileBtn = document.getElementById('remove-file');
+    const progressBar = document.querySelector('.progress-bar');
+    
+    // Klick auf den Browse-Button leitet zum versteckten File-Input
+    browseButton.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // Datei wurde ausgewählt
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFileInfo(this.files[0]);
+        }
+    });
+    
+    // Drag & Drop Funktionalität
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('bg-light');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('bg-light');
+    }
+    
+    // Datei wurde gedroppt
+    dropArea.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        
+        fileInput.files = dt.files;
+        showFileInfo(file);
+    });
+    
+    // Datei entfernen
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        progressBar.style.width = '0%';
+    });
+    
+    // Zeige Datei-Informationen an
+    function showFileInfo(file) {
+        fileName.textContent = file.name;
+        fileInfo.classList.remove('d-none');
+        
+        // Simuliere Upload-Fortschritt bei Submit
+        document.getElementById('upload-form').addEventListener('submit', function() {
+            let progress = 0;
+            const interval = setInterval(function() {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) clearInterval(interval);
+            }, 100);
+        });
+    }
+});
+</script>
 {% endblock %}
 

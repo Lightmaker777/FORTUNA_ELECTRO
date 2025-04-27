@@ -1,20 +1,142 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Neues Projekt erstellen</h2>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    
-    <div class="mb-3">
-        {{ form.name.label(class="form-label") }}
-        {{ form.name(class="form-control") }}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Neues Projekt erstellen</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">Bitte füllen Sie alle notwendigen Felder aus, um ein neues Projekt anzulegen.</p>
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.name.id }}" class="form-label fw-bold">
+                                <i class="fas fa-bookmark me-2"></i>{{ form.name.label.text }}
+                            </label>
+                            {{ form.name(class="form-control", placeholder="Projekttitel eingeben") }}
+                            <div class="form-text">Geben Sie einen präzisen und aussagekräftigen Namen ein</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id }}" class="form-label fw-bold">
+                                <i class="fas fa-align-left me-2"></i>{{ form.description.label.text }}
+                            </label>
+                            {{ form.description(class="form-control", rows=5, placeholder="Projektbeschreibung eingeben...") }}
+                            <div class="form-text">Beschreiben Sie die Projektziele, Aufgaben und relevante Details</div>
+                        </div>
+                        
+                        <!-- Optionales Feld: Startdatum -->
+                        {% if form.start_date is defined %}
+                        <div class="mb-4">
+                            <label for="{{ form.start_date.id }}" class="form-label fw-bold">
+                                <i class="fas fa-calendar-alt me-2"></i>{{ form.start_date.label.text }}
+                            </label>
+                            {{ form.start_date(class="form-control", type="date") }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Optionales Feld: Enddatum -->
+                        {% if form.end_date is defined %}
+                        <div class="mb-4">
+                            <label for="{{ form.end_date.id }}" class="form-label fw-bold">
+                                <i class="fas fa-calendar-check me-2"></i>{{ form.end_date.label.text }}
+                            </label>
+                            {{ form.end_date(class="form-control", type="date") }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Optionales Feld: Projektstatus -->
+                        {% if form.status is defined %}
+                        <div class="mb-4">
+                            <label for="{{ form.status.id }}" class="form-label fw-bold">
+                                <i class="fas fa-tasks me-2"></i>{{ form.status.label.text }}
+                            </label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Optionales Feld: Teammitglieder -->
+                        {% if form.team_members is defined %}
+                        <div class="mb-4">
+                            <label for="{{ form.team_members.id }}" class="form-label fw-bold">
+                                <i class="fas fa-users me-2"></i>{{ form.team_members.label.text }}
+                            </label>
+                            {{ form.team_members(class="form-select", multiple=true, size=5) }}
+                            <div class="form-text">Halten Sie die Strg-Taste gedrückt, um mehrere Mitglieder auszuwählen</div>
+                        </div>
+                        {% endif %}
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-2"></i>Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Projekt speichern
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light py-3">
+                    <div class="small text-muted">
+                        <i class="fas fa-info-circle me-1"></i> Neue Projekte erscheinen direkt nach dem Speichern in Ihrer Projektübersicht
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Automatische Textfeld-Erweiterung für die Projektbeschreibung
+    const textarea = document.getElementById('{{ form.description.id }}');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
     
-    <div class="mb-3">
-        {{ form.description.label(class="form-label") }}
-        {{ form.description(class="form-control") }}
-    </div>
+    // Form Validation
+    const form = document.querySelector('form');
+    const nameInput = document.getElementById('{{ form.name.id }}');
     
-    <button type="submit" class="btn btn-primary">Projekt speichern</button>
-</form>
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        
+        // Einfache Validierung für den Projektnamen
+        if (!nameInput.value.trim()) {
+            nameInput.classList.add('is-invalid');
+            if (!nameInput.nextElementSibling || !nameInput.nextElementSibling.classList.contains('invalid-feedback')) {
+                const feedback = document.createElement('div');
+                feedback.classList.add('invalid-feedback');
+                feedback.textContent = 'Bitte geben Sie einen Projektnamen ein';
+                nameInput.parentNode.insertBefore(feedback, nameInput.nextElementSibling);
+            }
+            isValid = false;
+        } else {
+            nameInput.classList.remove('is-invalid');
+            nameInput.classList.add('is-valid');
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+    
+    // Entfernen der Fehlermeldung beim Tippen
+    nameInput.addEventListener('input', function() {
+        if (this.value.trim()) {
+            this.classList.remove('is-invalid');
+        }
+    });
+});
+</script>
 {% endblock %}

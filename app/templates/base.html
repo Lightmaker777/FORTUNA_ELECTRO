@@ -11,13 +11,231 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Dark theme colors */
+        :root {
+            --primary: #0B0C10;         /* Dark background */
+            --primary-light: #1F2833;   /* Slightly lighter dark background */
+            --primary-dark: #000000;    /* Black */
+            --accent: #66FCF1;          /* Bright turquoise accent */
+            --accent-light: #45A29E;    /* Muted turquoise */
+            --success: #45A29E;         /* Success using muted turquoise */
+            --danger: #FF3B3B;          /* Bright red for danger */
+            --warning: #FF8F00;         /* Warning color */
+            --info: #66FCF1;            /* Info color */
+            --light-bg: #1F2833;        /* Light background (still dark) */
+            --card-bg: #0B0C10;         /* Card background */
+            --text-dark: #FFFFFF;       /* Text dark (actually white for contrast) */
+            --text-muted: #C5C6C7;      /* Text muted (light gray) */
+        }
+        
+        /* Base styles */
+        body {
+            background-color: var(--primary);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: var(--primary-dark) !important;
+            border-bottom: 1px solid var(--accent);
+            padding: 0.8rem 1rem;
+        }
+        
+        .navbar-brand {
+            color: var(--accent) !important;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .navbar-brand i {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+        
+        .nav-link {
+            color: var(--text-dark) !important;
+            position: relative;
+            padding: 0.8rem 1.2rem !important;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link:focus {
+            color: var(--accent) !important;
+            border-bottom: 3px solid var(--accent);
+        }
+        
+        .navbar-toggler {
+            border: 1px solid var(--accent);
+            border-radius: 0;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%2366FCF1' stroke-width='2' stroke-linecap='square' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+        
+        /* Dropdown styling */
+        .dropdown-menu {
+            background-color: var(--primary-light);
+            border: 1px solid var(--accent);
+            border-radius: 0;
+            margin-top: 0.5rem;
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+        }
+        
+        .dropdown-item {
+            color: var(--text-dark);
+            padding: 0.75rem 1rem;
+            border-left: 3px solid transparent;
+        }
+        
+        .dropdown-item:hover, .dropdown-item:focus {
+            background-color: var(--primary);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+        }
+        
+        /* Alert styling */
+        .alert {
+            border-radius: 0;
+            border: none;
+            border-left: 3px solid;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-success {
+            background-color: rgba(69, 162, 158, 0.1);
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+        
+        .alert-danger {
+            background-color: rgba(255, 59, 59, 0.1);
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+        
+        .alert-warning {
+            background-color: rgba(255, 143, 0, 0.1);
+            color: var(--warning);
+            border-left-color: var(--warning);
+        }
+        
+        .alert-info {
+            background-color: rgba(102, 252, 241, 0.1);
+            color: var(--info);
+            border-left-color: var(--info);
+        }
+        
+        .btn-close {
+            filter: invert(1) brightness(200%);
+        }
+        
+        /* Content container */
+        .container {
+            flex: 1;
+        }
+        
+        /* Footer styling */
+        .footer {
+            background-color: var(--primary-dark) !important;
+            border-top: 1px solid var(--accent);
+            margin-top: auto;
+            padding: 1rem 0;
+        }
+        
+        .footer .text-muted {
+            color: var(--text-muted) !important;
+        }
+        
+        /* Form controls */
+        .form-control, .form-select {
+            background-color: var(--primary-light);
+            border: 1px solid var(--accent);
+            border-radius: 0;
+            color: var(--text-dark);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--primary-light);
+            border-color: var(--accent);
+            color: var(--text-dark);
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+        }
+        
+        /* Button styling */
+        .btn {
+            border-radius: 0;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--accent-light);
+            border-color: var(--accent-light);
+            color: var(--primary);
+        }
+        
+        /* Card styling */
+        .card {
+            background-color: var(--primary-light);
+            border: 1px solid var(--accent);
+            border-radius: 0;
+        }
+        
+        .card-header {
+            background-color: rgba(102, 252, 241, 0.1);
+            border-bottom: 1px solid var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+        }
+        
+        /* Table styling */
+        .table {
+            color: var(--text-dark);
+        }
+        
+        .table thead th {
+            background-color: var(--primary-dark);
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .table tbody tr {
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(102, 252, 241, 0.05);
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
-                <i class="fas fa-bolt"></i> ElektroFirma App
+                <i class="fas fa-bolt"></i> FORTUNA ELEKTRO
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -80,9 +298,9 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-light">
+    <footer class="footer mt-auto py-3">
         <div class="container text-center">
-            <span class="text-muted">&copy; 2025 ElektroFirma App</span>
+            <span class="text-muted">&copy; 2025 FORTUNA ELEKTRO GmbH</span>
         </div>
     </footer>
 
