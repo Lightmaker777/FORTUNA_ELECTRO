@@ -27,23 +27,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-3">
                         <i class="fas fa-hammer fa-3x text-primary"></i>
-                        <span class="text-muted fw-bold fs-5">Aktuell</span>
+                        <span class="text-muted fw-bold fs-4">Aktuell</span>
                     </div>
                     <h3 class="mb-0">{{ in_progress|length }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="calendar-tab">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                        <i class="fas fa-calendar-alt fa-3x text-success"></i>
-                        <span class="text-muted fw-bold fs-5">Kalender</span>
-                    </div>
-                    <h3 class="mb-0">{{ completed|length }}</h3>
                 </div>
             </div>
         </div>
@@ -55,7 +41,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-3">
                         <i class="fas fa-archive fa-3x text-warning"></i>
-                        <span class="text-muted fw-bold fs-5">Archiviert</span>
+                        <span class="text-muted fw-bold fs-4">Archiv</span>
                     </div>
                     <h3 class="mb-0">{{ archived|length }}</h3>
                 </div>
@@ -69,23 +55,37 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-3">
                         <i class="fas fa-tasks fa-3x text-info"></i>
-                        <span class="text-muted fw-bold fs-5">Gesamt</span>
+                        <span class="text-muted fw-bold fs-4">Gesamt</span>
                     </div>
                     <h3 class="mb-0">{{ (in_progress|length) + (completed|length) + (archived|length) }}</h3>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-hover stat-card custom-stat-card" data-bs-toggle="modal" data-bs-target="#projectsModal" data-tab-target="calendar-tab">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fas fa-calendar-alt fa-3x text-success"></i>
+                        <span class="text-muted fw-bold fs-4">Kalender</span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
-    <!-- Aktuelle Projekte Vorschau -->
+<!-- Aktuelle Projekte Vorschau -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card border-0 shadow-hover aktuelle-projekte">
-            <div class="card-header bg-white border-0 py-3">
+            <div class="card-header border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i> Aktuelle Projekte</h5>
+                    <h5 class="mb-0"> Aktuelle Projekte</h5>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectsModal">
                         Alle anzeigen <i class="fas fa-arrow-right ms-1"></i>
                     </button>
@@ -95,7 +95,7 @@
                 {% if in_progress %}
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th>Projektname</th>
                                     <th class="d-none d-md-table-cell">Startdatum</th>
@@ -109,7 +109,7 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="project-icon me-3">
-                                                    <i class="fas fa-folder text-primary"></i>
+                                                    <i class="fas fa-folder" style="color: var(--accent);"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">{{ project.name }}</h6>
@@ -119,8 +119,8 @@
                                         </td>
                                         <td class="d-none d-md-table-cell">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
                                         <td class="d-none d-lg-table-cell">
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                            <div class="progress" style="height: 8px; background-color: var(--primary-light);">
+                                                <div class="progress-bar" role="progressbar" style="width: 75%; background-color: var(--accent);"></div>
                                             </div>
                                         </td>
                                         <td class="text-end">
@@ -136,7 +136,7 @@
                 {% else %}
                     <div class="text-center py-5">
                         <div class="empty-state">
-                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <i class="fas fa-folder-open fa-3x mb-3" style="color: var(--accent);"></i>
                             <h5>Keine laufenden Projekte</h5>
                             <p class="text-muted">Erstellen Sie ein neues Projekt, um loszulegen</p>
                             <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient mt-2">
@@ -336,12 +336,21 @@
     </div>
     
     <!-- Kalender Grid -->
+    <div class="d-flex mb-2">
+        <div class="calendar-weekday weekday-workday">Mo</div>
+        <div class="calendar-weekday weekday-workday">Di</div>
+        <div class="calendar-weekday weekday-workday">Mi</div>
+        <div class="calendar-weekday weekday-workday">Do</div>
+        <div class="calendar-weekday weekday-workday">Fr</div>
+        <div class="calendar-weekday weekday-weekend">Sa</div>
+        <div class="calendar-weekday weekday-weekend">So</div>
+    </div>
     <div id="calendarDays" class="calendar-grid row gx-1 gy-1 mb-4"></div>
     
     <!-- Urlaubsliste -->
     <div>
-        <h5 class="mb-3">Urlaubsübersicht</h5>
-        <ul id="vacationList" class="list-group mb-4">
+        <h4 class="mb-3">Urlaubsübersicht</h4>
+        <ul id="vacationList" class="list-group mb-2">
             <!-- Dynamische Einträge kommen hier hin -->
         </ul>       
         
@@ -1075,6 +1084,25 @@ h1, h2, h3, h4, h5, h6 {
     top: 50%;
     transform: translateY(-50%);
 }
+.calendar-weekday {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
+}
+
+.d-flex.mb-2 {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.weekday-workday {
+    color: #00bcd4;
+}
+
+.weekday-weekend {
+    color: #FF3B3B;
+}
 
 /* Aktuelle Projekte Vorschau - Dark Mode Anpassung */
 .card.aktuelle-projekte {
@@ -1184,11 +1212,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Urlaubsdaten und Feiertage
     let vacations = [];
     
-    // Feiertage (kann durch echte Daten ersetzt werden)
-    const holidays = [
-        { name: 'Neujahr', date: new Date(currentYear, 0, 1) },
-        { name: 'Tag der Arbeit', date: new Date(currentYear, 4, 1) }
-    ];
+    // Feiertage für Berlin (Deutschland)
+
+const holidays = [
+    { name: 'Neujahr', date: new Date(currentYear, 0, 1) }, // 1. Januar
+    { name: 'Internationaler Frauentag', date: new Date(currentYear, 2, 8) }, // 8. März
+    { name: 'Karfreitag', date: getEasterRelatedDate(currentYear, -2) }, // Freitag vor Ostersonntag
+    { name: 'Ostersonntag', date: getEasterRelatedDate(currentYear, 0) }, // Ostersonntag (nicht gesetzlicher Feiertag überall, in Berlin kein gesetzlicher Feiertag)
+    { name: 'Ostermontag', date: getEasterRelatedDate(currentYear, 1) }, // Montag nach Ostersonntag
+    { name: 'Tag der Arbeit', date: new Date(currentYear, 4, 1) }, // 1. Mai
+    { name: 'Christi Himmelfahrt', date: getEasterRelatedDate(currentYear, 39) }, // 39 Tage nach Ostersonntag
+    { name: 'Pfingstsonntag', date: getEasterRelatedDate(currentYear, 49) }, // Pfingstsonntag (nicht gesetzlicher Feiertag überall, in Berlin auch nicht offiziell frei)
+    { name: 'Pfingstmontag', date: getEasterRelatedDate(currentYear, 50) }, // 50 Tage nach Ostersonntag
+    { name: 'Tag der Deutschen Einheit', date: new Date(currentYear, 9, 3) }, // 3. Oktober
+    { name: 'Reformationstag', date: new Date(currentYear, 9, 31) }, // 31. Oktober (seit 2018 in Berlin gesetzlicher Feiertag)
+    { name: '1. Weihnachtstag', date: new Date(currentYear, 11, 25) }, // 25. Dezember
+    { name: '2. Weihnachtstag', date: new Date(currentYear, 11, 26) } // 26. Dezember
+];
+
+// Funktion, um bewegliche Feiertage zu berechnen (basierend auf Ostersonntag)
+function getEasterRelatedDate(year, offsetDays) {
+    const easter = calculateEaster(year);
+    const date = new Date(easter);
+    date.setDate(date.getDate() + offsetDays);
+    return date;
+}
+
+// Funktion zur Berechnung des Ostersonntags (nach Gauß'scher Formel)
+function calculateEaster(year) {
+    const f = Math.floor,
+        G = year % 19,
+        C = f(year / 100),
+        H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+        I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+        J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+        L = I - J,
+        month = 3 + f((L + 40) / 44),
+        day = L + 28 - 31 * f(month / 4);
+    return new Date(year, month - 1, day);
+}
+
 
     // Local Storage Key für Urlaubsdaten
     const VACATIONS_STORAGE_KEY = 'vacation_data';
@@ -1367,80 +1430,125 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Aktualisiert die Liste der Urlaube
-    function updateVacationList() {
-        const vacationList = document.getElementById('vacationList');
-        if (!vacationList) return;
+function updateVacationList() {
+    const vacationList = document.getElementById('vacationList');
+    if (!vacationList) return;
 
-        vacationList.innerHTML = '';
+    vacationList.innerHTML = '';
 
-        if (vacations.length === 0) {
-            const emptyItem = document.createElement('li');
-            emptyItem.className = 'list-group-item text-muted';
-            emptyItem.textContent = 'Keine Urlaube eingetragen';
-            vacationList.appendChild(emptyItem);
-            return;
-        }
+    if (vacations.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'list-group-item fw-bold text-center';
+        emptyItem.textContent = 'Keine Urlaube eingetragen';
+        vacationList.appendChild(emptyItem);
+        return;
+    }
 
-        vacations.forEach((vacation, index) => {
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+    vacations.forEach((vacation, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 
-            const infoDiv = document.createElement('div');
-            const nameEl = document.createElement('h6');
-            nameEl.className = 'mb-0';
-            nameEl.textContent = vacation.name;
+        // Farbliche Markierung je nach Urlaubstyp hinzufügen
+        const typeColor = getVacationTypeColor(vacation.type);
+        listItem.style.borderLeft = `5px solid ${typeColor}`;
+        listItem.style.paddingLeft = '15px';
 
-            const dateEl = document.createElement('small');
-            dateEl.className = 'text-muted d-block';
-            const startDate = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
-            const endDate = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
-            dateEl.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+        const infoDiv = document.createElement('div');
+        const nameEl = document.createElement('h6');
+        nameEl.className = 'mb-0';
+        nameEl.textContent = vacation.name;
 
-            infoDiv.appendChild(nameEl);
-            infoDiv.appendChild(dateEl);
+        // Zeige den Urlaubstyp an
+        const typeEl = document.createElement('span');
+        typeEl.className = `badge me-2`;
+        typeEl.style.backgroundColor = typeColor;
+        typeEl.textContent = getVacationTypeName(vacation.type);
+        
+        // Wrapper für Name und Badge
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'd-flex align-items-center mb-1';
+        headerDiv.appendChild(typeEl);
+        headerDiv.appendChild(nameEl);
+        
+        const dateEl = document.createElement('small');
+        dateEl.className = 'fw-bold text-dark d-block mt-1';
+        const startDate = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
+        const endDate = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
+        dateEl.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
 
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'vacation-actions';
+        infoDiv.appendChild(headerDiv);
+        infoDiv.appendChild(dateEl);
 
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-icon btn-sm text-danger';
-            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'vacation-actions';
 
-            deleteBtn.addEventListener('click', async function() {
-                if (confirm('Urlaub wirklich löschen?')) {
-                    try {
-                        // Versuche erst, über die API zu löschen
-                        const vacationId = vacation.id || index;
-                        const response = await fetch(`/api/vacations/${vacationId}`, {
-                            method: 'DELETE'
-                        });
-                        
-                        if (response.ok) {
-                            await loadVacations();
-                        } else {
-                            // Fallback: Lokal löschen
-                            vacations.splice(index, 1);
-                            saveLocalVacations(); // Speichere die Änderung
-                            updateVacationList();
-                            renderCalendar();
-                        }
-                    } catch (error) {
-                        console.error('Fehler beim Löschen des Urlaubs:', error);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-icon btn-sm text-danger';
+        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+
+        deleteBtn.addEventListener('click', async function() {
+            if (confirm('Urlaub wirklich löschen?')) {
+                try {
+                    // Versuche erst, über die API zu löschen
+                    const vacationId = vacation.id || index;
+                    const response = await fetch(`/api/vacations/${vacationId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        await loadVacations();
+                    } else {
                         // Fallback: Lokal löschen
                         vacations.splice(index, 1);
                         saveLocalVacations(); // Speichere die Änderung
                         updateVacationList();
                         renderCalendar();
                     }
+                } catch (error) {
+                    console.error('Fehler beim Löschen des Urlaubs:', error);
+                    // Fallback: Lokal löschen
+                    vacations.splice(index, 1);
+                    saveLocalVacations(); // Speichere die Änderung
+                    updateVacationList();
+                    renderCalendar();
                 }
-            });
-
-            actionsDiv.appendChild(deleteBtn);
-            listItem.appendChild(infoDiv);
-            listItem.appendChild(actionsDiv);
-            vacationList.appendChild(listItem);
+            }
         });
+
+        actionsDiv.appendChild(deleteBtn);
+        listItem.appendChild(infoDiv);
+        listItem.appendChild(actionsDiv);
+        vacationList.appendChild(listItem);
+    });
+}
+
+// Hilfsfunktion, um die Farbe für den Urlaubstyp zu bestimmen
+function getVacationTypeColor(type) {
+    switch(type) {
+        case 'urlaub':
+            return '#58a763'; // Grün
+        case 'krankheit':
+            return '#dc3545'; // Rot
+        case 'sonstiges':
+            return '#0d6efd'; // Blau
+        default:
+            return '#6c757d'; // Grau als Fallback
     }
+}
+
+// Hilfsfunktion, um den angezeigten Namen für den Urlaubstyp zu bestimmen
+function getVacationTypeName(type) {
+    switch(type) {
+        case 'urlaub':
+            return 'Urlaub';
+        case 'krankheit':
+            return 'Krankheit';
+        case 'sonstiges':
+            return 'Sonstiges';
+        default:
+            return 'Abwesenheit';
+    }
+}
 
     // Formatiert ein Datum im deutschen Format
     function formatDate(date) {
@@ -1617,30 +1725,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Zeigt Details zu einem bestimmten Tag an
-    function showDayDetails(day, className) {
-        if (className.includes('other-month')) return;
-        const selectedDate = new Date(currentYear, currentMonth, day);
+function showDayDetails(day, className) {
+    if (className.includes('other-month')) return;
+    const selectedDate = new Date(currentYear, currentMonth, day);
 
-        const vacationPersons = getVacationPersons(selectedDate);
-        if (vacationPersons.length > 0) {
-            alert(`Urlaub am ${day}.${currentMonth + 1}.${currentYear}:\n${vacationPersons.join('\n')}`);
-        } else {
-            // Hier könnte man ein Modal zum Hinzufügen eines neuen Urlaubs öffnen
-            const newVacationModal = new bootstrap.Modal(document.getElementById('newVacationModal'));
-            if (newVacationModal) {
-                // Datum im Modal vorausfüllen
-                const startDateInput = document.getElementById('startDate');
-                const endDateInput = document.getElementById('endDate');
-                
-                if (startDateInput && endDateInput) {
-                    startDateInput.value = formatDateForInput(selectedDate);
-                    endDateInput.value = formatDateForInput(selectedDate);
-                }
-                
-                newVacationModal.show();
-            }
+    // Immer das Modal öffnen, unabhängig von bestehenden Urlauben
+    const newVacationModalElement = document.getElementById('newVacationModal');
+    if (newVacationModalElement) {
+        // Datum im Modal vorausfüllen
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        
+        if (startDateInput && endDateInput) {
+            startDateInput.value = formatDateForInput(selectedDate);
+            endDateInput.value = formatDateForInput(selectedDate);
         }
+        
+        // Sicherstellen, dass das Modal-Objekt korrekt erstellt wird
+        const newVacationModal = new bootstrap.Modal(newVacationModalElement);
+        newVacationModal.show();
+    } else {
+        console.error('Modal-Element nicht gefunden');
     }
+}
 
     // Projektmodal-Funktionalitäten
     if (projectsModal) {
