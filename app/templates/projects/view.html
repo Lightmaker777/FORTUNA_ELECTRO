@@ -2,16 +2,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{ project.name }}</h1>
-    <div>
-        <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-success">
-            <i class="fas fa-upload"></i> Datei hochladen
-        </a>
-        <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-primary">
-            <i class="fas fa-clock"></i> Stundenbericht
-        </a>
+<div class="container-fluid py-3">
+  <div class="row align-items-center">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
+      <h1>{{ project.name }}</h1>
     </div>
+    <div class="col-12 col-md-6">
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
+        <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2">
+          <i class="fas fa-cloud-upload-alt me-2"></i>
+          <span>Datei hochladen</span>
+        </a>
+        <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm px-4 py-2">
+          <i class="far fa-calendar-check me-2"></i>
+          <span>Stundenbericht</span>
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Projektdetails -->
@@ -85,7 +93,7 @@
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="timesheet-data-tab" data-bs-toggle="tab" data-bs-target="#timesheet-data" type="button" role="tab">
-            <i class="fas fa-clipboard-list"></i> Arbeitsstunden
+            <i class="fas fa-clipboard-list"></i> Arbeitsstunden ({{ timesheets|length }})
         </button>
     </li>
 </ul>
@@ -217,4 +225,12 @@
         </div>
     </div>
 </div>
+<style>
+    .card-body, .card-body p, .card-body label, .card-body .form-text, .card-body small {
+        color: #66d9ff !important; /* schönes helles Blau */
+    }
+    </style>
+    
+
+</style>
 {% endblock %}

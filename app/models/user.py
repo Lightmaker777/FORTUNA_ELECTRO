@@ -16,6 +16,10 @@ class User(UserMixin, db.Model):
     projects = db.relationship('Project', backref='creator', lazy='dynamic')
     files = db.relationship('File', backref='uploader', lazy='dynamic')
     timesheets = db.relationship('Timesheet', backref='employee', lazy='dynamic')
+
+    @property
+    def name(self):
+        return self.username
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

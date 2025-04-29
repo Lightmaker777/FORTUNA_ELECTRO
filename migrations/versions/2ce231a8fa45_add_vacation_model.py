@@ -1,8 +1,8 @@
 """Add Vacation model
 
-Revision ID: b881799b204a
+Revision ID: 2ce231a8fa45
 Revises: 
-Create Date: 2025-04-26 20:37:07.362415
+Create Date: 2025-04-27 17:55:17.828645
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b881799b204a'
+revision = '2ce231a8fa45'
 down_revision = None
 branch_labels = None
 depends_on = None

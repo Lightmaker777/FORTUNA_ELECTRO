@@ -1,0 +1,725 @@
+<!-- app/templates/timesheets/new_fortuna.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Bau-Tagesbericht und Stundennachweis
+                    </h3>
+                    <span class="badge bg-light text-primary">{{ project.name }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">Erfassen Sie Ihren Bau-Tagesbericht für das Projekt "{{ project.name }}"</p>
+
+                    <form method="POST" action="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" id="timesheet-form">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Fortuna Elektro Kopfdaten -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="datum" class="form-label fw-bold">Datum:</label>
+                                    {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date", id="datum") }}
+                                    {% if form.date.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="bauvorhaben" class="form-label fw-bold">BV (Bauvorhaben):</label>
+                                    <input type="text" class="form-control" id="bauvorhaben" name="bauvorhaben" value="{{ project.name }}" readonly>
+                                </div>
+                            
+                                <div class="mb-3">
+                                    <label for="arbeitskraft" class="form-label fw-bold">Arbeitskraft:</label>
+                                    <input type="text" class="form-control text_dark" id="arbeitskraft" name="arbeitskraft" value="{{ current_user.username }}" placeholder="Name(n) der Arbeitskraft(e) eingeben">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="an_abreise" class="form-label fw-bold">An-u. Abreise:</label>
+                                    <input type="text" class="form-control" id="an_abreise" name="an_abreise" placeholder="z.B. '07:45 - 17:15'">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="bg-light p-3 h-100 rounded">
+                                    <div class="text-center mb-3">
+                                        <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="mb-1"><strong>Fortuna Elektro GmbH</strong></p>
+                                        <p class="mb-1">Lothar-Bucher-Straße 5</p>
+                                        <p class="mb-1">12157 Berlin</p>
+                                        <p class="mb-1">+49 (030) 499 657 15</p>
+                                        <p class="mb-0">info@fortuna-elektro.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Arbeitseinsatz-Tabelle -->
+                        <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Arbeitseinsatz</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered" id="arbeitseinsatz-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40%">Tätigkeit</th>
+                                        <th>Von</th>
+                                        <th>Bis</th>
+                                        <th>Std</th>
+                                        <th style="width: 40px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select activity-select">
+                                                {% for value, label in form.activity.choices %}
+                                                <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="time" class="form-control time-from" value="00:00">
+                                        </td>
+                                        <td>
+                                            <input type="time" class="form-control time-to" value="00:00">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control time-hours" value="0.0" readonly>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn" style="display:none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Summe:</td>
+                                        <td>
+                                            {{ form.hours(class="form-control total-hours" + (" is-invalid" if form.hours.errors else ""), readonly=true) }}
+                                            {% if form.hours.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.hours.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-sm btn-primary" id="add-row-btn">
+                                    <i class="fas fa-plus me-1"></i>Zeile hinzufügen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Andere Tätigkeit Box (erscheint wenn 'Andere' ausgewählt) -->
+                        <div id="other-activity-div" style="display:none;" class="mb-4 animate__animated animate__fadeIn">
+                            <label for="{{ form.other_activity.id }}" class="form-label fw-bold">
+                                <i class="fas fa-edit me-2"></i>{{ form.other_activity.label.text }}
+                            </label>
+                            {{ form.other_activity(class="form-control" + (" is-invalid" if form.other_activity.errors else ""), placeholder="Bitte geben Sie Ihre Tätigkeit ein...") }}
+                            {% if form.other_activity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.other_activity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Material-Tabelle -->
+                        <h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered" id="material-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 70%">Material</th>
+                                        <th>Menge</th>
+                                        <th style="width: 40px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="text" class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm² text-light">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn" style="display:none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-sm btn-primary" id="add-material-btn">
+                                    <i class="fas fa-plus me-1"></i>Material hinzufügen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Notizen mit Markdown-Hinweis -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id }}" class="form-label fw-bold">
+                                <i class="fas fa-sticky-note me-2"></i>{{ form.notes.label.text }}
+                            </label>
+                            <div class="notes-container position-relative">
+                                {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows=4, placeholder="Zusätzliche Informationen zum Bau-Tagesbericht...") }}
+                                <div class="character-counter small text-muted position-absolute bottom-0 end-0 m-2">
+                                    <span id="char-count">0</span>/500
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                <small>Markdown wird unterstützt. Verwenden Sie *kursiv* oder **fett** für Formatierungen.</small>
+                            </div>
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Versteckte Felder für Arbeitseinsatz und Material JSON-Daten -->
+                        <input type="hidden" name="arbeitseinsatz_data" id="arbeitseinsatz_data">
+                        <input type="hidden" name="material_data" id="material_data">
+                        {{ form.activity(type="hidden", id="activity-hidden") }}
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Speichern-Button mit Keyboard Shortcut -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-2"></i>Abbrechen
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i class="fas fa-save me-2"></i>PDF erstellen und speichern
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="fas fa-info-circle me-1"></i> Alle Felder werden für die PDF-Erstellung verwendet
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#previewModal">
+                                <i class="fas fa-eye me-1"></i>Vorschau
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vorschau Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">PDF Vorschau</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-content p-4">
+                    <!-- Header -->
+                    <div class="row mb-5">
+                        <div class="col-7">
+                            <div class="mb-2"><strong>Datum:</strong> <span id="preview-datum"></span></div>
+                            <div class="mb-2"><strong>BV:</strong> <span id="preview-bv"></span></div>
+                            <div class="mb-2"><strong>Arbeitskraft:</strong> <span id="preview-arbeitskraft"></span></div>
+                            <div><strong>An-u. Abreise:</strong> <span id="preview-an-abreise"></span></div>
+                        </div>
+                        <div class="col-5">
+                            <div class="text-end">
+                                <p class="mb-1"><strong>Fortuna Elektro GmbH</strong></p>
+                                <p class="mb-1">Lothar-Bucher-Straße 5</p>
+                                <p class="mb-1">12157 Berlin</p>
+                                <p class="mb-1">+49 (030) 499 657 15</p>
+                                <p class="mb-0">info@fortuna-elektro.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-center mb-4">Bau-Tagesbericht und Stundennachweis</h4>
+                    
+                    <!-- Arbeitseinsatz -->
+                    <h5 class="mb-3">Arbeitseinsatz</h5>
+                    <table class="table table-bordered mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tätigkeit</th>
+                                <th>von</th>
+                                <th>bis</th>
+                                <th>Std</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-arbeitseinsatz">
+                            <!-- Wird per JavaScript befüllt -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Summe:</strong></td>
+                                <td id="preview-stunden-summe"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    
+                    <!-- Material -->
+                    <h5 class="mb-3">Material</h5>
+                    <table class="table table-bordered mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Material</th>
+                                <th>Menge</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-material">
+                            <!-- Wird per JavaScript befüllt -->
+                        </tbody>
+                    </table>
+                    
+                    <!-- Notizen -->
+                    <div id="preview-notes-section" style="display:none;">
+                        <h5 class="mb-3">Notizen</h5>
+                        <div class="p-3 bg-light rounded" id="preview-notes"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hilfsfunktion zur Zeitberechnung
+    function calculateHours(timeFrom, timeTo) {
+        if (!timeFrom || !timeTo) return 0;
+        
+        const [fromHours, fromMinutes] = timeFrom.split(':').map(Number);
+        const [toHours, toMinutes] = timeTo.split(':').map(Number);
+        
+        let hours = toHours - fromHours;
+        let minutes = toMinutes - fromMinutes;
+        
+        if (minutes < 0) {
+            hours--;
+            minutes += 60;
+        }
+        
+        return hours + (minutes / 60);
+    }
+    
+    // Funktionen für die Arbeitseinsatz-Tabelle
+    function updateAllHours() {
+        let totalHours = 0;
+        
+        document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
+            const timeFrom = row.querySelector('.time-from').value;
+            const timeTo = row.querySelector('.time-to').value;
+            const hours = calculateHours(timeFrom, timeTo);
+            
+            row.querySelector('.time-hours').value = hours.toFixed(1);
+            totalHours += hours;
+        });
+        
+        document.querySelector('.total-hours').value = totalHours.toFixed(1);
+        updateJsonData();
+    }
+    
+    function addTimeRow() {
+        const tbody = document.querySelector('#arbeitseinsatz-table tbody');
+        const newRow = document.createElement('tr');
+        
+        // Klone die Options aus dem ursprünglichen Select
+        const originalSelect = document.querySelector('.activity-select');
+        const optionsHTML = Array.from(originalSelect.options)
+            .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
+            .join('');
+        
+        newRow.innerHTML = `
+            <td>
+                <select class="form-select activity-select">
+                    ${optionsHTML}
+                </select>
+            </td>
+            <td>
+                <input type="time" class="form-control time-from" value="00:00">
+            </td>
+            <td>
+                <input type="time" class="form-control time-to" value="00:00">
+            </td>
+            <td>
+                <input type="text" class="form-control time-hours" value="0.0" readonly>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(newRow);
+        
+        // Event-Listener hinzufügen
+        const timeFromInput = newRow.querySelector('.time-from');
+        const timeToInput = newRow.querySelector('.time-to');
+        const activitySelect = newRow.querySelector('.activity-select');
+        const removeBtn = newRow.querySelector('.remove-row-btn');
+        
+        timeFromInput.addEventListener('change', updateAllHours);
+        timeToInput.addEventListener('change', updateAllHours);
+        activitySelect.addEventListener('change', checkForOtherActivity);
+        removeBtn.addEventListener('click', function() {
+            tbody.removeChild(newRow);
+            updateAllHours();
+            updateRemoveButtons();
+        });
+        
+        updateAllHours();
+        updateRemoveButtons();
+    }
+    // Logo zur Vorschau hinzufügen
+    const previewModal = document.getElementById('previewModal');
+    const companyInfoDiv = previewModal.querySelector('.col-5 .text-end');
+    
+    // Logo-Container erstellen und vor den Textinformationen einfügen
+    if (companyInfoDiv) {
+        const logoContainer = document.createElement('div');
+        logoContainer.className = 'text-center mb-3';
+        logoContainer.innerHTML = '<img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">';
+        
+        // Logo vor die Firma-Infos einfügen
+        companyInfoDiv.insertBefore(logoContainer, companyInfoDiv.firstChild);
+    }
+    
+    function updateRemoveButtons() {
+        const rows = document.querySelectorAll('#arbeitseinsatz-table tbody tr');
+        rows.forEach((row, index) => {
+            const btn = row.querySelector('.remove-row-btn');
+            if (rows.length > 1) {
+                btn.style.display = 'block';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    }
+    
+    // Funktionen für die Material-Tabelle
+    function addMaterialRow() {
+        const tbody = document.querySelector('#material-table tbody');
+        const newRow = document.createElement('tr');
+        
+        newRow.innerHTML = `
+            <td>
+                <input type="text" class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm²">
+            </td>
+            <td>
+                <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(newRow);
+        
+        // Event-Listener hinzufügen
+        const removeBtn = newRow.querySelector('.remove-material-btn');
+        removeBtn.addEventListener('click', function() {
+            tbody.removeChild(newRow);
+            updateMaterialRemoveButtons();
+            updateJsonData();
+        });
+        
+        const materialInputs = newRow.querySelectorAll('input');
+        materialInputs.forEach(input => {
+            input.addEventListener('input', updateJsonData);
+        });
+        
+        updateMaterialRemoveButtons();
+    }
+    
+    // Arbeitskraft-Feld bearbeitbar machen
+    const arbeitskraftField = document.getElementById('arbeitskraft');
+    
+    // 1. readonly-Attribut entfernen
+    arbeitskraftField.removeAttribute('readonly');
+    
+    // 2. Aussehen anpassen, damit es wie ein normales Eingabefeld aussieht
+    arbeitskraftField.style.backgroundColor = "#fff";
+    arbeitskraftField.style.cursor = "text";
+    
+    // 3. Optionalen Platzhalter hinzufügen
+    arbeitskraftField.placeholder = "Name(n) der Arbeitskraft(e) eingeben";
+    
+    // 4. Hilfetext unter dem Feld hinzufügen
+    const helpText = document.createElement('div');
+    helpText.className = 'form-text';
+    helpText.innerHTML = '<small>Mehrere Namen können mit Komma getrennt werden.</small>';
+    arbeitskraftField.parentNode.appendChild(helpText);
+    
+    // 5. Feld in die Tab-Reihenfolge einfügen
+    arbeitskraftField.tabIndex = 0;
+    
+    // Fügen Sie diese beiden Funktionen zum vorhandenen Code hinzu:
+    // A. Aktualisieren der Vorschau für das bearbeitbare Arbeitskraft-Feld
+    const originalUpdatePreview = window.updatePreview || function() {};
+    window.updatePreview = function() {
+        originalUpdatePreview();
+        document.getElementById('preview-arbeitskraft').textContent = document.getElementById('arbeitskraft').value;
+    };
+    
+    // B. Validierung vor dem Absenden
+    const originalFormSubmit = document.getElementById('timesheet-form').onsubmit || function() { return true; };
+    document.getElementById('timesheet-form').onsubmit = function(e) {
+        // Prüfen, ob das Arbeitskraft-Feld ausgefüllt ist
+        if (!arbeitskraftField.value.trim()) {
+            e.preventDefault();
+            alert('Bitte geben Sie mindestens eine Arbeitskraft ein.');
+            arbeitskraftField.focus();
+            return false;
+        }
+        return originalFormSubmit.call(this, e);
+    }
+    function updateMaterialRemoveButtons() {
+        const rows = document.querySelectorAll('#material-table tbody tr');
+        rows.forEach((row, index) => {
+            const btn = row.querySelector('.remove-material-btn');
+            if (rows.length > 1) {
+                btn.style.display = 'block';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    }
+    
+    // JSON-Daten für das Formular sammeln
+    function updateJsonData() {
+        // Arbeitseinsatz-Daten sammeln
+        const arbeitseinsatzData = [];
+        document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
+            const activity = row.querySelector('.activity-select').value;
+            const activityText = row.querySelector('.activity-select option:checked').text;
+            const von = row.querySelector('.time-from').value;
+            const bis = row.querySelector('.time-to').value;
+            const std = row.querySelector('.time-hours').value;
+            
+            arbeitseinsatzData.push({
+                activity: activity,
+                activityText: activityText,
+                von: von,
+                bis: bis,
+                std: std
+            });
+        });
+        
+        // Material-Daten sammeln
+        const materialData = [];
+        document.querySelectorAll('#material-table tbody tr').forEach(row => {
+            const name = row.querySelector('.material-name').value;
+            const quantity = row.querySelector('.material-quantity').value;
+            
+            if (name || quantity) {
+                materialData.push({
+                    material: name,
+                    menge: quantity
+                });
+            }
+        });
+        
+        // JSON-Daten in die versteckten Felder eintragen
+        document.getElementById('arbeitseinsatz_data').value = JSON.stringify(arbeitseinsatzData);
+        document.getElementById('material_data').value = JSON.stringify(materialData);
+        
+        // Haupt-Aktivität setzen (erste Zeile)
+        if (arbeitseinsatzData.length > 0) {
+            document.getElementById('activity-hidden').value = arbeitseinsatzData[0].activity;
+        }
+        
+        // Vorschau aktualisieren
+        updatePreview();
+    }
+    
+    // Aktivität "Andere" Logik
+    function checkForOtherActivity() {
+        let hasOtherActivity = false;
+        document.querySelectorAll('.activity-select').forEach(select => {
+            if (select.value === 'andere') {
+                hasOtherActivity = true;
+            }
+        });
+        
+        if (hasOtherActivity) {
+            document.getElementById('other-activity-div').style.display = 'block';
+        } else {
+            document.getElementById('other-activity-div').style.display = 'none';
+        }
+    }
+    
+    // Vorschau-Funktionalität
+    function updatePreview() {
+        // Kopfdaten
+        document.getElementById('preview-datum').textContent = document.getElementById('datum').value;
+        document.getElementById('preview-bv').textContent = document.getElementById('bauvorhaben').value;
+        document.getElementById('preview-arbeitskraft').textContent = document.getElementById('arbeitskraft').value;
+        document.getElementById('preview-an-abreise').textContent = document.getElementById('an_abreise').value;
+        
+        // Arbeitseinsatz
+        const arbeitseinsatzPreview = document.getElementById('preview-arbeitseinsatz');
+        arbeitseinsatzPreview.innerHTML = '';
+        
+        let totalHours = 0;
+        document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
+            const activity = row.querySelector('.activity-select option:checked').text;
+            const von = row.querySelector('.time-from').value;
+            const bis = row.querySelector('.time-to').value;
+            const std = parseFloat(row.querySelector('.time-hours').value) || 0;
+            
+            totalHours += std;
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${activity}</td>
+                <td>${von}</td>
+                <td>${bis}</td>
+                <td>${std.toFixed(1)}</td>
+            `;
+            arbeitseinsatzPreview.appendChild(newRow);
+        });
+        
+        document.getElementById('preview-stunden-summe').textContent = totalHours.toFixed(1);
+        
+        // Material
+        const materialPreview = document.getElementById('preview-material');
+        materialPreview.innerHTML = '';
+        
+        let hasMaterial = false;
+        document.querySelectorAll('#material-table tbody tr').forEach(row => {
+            const name = row.querySelector('.material-name').value;
+            const quantity = row.querySelector('.material-quantity').value;
+            
+            if (name || quantity) {
+                hasMaterial = true;
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${name}</td>
+                    <td>${quantity}</td>
+                `;
+                materialPreview.appendChild(newRow);
+            }
+        });
+        
+        // Wenn keine Materialien vorhanden sind, Platzhalterzeile anzeigen
+        if (!hasMaterial) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = `
+                <td colspan="2" class="text-center text-muted">Keine Materialien eingetragen</td>
+            `;
+            materialPreview.appendChild(emptyRow);
+        }
+        
+        // Notizen
+        const notes = document.getElementById('{{ form.notes.id }}').value;
+        if (notes.trim()) {
+            document.getElementById('preview-notes-section').style.display = 'block';
+            document.getElementById('preview-notes').textContent = notes;
+        } else {
+            document.getElementById('preview-notes-section').style.display = 'none';
+        }
+    }
+    
+    // Event-Listener für alle Inputs
+    function setupEventListeners() {
+        // Inputs im Formular
+        const formInputs = document.querySelectorAll('#timesheet-form input, #timesheet-form select, #timesheet-form textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('input', updateJsonData);
+        });
+        
+        // Arbeitseinsatz-Tabelle
+        document.querySelectorAll('.time-from, .time-to').forEach(input => {
+            input.addEventListener('change', updateAllHours);
+        });
+        
+        document.querySelectorAll('.activity-select').forEach(select => {
+            select.addEventListener('change', checkForOtherActivity);
+        });
+        
+        document.getElementById('add-row-btn').addEventListener('click', addTimeRow);
+        document.getElementById('add-material-btn').addEventListener('click', addMaterialRow);
+        
+        // Zeichenzähler für Notizen
+        const notesTextarea = document.getElementById('{{ form.notes.id }}');
+        const charCount = document.getElementById('char-count');
+        
+        notesTextarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            if (this.value.length > 450) {
+                charCount.classList.add('text-danger');
+            } else {
+                charCount.classList.remove('text-danger');
+            }
+        });
+        
+        // Formular-Absenden
+        document.getElementById('timesheet-form').addEventListener('submit', function(e) {
+            // Aktualisiere noch einmal alle Daten vor dem Absenden
+            updateJsonData();
+        });
+        
+        // Tastenkürzel (Strg+Enter zum Speichern)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('save-btn').click();
+            }
+        });
+    }
+    
+    // Initialisierung
+    setupEventListeners();
+    updateAllHours();
+    checkForOtherActivity();
+    updateJsonData();
+    
+    // Heutiges Datum als Standard
+    const dateInput = document.getElementById('datum');
+    if (!dateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+</script>
+{% endblock %}

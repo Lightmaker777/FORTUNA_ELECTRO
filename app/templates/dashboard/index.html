@@ -6,7 +6,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div class="position-relative">
             <div class="dashboard-heading-decoration"></div>
-            <h1 class="fw-bold mb-1 display-5 position-relative">Alles Watt ihr Volt</h1>
+            <h4 class="fw-bold mb-1 display-5 position-relative">Alles Watt ihr Volt</h4>
             <p class="text-muted mb-0 lead"></p>
         </div>
         <div class="d-flex">
@@ -93,37 +93,37 @@
             </div>
             <div class="card-body p-0">
                 {% if in_progress %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                    <div class="table-responsive" >
+                        <table class="table table-hover align-middle mb-0" >
                             <thead>
                                 <tr>
                                     <th>Projektname</th>
                                     <th class="d-none d-md-table-cell">Startdatum</th>
-                                    <th class="d-none d-lg-table-cell">Status</th>
+                                    <th class="d-none d-lg-table-cell" >Status</th>
                                     <th class="text-end">Aktion</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for project in in_progress[:5] %}
                                     <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="project-icon me-3">
+                                        <td style="background-color: #14304d">
+                                            <div class="d-flex align-items-center" >
+                                                <div class="project-icon me-3" >
                                                     <i class="fas fa-folder" style="color: var(--accent);"></i>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0">{{ project.name }}</h6>
+                                                    <h6 class="mb-0" >{{ project.name }}</h6>
                                                     <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="d-none d-md-table-cell">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
-                                        <td class="d-none d-lg-table-cell">
+                                        <td class="d-none d-md-table-cell text-light" style="background-color: #2f4052">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                        <td class="d-none d-lg-table-cell" style="background-color: #533f66">
                                             <div class="progress" style="height: 8px; background-color: var(--primary-light);">
-                                                <div class="progress-bar" role="progressbar" style="width: 75%; background-color: var(--accent);"></div>
+                                                <div class="progress-bar" role="progressbar" style="width:35%; background-color: var(--accent);"></div>
                                             </div>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-end"  style="background-color: #3e5063">
                                             <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
                                                 Details
                                             </a>
@@ -384,7 +384,7 @@
                             <label for="vacationType" class="form-label">Art des Urlaubs</label>
                             <select class="form-select" id="vacationType">
                                 <option value="urlaub">Urlaub</option>
-                                <option value="krankheit">Krankheit</option>
+                                <option value="krankheit">Krank</option>
                                 <option value="sonstiges">Sonstiges</option>
                             </select>
                         </div>
@@ -484,7 +484,7 @@
 /* Dark background for dashboard */
 body {
     background: var(--primary);
-    color: var(--text-dark);
+    color: var(--accent);
     font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -801,7 +801,7 @@ h1.display-5 {
     box-shadow: none;
     border: 1px solid var(--accent);
     background: var(--primary-light);
-    color: var(--text-dark);
+    color: var(--accent);
 }
 
 .search-group .form-control:focus {
@@ -872,7 +872,7 @@ h1.display-5 {
 .modal-body {
     padding: 2rem;
     background-color: var(--primary);
-    color: var(--text-dark);
+    color: var(--accent);
 }
 
 .modal-footer {
@@ -887,7 +887,7 @@ h1.display-5 {
     padding: 3rem;
     max-width: 600px;
     margin: 0 auto;
-    background-color: var(--primary-light);
+    background-color: #1f2937;;
     border-radius: 0; /* Square corners */
     border: 1px solid var(--accent);
 }
@@ -900,7 +900,7 @@ h1.display-5 {
 .empty-state h5 {
     font-weight: 600;
     margin: 1rem 0;
-    color: var(--text-dark);
+    color: var(--accent);
 }
 
 /* Project Description Display */
@@ -910,7 +910,7 @@ h1.display-5 {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    color: var(--text-muted);
+    color: var(--accent);
     line-height: 1.6;
 }
 
@@ -1023,7 +1023,7 @@ h1.display-5 {
 
 /* Update text colors for readability */
 .card-title, .card-text {
-    color: var(--text-dark);
+    color: var(--accent);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -1108,7 +1108,7 @@ h1, h2, h3, h4, h5, h6 {
 .card.aktuelle-projekte {
     background-color: var(--dark-bg); /* Dunkler Hintergrund */
     border: none;
-    color: var(--light-text); /* Hellere Schriftfarbe */
+    color: var(--accent); /* Hellere Schriftfarbe */
 }
 
 .card.aktuelle-projekte .card-header {
@@ -1184,6 +1184,24 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-text-fill-color: var(--accent);
     letter-spacing: -1px;
 }
+
+/* Stile für Urlaubstypen */
+.vacation-type-urlaub {
+    background-color: rgba(50, 228, 18, 0.1); /* Helles/durchsichtiges Grün */
+}
+
+.vacation-type-krankheit {
+    background-color: rgba(206, 19, 38, 0.1); /* Helles/durchsichtiges Rot */
+}
+
+.vacation-type-sonstiges {
+    background-color: rgba(10, 84, 196, 0.1); /* Helles/durchsichtiges Blau */
+}
+#vacationList li {
+    color: white; /* Weiße Schrift für besseren Kontrast */
+    font-size: 14px; /* Angemessene Schriftgröße */
+}
+
 </style>
 
 <!-- Script für Kalenderfunktionen -->
@@ -1428,17 +1446,15 @@ function calculateEaster(year) {
         // Liste der Urlaube aktualisieren
         updateVacationList();
     }
-
-    // Aktualisiert die Liste der Urlaube
-function updateVacationList() {
+// Aktuallisieren liste
+    function updateVacationList() {
     const vacationList = document.getElementById('vacationList');
     if (!vacationList) return;
-
     vacationList.innerHTML = '';
 
     if (vacations.length === 0) {
         const emptyItem = document.createElement('li');
-        emptyItem.className = 'list-group-item fw-bold text-center';
+        emptyItem.className = 'list-group-item fw-bold text-center text-dark';
         emptyItem.textContent = 'Keine Urlaube eingetragen';
         vacationList.appendChild(emptyItem);
         return;
@@ -1449,29 +1465,28 @@ function updateVacationList() {
         listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 
         // Farbliche Markierung je nach Urlaubstyp hinzufügen
-        const typeColor = getVacationTypeColor(vacation.type);
-        listItem.style.borderLeft = `5px solid ${typeColor}`;
-        listItem.style.paddingLeft = '15px';
+        const typeColorClass = getVacationTypeClass(vacation.type);
+        listItem.classList.add(typeColorClass);
 
         const infoDiv = document.createElement('div');
         const nameEl = document.createElement('h6');
-        nameEl.className = 'mb-0';
+        nameEl.className = 'mb-0 fw-bold text-white'; // Schwarz und bold für den Namen
         nameEl.textContent = vacation.name;
 
         // Zeige den Urlaubstyp an
         const typeEl = document.createElement('span');
         typeEl.className = `badge me-2`;
-        typeEl.style.backgroundColor = typeColor;
+        typeEl.style.backgroundColor = getVacationTypeColor(vacation.type);
         typeEl.textContent = getVacationTypeName(vacation.type);
-        
+
         // Wrapper für Name und Badge
         const headerDiv = document.createElement('div');
         headerDiv.className = 'd-flex align-items-center mb-1';
         headerDiv.appendChild(typeEl);
         headerDiv.appendChild(nameEl);
-        
+
         const dateEl = document.createElement('small');
-        dateEl.className = 'fw-bold text-dark d-block mt-1';
+        dateEl.className = 'fw-bold text-white d-block mt-1';
         const startDate = vacation.start instanceof Date ? vacation.start : new Date(vacation.start);
         const endDate = vacation.end instanceof Date ? vacation.end : new Date(vacation.end);
         dateEl.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
@@ -1481,12 +1496,10 @@ function updateVacationList() {
 
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'vacation-actions';
-
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'btn btn-icon btn-sm text-danger';
         deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-
-        deleteBtn.addEventListener('click', async function() {
+        deleteBtn.addEventListener('click', async function () {
             if (confirm('Urlaub wirklich löschen?')) {
                 try {
                     // Versuche erst, über die API zu löschen
@@ -1494,7 +1507,6 @@ function updateVacationList() {
                     const response = await fetch(`/api/vacations/${vacationId}`, {
                         method: 'DELETE'
                     });
-                    
                     if (response.ok) {
                         await loadVacations();
                     } else {
@@ -1514,17 +1526,30 @@ function updateVacationList() {
                 }
             }
         });
-
         actionsDiv.appendChild(deleteBtn);
+
         listItem.appendChild(infoDiv);
         listItem.appendChild(actionsDiv);
         vacationList.appendChild(listItem);
     });
 }
+// Hilfsfunktion, um die CSS-Klasse für den Urlaubstyp zu bestimmen
+function getVacationTypeClass(type) {
+    switch (type) {
+        case 'urlaub':
+            return 'vacation-type-urlaub';
+        case 'krankheit':
+            return 'vacation-type-krankheit';
+        case 'sonstiges':
+            return 'vacation-type-sonstiges';
+        default:
+            return ''; // Fallback: keine Klasse
+    }
+}
 
 // Hilfsfunktion, um die Farbe für den Urlaubstyp zu bestimmen
 function getVacationTypeColor(type) {
-    switch(type) {
+    switch (type) {
         case 'urlaub':
             return '#58a763'; // Grün
         case 'krankheit':
@@ -1535,14 +1560,13 @@ function getVacationTypeColor(type) {
             return '#6c757d'; // Grau als Fallback
     }
 }
-
 // Hilfsfunktion, um den angezeigten Namen für den Urlaubstyp zu bestimmen
 function getVacationTypeName(type) {
     switch(type) {
         case 'urlaub':
             return 'Urlaub';
         case 'krankheit':
-            return 'Krankheit';
+            return 'Krank';
         case 'sonstiges':
             return 'Sonstiges';
         default:
