@@ -1,3 +1,4 @@
+# app/routes/timesheets.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
@@ -11,7 +12,7 @@ from wtforms.validators import DataRequired, NumberRange
 from datetime import datetime
 import os
 import uuid
-import json
+import json  # Für die Verarbeitung von JSON-String-Daten
 
 timesheets = Blueprint('timesheets', __name__)
 
@@ -52,15 +53,21 @@ def new_timesheet(project_id):
             
             try:
                 arbeitseinsatz_data = json.loads(arbeitseinsatz_string)
+                # Überprüfen, ob arbeitseinsatz_data leer ist und erstelle mindestens einen Eintrag
+                if not arbeitseinsatz_data:
+                    arbeitseinsatz_data = [{'activity': '', 'von': '08:00', 'bis': '17:00', 'std': str(hours)}]
             except json.JSONDecodeError:
-                arbeitseinsatz_data = []
+                arbeitseinsatz_data = [{'activity': '', 'von': '08:00', 'bis': '17:00', 'std': str(hours)}]
                 
             try:
                 material_data = json.loads(material_string)
+                # Stelle sicher, dass mindestens ein Material-Eintrag vorhanden ist
+                if not material_data:
+                    material_data = [{'material': '', 'menge': ''}]
             except json.JSONDecodeError:
-                material_data = []
+                material_data = [{'material': '', 'menge': ''}]
                 
-            an_abreise = request.form.get('an_abreise', '')
+            an_abreise = request.form.get('an_abreise', '07:45-17:00')  # Standardwert setzen
             arbeitskraft = request.form.get('arbeitskraft', current_user.username)
             
             activity_text = form.activity.data
@@ -68,6 +75,10 @@ def new_timesheet(project_id):
                 activity_text = form.other_activity.data
             else:
                 activity_text = dict(ACTIVITY_CHOICES).get(activity_text, activity_text)
+                
+            # Aktualisiere die Aktivität im ersten Eintrag der Arbeitszeiten
+            if arbeitseinsatz_data and len(arbeitseinsatz_data) > 0:
+                arbeitseinsatz_data[0]['activity'] = activity_text
 
             timesheet = Timesheet(
                 date=date,
@@ -92,6 +103,19 @@ def new_timesheet(project_id):
 
             date_string = date.strftime("%d.%m.%Y")
 
+            # Kopiere das Fortuna-Logo in den statischen Ordner, falls es noch nicht existiert
+            logo_source = os.path.join(current_app.root_path, 'static', 'img', 'fortuna-logo.png') 
+            logo_destination = os.path.join(current_app.static_folder, 'img')
+            
+            # Stelle sicher, dass der Zielordner existiert
+            os.makedirs(logo_destination, exist_ok=True)
+            
+            # Nur kopieren, wenn die Datei nicht existiert
+            logo_dest_path = os.path.join(logo_destination, 'fortuna-logo.png')
+            if not os.path.exists(logo_dest_path) and os.path.exists(logo_source):
+                import shutil
+                shutil.copy2(logo_source, logo_dest_path)
+
             generate_fortuna_timesheet(
                 pdf_path,
                 datum=date_string,
@@ -99,7 +123,8 @@ def new_timesheet(project_id):
                 arbeitskraft=arbeitskraft,
                 an_abreise=an_abreise,
                 arbeitseinsatz=arbeitseinsatz_data,
-                material_list=material_data
+                material_list=material_data,
+                notes=notes
             )
 
             relative_pdf_path = os.path.join(f'project_{project.id}', 'stundenberichte', pdf_filename)
@@ -121,6 +146,8 @@ def new_timesheet(project_id):
             flash('Stundenbericht wurde erfolgreich erstellt und als PDF gespeichert!', 'success')
             return redirect(url_for('projects.view_project', project_id=project.id))
         except Exception as e:
+            import traceback
+            print(traceback.format_exc())  # Ausführlicheres Logging für Debugging
             db.session.rollback()
             flash(f"Fehler beim Speichern des Stundenberichts: {str(e)}", "danger")
             return redirect(url_for('projects.view_project', project_id=project.id))

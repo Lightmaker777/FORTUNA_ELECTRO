@@ -2,8 +2,13 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.units import mm, cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from datetime import datetime
 import os
+from io import BytesIO
 
 def generate_fortuna_timesheet(output_path, 
                               datum=None,
@@ -13,19 +18,6 @@ def generate_fortuna_timesheet(output_path,
                               arbeitseinsatz=None,
                               material_list=None,
                               notes=""):
-    """
-    Generate a Fortuna Elektro style construction daily report and timesheet
-    
-    Parameters:
-    - output_path: Path where to save the PDF
-    - datum: Date (defaults to today if None)
-    - bauvorhaben: Construction project name
-    - arbeitskraft: Worker name
-    - an_abreise: Arrival and departure information
-    - arbeitseinsatz: List of dicts with keys 'activity', 'von', 'bis', 'std' for work time entries
-    - material_list: List of dicts with keys 'material', 'menge' for materials used
-    - notes: Additional notes for the report
-    """
     
     # Use current date if none specified
     if datum is None:
@@ -38,219 +30,273 @@ def generate_fortuna_timesheet(output_path,
     if material_list is None:
         material_list = [{'material': '', 'menge': ''}]
     
-    # Create a new PDF with A4 size
-    c = canvas.Canvas(output_path, pagesize=A4)
-    width, height = A4
+    # Farbe für Fortuna Elektro
+    FORTUNA_BLUE = colors.HexColor('#003f87')  # Angepasst an die Vorlage
+    LIGHT_GRAY = colors.HexColor('#f2f2f2')  # Hellgrau für alternierende Zeilen
+    DARK_GRAY = colors.HexColor('#666666')  # Dunkelgrau für Text
     
-    # Logo-Pfad - versuchen, einen der möglichen Pfade zu verwenden
+    # Font einrichten - Fix the font issue by avoiding Arial-Bold
+    try:
+        pdfmetrics.registerFont(TTFont('Arial', 'Arial.ttf'))
+        # Try to register bold font if available
+        try:
+            pdfmetrics.registerFont(TTFont('Arial-Bold', 'Arial_Bold.ttf'))
+        except:
+            # If Arial-Bold fails, don't worry - we'll handle this later
+            pass
+        default_font = 'Arial'
+    except:
+        default_font = 'Helvetica'
+    
+    # Erstelle PDF mit ReportLab
+    # Entscheide, ob in den Speicher oder in eine Datei geschrieben wird
+    
+    if output_path == "memory":
+        # Wenn in den Speicher geschrieben werden soll (z.B. für Flask)
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, 
+            pagesize=A4, 
+            leftMargin=1*cm, 
+            rightMargin=1*cm, 
+            topMargin=1*cm, 
+            bottomMargin=1*cm
+        )
+        elements = []
+    else:
+        # Wenn in Datei geschrieben werden soll
+        doc = SimpleDocTemplate(
+            output_path, 
+            pagesize=A4, 
+            leftMargin=1*cm, 
+            rightMargin=1*cm, 
+            topMargin=1*cm, 
+            bottomMargin=1*cm
+        )
+        elements = []
+    
+    # Styles definieren
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName=default_font,
+        fontSize=14,
+        textColor=FORTUNA_BLUE,
+        spaceAfter=12
+    )
+    normal_style = ParagraphStyle(
+        'NormalStyle',
+        parent=styles['Normal'],
+        fontName=default_font,
+        fontSize=9,
+        textColor=DARK_GRAY
+    )
+    
+    # Try to find and load the logo
     logo_paths = [
         os.path.join('static', 'img', 'fortuna-logo.png'),
         os.path.join('app', 'static', 'img', 'fortuna-logo.png'),
-        "\static\img\fortuna-logo.png",
-        # Fügen Sie hier weitere mögliche Pfade ein
+        os.path.join('app', 'static', 'fortuna-logo.png'),
+        os.path.join('fortuna-logo.png'),
+        "static/img/fortuna-logo.png",
+        "app/static/img/fortuna-logo.png"
     ]
     
-    # Debug-Information ausgeben
-    print(f"Aktuelles Arbeitsverzeichnis: {os.getcwd()}")
+    # Debug information
+    print(f"Current working directory: {os.getcwd()}")
     
-    logo_found = False
-    for logo_path in logo_paths:
-        print(f"Prüfe Logo-Pfad: {logo_path}")
-        if os.path.exists(logo_path):
-            try:
-                print(f"Logo gefunden unter: {logo_path}")
-                # Logo in der linken oberen Ecke platzieren
-                c.drawImage(logo_path, 2*cm, height - 3*cm, width=4*cm, preserveAspectRatio=True)
-                logo_found = True
-                break
-            except Exception as e:
-                print(f"Fehler beim Laden des Logos von {logo_path}: {e}")
-                continue
-    
-    # If no logo found or loaded, draw a placeholder text
-    if not logo_found:
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(2*cm, height - 2.3*cm, "FORTUNA ELEKTRO")
-    
-    # Company details (header) - Top right
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(width - 6*cm, height - 2*cm, "Fortuna Elektro GmbH")
-    c.setFont("Helvetica", 9)
-    c.drawString(width - 6*cm, height - 2.5*cm, "Lothar-Bucher-Straße 5")
-    c.drawString(width - 6*cm, height - 3*cm, "12157 Berlin")
-    c.drawString(width - 6*cm, height - 3.5*cm, "+49 (030) 499 657 15")
-    c.drawString(width - 6*cm, height - 4*cm, "info@fortuna-elektro.com")
-    
-    # Title - top center
-    c.setFont("Helvetica-Bold", 14)
-    c.drawCentredString(width/2, height - 5*cm, "Bau-Tagesbericht und Stundennachweis")
-    
-    # Form fields
-    field_start_y = height - 6*cm  # Moved down to make room for the title
-    
-    # Left side fields
-    field_labels = [
-        "Datum:",
-        "BV:",
-        "Arbeitskraft:",
-        "An-u. Abreise:"
+    # Header mit Firmeninfos und Logo
+    header_data = [
+        [
+            Paragraph("<font color='#003f87'><b>Fortuna Elektro GmbH</b></font><br/>" +
+                     "Lothar-Bucher-Straße 5<br/>" +
+                     "12157 Berlin<br/>" +
+                     "+49 (030) 499 657 15<br/>" +
+                     "info@fortuna-elektro.com", normal_style),
+            ""  # Platzhalter für Logo (wird später gefüllt, wenn möglich)
+        ]
     ]
     
-    field_values = [
-        datum,
-        bauvorhaben,
-        arbeitskraft,
-        an_abreise
+    header_table = Table(header_data, colWidths=[10*cm, 7.5*cm])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (0, 0), 'TOP'),
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+    ]))
+    
+    elements.append(header_table)
+    elements.append(Spacer(1, 0.5*cm))
+    
+    # Titel
+    elements.append(Paragraph("Bau-Tagesbericht und Stundennachweis", title_style))
+    elements.append(Spacer(1, 0.3*cm))
+    
+    # Informationen zum Auftrag
+    auftrag_data = [
+        ['Datum:', datum, 'Bauvorhaben:', bauvorhaben],
+        ['Arbeitskraft:', arbeitskraft, 'An-/Abreise:', an_abreise]
     ]
     
-    # Draw field labels
-    for i, label in enumerate(field_labels):
-        y_pos = field_start_y - (i * 0.7*cm)
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(2*cm, y_pos, label)
+    auftrag_table = Table(auftrag_data, colWidths=[3*cm, 4.5*cm, 3*cm, 7*cm])
+    auftrag_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), default_font, 9),
+        ('FONT', (0, 0), (0, -1), 'Helvetica-Bold' if default_font == 'Helvetica' else default_font, 9),
+        ('FONT', (2, 0), (2, -1), 'Helvetica-Bold' if default_font == 'Helvetica' else default_font, 9),
+        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+    ]))
     
-    # Draw field values
-    for i, value in enumerate(field_values):
-        y_pos = field_start_y - (i * 0.7*cm)
-        c.setFont("Helvetica", 10)
-        c.drawString(5*cm, y_pos, value)
+    elements.append(auftrag_table)
+    elements.append(Spacer(1, 0.5*cm))
     
-    # Working time section
-    c.setFont("Helvetica-Bold", 10)
-    time_table_y = field_start_y - (len(field_labels) * 0.7*cm) - 1*cm
+    # Arbeitseinsatz Tabellenüberschrift
+    arbeitseinsatz_header = [['Arbeitseinsatz', 'von', 'bis', 'Std']]
+    arbeitseinsatz_header_table = Table(arbeitseinsatz_header, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+    arbeitseinsatz_header_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), FORTUNA_BLUE),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONT', (0, 0), (-1, 0), default_font, 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+    ]))
     
-    # Table header
-    c.drawString(2*cm, time_table_y, "Arbeitseinsatz")
-    c.drawString(4*cm, time_table_y, "Tätigkeit")  # Neue Spalte für Tätigkeiten
-    c.drawString(8*cm, time_table_y, "von")
-    c.drawString(10*cm, time_table_y, "bis")
-    c.drawString(12*cm, time_table_y, "Std")
+    elements.append(arbeitseinsatz_header_table)
     
-    # Draw lines beneath the headers
-    c.line(2*cm, time_table_y - 0.3*cm, 14*cm, time_table_y - 0.3*cm)
-    
-    # Table rows
-    c.setFont("Helvetica", 10)
+    # Arbeitseinsatz Daten
+    arbeitseinsatz_data = []
     total_hours = 0
-    for i, einsatz in enumerate(arbeitseinsatz):
-        row_y = time_table_y - (1 + i) * 0.8*cm
-        
-        # Add activity/Tätigkeit column
+    
+    for einsatz in arbeitseinsatz:
         activity = einsatz.get('activity', '')
-        c.drawString(4*cm, row_y, str(activity))
+        von = einsatz.get('von', '')
+        bis = einsatz.get('bis', '')
+        std = einsatz.get('std', '')
         
-        # Original columns
-        c.drawString(8*cm, row_y, str(einsatz['von']))
-        c.drawString(10*cm, row_y, str(einsatz['bis']))
-        c.drawString(12*cm, row_y, str(einsatz['std']))
-        
-        # Calculate total hours
+        # Stunden für die Summe berechnen
         try:
-            hours = float(einsatz['std'])
+            hours = float(std)
             total_hours += hours
         except (ValueError, TypeError):
             pass
         
-        # Draw lines for additional rows
-        c.line(2*cm, row_y - 0.3*cm, 14*cm, row_y - 0.3*cm)
+        arbeitseinsatz_data.append([activity, von, bis, std])
+    
+    # Stelle sicher, dass mindestens eine Zeile vorhanden ist
+    if not arbeitseinsatz_data:
+        arbeitseinsatz_data = [['', '', '', '']]
+    
+    arbeitseinsatz_table = Table(arbeitseinsatz_data, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+    
+    row_styles = []
+    for i in range(len(arbeitseinsatz_data)):
+        bg_color = LIGHT_GRAY if i % 2 == 0 else colors.white
+        row_styles.append(('BACKGROUND', (0, i), (-1, i), bg_color))
+    
+    arbeitseinsatz_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), default_font, 9),
+        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+    ] + row_styles))
+    
+    elements.append(arbeitseinsatz_table)
+    
+    # Summe der Stunden
+    if total_hours > 0:
+        total_data = [['', '', 'Summe:', f"{total_hours:.1f}"]]
+        total_table = Table(total_data, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
         
-        # Don't draw more than 8 rows to avoid overflowing the page
-        if i >= 7:
-            break
+        # FIX: Use a safer approach for emphasizing text - avoid using custom font names
+        # Using a combination of font size and color instead of trying to use a bold font
+        total_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), default_font, 9),
+            ('TEXTCOLOR', (2, 0), (3, 0), FORTUNA_BLUE),
+            # Increase font size slightly and don't reference 'Arial-Bold' directly
+            ('FONT', (2, 0), (3, 0), 'Helvetica-Bold' if default_font == 'Helvetica' else default_font, 10),
+            ('ALIGN', (2, 0), (3, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        elements.append(total_table)
     
-    # Add total hours at the bottom
-    if arbeitseinsatz and len(arbeitseinsatz) > 0:
-        total_row_y = time_table_y - (min(len(arbeitseinsatz), 8) + 1) * 0.8*cm
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(10*cm, total_row_y, "Summe:")
-        c.drawString(12*cm, total_row_y, f"{total_hours:.1f}")
-        c.line(2*cm, total_row_y - 0.3*cm, 14*cm, total_row_y - 0.3*cm)
+    elements.append(Spacer(1, 0.5*cm))
     
-    # Material section
-    material_y = time_table_y - (min(len(arbeitseinsatz), 8) + 2) * 0.8*cm
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(2*cm, material_y, "Material")
-    c.drawString(10*cm, material_y, "Menge")
+    # Material Tabellenüberschrift
+    material_header = [['Material', 'Menge']]
+    material_header_table = Table(material_header, colWidths=[15*cm, 2.5*cm])
+    material_header_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), FORTUNA_BLUE),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONT', (0, 0), (-1, 0), default_font, 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+    ]))
     
-    # Draw lines beneath the headers
-    c.line(2*cm, material_y - 0.3*cm, 14*cm, material_y - 0.3*cm)
+    elements.append(material_header_table)
     
-    # Material rows
-    c.setFont("Helvetica", 10)
-    for i, material in enumerate(material_list):
-        row_y = material_y - (1 + i) * 0.8*cm
-        c.drawString(2*cm, row_y, str(material['material']))
-        c.drawString(10*cm, row_y, str(material['menge']))
-        
-        # Draw lines for additional rows
-        c.line(2*cm, row_y - 0.3*cm, 14*cm, row_y - 0.3*cm)
-        
-        # Don't draw more than 10 rows to avoid overflowing the page
-        if i >= 9:
-            break
+    # Material Daten
+    material_data = []
+    for material in material_list:
+        material_name = material.get('material', '')
+        material_amount = material.get('menge', '')
+        material_data.append([material_name, material_amount])
     
-    # Add notes section if provided
+    # Stelle sicher, dass mindestens eine Zeile vorhanden ist
+    if not material_data:
+        material_data = [['', '']]
+    
+    material_table = Table(material_data, colWidths=[15*cm, 2.5*cm])
+    
+    row_styles = []
+    for i in range(len(material_data)):
+        bg_color = LIGHT_GRAY if i % 2 == 0 else colors.white
+        row_styles.append(('BACKGROUND', (0, i), (-1, i), bg_color))
+    
+    material_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), default_font, 9),
+        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+    ] + row_styles))
+    
+    elements.append(material_table)
+    
+    # Notizen hinzufügen, wenn vorhanden
     if notes:
-        notes_y = material_y - (min(len(material_list), 10) + 2) * 0.8*cm
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(2*cm, notes_y, "Notizen:")
-        c.setFont("Helvetica", 10)
-        
-        # Split notes into multiple lines if needed
-        notes_lines = []
-        max_width = 12*cm
-        words = notes.split()
-        current_line = words[0] if words else ""
-        
-        for word in words[1:]:
-            test_line = current_line + " " + word
-            if c.stringWidth(test_line, "Helvetica", 10) < max_width:
-                current_line = test_line
-            else:
-                notes_lines.append(current_line)
-                current_line = word
-        
-        if current_line:
-            notes_lines.append(current_line)
-        
-        # Draw notes lines
-        for i, line in enumerate(notes_lines):
-            line_y = notes_y - (1 + i) * 0.5*cm
-            c.drawString(2*cm, line_y, line)
-            
-            if i >= 5:  # Max 6 lines of notes
-                break
+        elements.append(Spacer(1, 0.5*cm))
+        elements.append(Paragraph("Notizen:", title_style))
+        elements.append(Paragraph(notes, normal_style))
     
-    # Save the PDF
-    c.save()
+    # Unterschriftsbereich
+    elements.append(Spacer(1, 1*cm))
+    sig_data = [['___________________________', '___________________________'],
+                ['Unterschrift Fortuna Elektro', 'Unterschrift Kunde']]
+    
+    sig_table = Table(sig_data, colWidths=[8.5*cm, 8.5*cm])
+    sig_table.setStyle(TableStyle([
+        ('FONT', (0, 0), (-1, -1), default_font, 9),
+        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 1), (-1, 1), 1),
+    ]))
+    
+    elements.append(sig_table)
+    
+    # PDF erstellen
+    doc.build(elements)
+    
+    # Wenn in den Speicher geschrieben wurde, BytesIO zurückgeben
+    if output_path == "memory":
+        buffer.seek(0)
+        return buffer
+    
     return output_path
-
-if __name__ == "__main__":
-    # Example usage with tätigkeiten (activities)
-    output_file = "bautagesbericht_example.pdf"
-    
-    # Sample data with activities
-    arbeitseinsatz_example = [
-        {'activity': 'Elektroinstallation', 'von': '08:00', 'bis': '12:00', 'std': '4.0'},
-        {'activity': 'Leuchten montieren', 'von': '13:00', 'bis': '17:00', 'std': '4.0'},
-    ]
-    
-    material_example = [
-        {'material': 'Kabel 3x1.5mm²', 'menge': '25m'},
-        {'material': 'Schalterdosen', 'menge': '6 Stk'},
-        {'material': 'Lichtschalter', 'menge': '4 Stk'},
-    ]
-    
-    # Generate the PDF
-    generate_fortuna_timesheet(
-        output_file,
-        datum="29.04.2025",
-        bauvorhaben="Bismarckallee 13", 
-        arbeitskraft="Max Mustermann",
-        an_abreise="07:45 - 17:15",
-        arbeitseinsatz=arbeitseinsatz_example,
-        material_list=material_example,
-        notes="Kundin hat spontan 2 zusätzliche Steckdosen gewünscht. Diese wurden installiert und werden separat berechnet."
-    )
-    
-    print(f"PDF erstellt: {os.path.abspath(output_file)}")
