@@ -1,0 +1,38 @@
+<!-- admin/edit_user.html -->
+{% extends 'base.html' %}
+
+{% block title %}Benutzer bearbeiten{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Benutzer bearbeiten: {{ user.username }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.edit_user', user_id=user.id) }}">
+                        <div class="form-group">
+                            <label for="username">Benutzername</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Neues Passwort (leer lassen, um beizubehalten)</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" {% if user.is_admin %}checked{% endif %}>
+                            <label class="form-check-label" for="is_admin">Administratorrechte</label>
+                        </div>
+                        <div class="form-group text-right">
+                            <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary">Abbrechen</a>
+                            <button type="submit" class="btn btn-info">Änderungen speichern</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,8 @@
-"""restart  models
+"""Add new admin/user model
 
-Revision ID: 5b186c101c0e
+Revision ID: 2d86b9f0a008
 Revises: 
-Create Date: 2025-04-30 14:59:55.906934
+Create Date: 2025-04-30 19:40:40.071273
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5b186c101c0e'
+revision = '2d86b9f0a008'
 down_revision = None
 branch_labels = None
 depends_on = None
