@@ -48,7 +48,7 @@
                 <tbody>
                     {% for project in projects %}
                     <tr class="project-row" data-status="{{ project.status }}">
-                        <td>{{ project.name }}</td>
+                        <td >{{ project.name }}</td>
                         <td>{{ project.created_at.strftime('%d.%m.%Y') }}</td>
                         <td>{{ project.created_by.username }}</td>
                         <td>

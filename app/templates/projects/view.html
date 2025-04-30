@@ -5,16 +5,16 @@
 <div class="container-fluid py-3">
   <div class="row align-items-center">
     <div class="col-12 col-md-6 mb-3 mb-md-0">
-      <h1>{{ project.name }}</h1>
+      <h1 style="color: var(--accent)">{{ project.name }}</h1>
     </div>
     <div class="col-12 col-md-6">
       <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
         <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2">
-          <i class="fas fa-cloud-upload-alt me-2"></i>
+          <i class="fas fa-cloud-upload-alt me-2" ></i>
           <span>Datei hochladen</span>
         </a>
         <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm px-4 py-2">
-          <i class="far fa-calendar-check me-2"></i>
+          <i class="far fa-calendar-check me-2" ></i>
           <span>Stundenbericht</span>
         </a>
       </div>
