@@ -107,7 +107,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-bold">Summe:</td>
+                                        <td colspan="3" class="text-end fw-bold">Gesamtstunden:</td>
                                         <td>
                                             {{ form.hours(class="form-control total-hours" + (" is-invalid" if form.hours.errors else ""), readonly=true) }}
                                             {% if form.hours.errors %}
@@ -203,7 +203,7 @@
                         
                         <!-- Versteckte Felder für Arbeitseinsatz und Material JSON-Daten -->
                         <input type="hidden" name="arbeitseinsatz_data" id="arbeitseinsatz_data">
-                        <input type="hidden" name="material_data" id="material_data">
+                        <input type="hidden" name="material_data" id="material_data" value="[]">
                         {{ form.activity(type="hidden", id="activity-hidden") }}
                         
                         <hr class="my-4">
@@ -256,6 +256,9 @@
                         </div>
                         <div class="col-5">
                             <div class="text-end">
+                                <div class="text-center mb-3">
+                                    <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">
+                                </div>
                                 <p class="mb-1"><strong>Fortuna Elektro GmbH</strong></p>
                                 <p class="mb-1">Lothar-Bucher-Straße 5</p>
                                 <p class="mb-1">12157 Berlin</p>
@@ -283,25 +286,26 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" class="text-end"><strong>Summe:</strong></td>
+                                <td colspan="3" class="text-end"><strong>Gesamtstunden:</strong></td>
                                 <td id="preview-stunden-summe"></td>
                             </tr>
                         </tfoot>
                     </table>
-                    
-                    <!-- Material -->
-                    <h5 class="mb-3">Material</h5>
-                    <table class="table table-bordered mb-4">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Material</th>
-                                <th>Menge</th>
-                            </tr>
-                        </thead>
-                        <tbody id="preview-material">
-                            <!-- Wird per JavaScript befüllt -->
-                        </tbody>
-                    </table>
+                   
+                    <!-- Material-Tabelle modal pdf vorschau -->
+<!-- Material -->
+<h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
+<table class="table table-bordered mb-4">
+    <thead class="table-light">
+        <tr>
+            <th style="width: 70%">Material</th>
+            <th>Menge</th>
+        </tr>
+    </thead>
+    <tbody id="preview-material">
+        <!-- Wird per JavaScript befüllt -->
+    </tbody>
+</table>
                     
                     <!-- Notizen -->
                     <div id="preview-notes-section" style="display:none;">
@@ -406,19 +410,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateAllHours();
         updateRemoveButtons();
     }
-    // Logo zur Vorschau hinzufügen
-    const previewModal = document.getElementById('previewModal');
-    const companyInfoDiv = previewModal.querySelector('.col-5 .text-end');
-    
-    // Logo-Container erstellen und vor den Textinformationen einfügen
-    if (companyInfoDiv) {
-        const logoContainer = document.createElement('div');
-        logoContainer.className = 'text-center mb-3';
-        logoContainer.innerHTML = '<img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">';
-        
-        // Logo vor die Firma-Infos einfügen
-        companyInfoDiv.insertBefore(logoContainer, companyInfoDiv.firstChild);
-    }
     
     function updateRemoveButtons() {
         const rows = document.querySelectorAll('#arbeitseinsatz-table tbody tr');
@@ -432,42 +423,155 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    
     // Funktionen für die Material-Tabelle
-    function addMaterialRow() {
-        const tbody = document.querySelector('#material-table tbody');
-        const newRow = document.createElement('tr');
-        
-        newRow.innerHTML = `
-            <td>
-                <input type="text" class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm²">
-            </td>
-            <td>
-                <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(newRow);
-        
-        // Event-Listener hinzufügen
-        const removeBtn = newRow.querySelector('.remove-material-btn');
-        removeBtn.addEventListener('click', function() {
+// Funktionen für die Material-Tabelle
+function addMaterialRow() {
+    const tbody = document.querySelector('#material-table tbody');
+    const newRow = document.createElement('tr');
+    
+    newRow.innerHTML = `
+        <td>
+            <select class="form-select material-name">
+                <option value="">Bitte auswählen</option>
+                {% for value, label in material_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(newRow);
+    
+    // Event-Listener hinzufügen
+    const removeBtn = newRow.querySelector('.remove-material-btn');
+    removeBtn.addEventListener('click', function() {
+        // Prüfen, ob es die letzte Zeile ist
+        if (tbody.children.length > 1) {
             tbody.removeChild(newRow);
-            updateMaterialRemoveButtons();
-            updateJsonData();
-        });
-        
-        const materialInputs = newRow.querySelectorAll('input');
-        materialInputs.forEach(input => {
-            input.addEventListener('input', updateJsonData);
-        });
-        
+        } else {
+            // Bei der letzten Zeile nur die Felder leeren
+            newRow.querySelector('.material-name').value = "";
+            newRow.querySelector('.material-quantity').value = "";
+        }
         updateMaterialRemoveButtons();
+        updateJsonData();
+    });
+    
+    const materialInputs = newRow.querySelectorAll('input');
+    materialInputs.forEach(input => {
+        input.addEventListener('input', updateJsonData);
+    });
+    
+    // Event-Listener für die Select-Elemente hinzufügen
+    const materialSelects = newRow.querySelector('.material-name');
+    materialSelects.addEventListener('change', updateJsonData);
+    
+    updateMaterialRemoveButtons();
+}
+function updateMaterialRemoveButtons() {
+    const rows = document.querySelectorAll('#material-table tbody tr');
+    rows.forEach((row, index) => {
+        const btn = row.querySelector('.remove-material-btn');
+        if (rows.length > 1) {
+            btn.style.display = 'block';
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+}
+
+// Diese Funktion sollte aufgerufen werden, wenn das Formular abgesendet wird
+// Also update the collectMaterialData function to filter out "Bitte auswählen" rows
+function collectMaterialData() {
+    const materialData = [];
+    const rows = document.querySelectorAll('#material-table tbody tr');
+    
+    rows.forEach(row => {
+        const materialSelect = row.querySelector('.material-name');
+        const quantityInput = row.querySelector('.material-quantity');
+        
+        // Get the displayed text
+        let materialText = "";
+        if (materialSelect.tagName === 'SELECT') {
+            const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+            materialText = selectedOption ? selectedOption.text : "";
+        } else {
+            materialText = materialSelect.value;
+        }
+        
+        const quantity = quantityInput.value.trim();
+        
+        // Only add if it's not "Bitte auswählen" and at least one field is filled
+        if ((materialText && materialText !== "Bitte auswählen") || quantity) {
+            materialData.push({
+                material: materialText,
+                menge: quantity
+            });
+        }
+    });
+    
+    return materialData;
+}
+
+// Funktion zum Laden vorhandener Materialdaten ins Modal
+function loadMaterialData() {
+    const tbody = document.querySelector('#material-table tbody');
+    tbody.innerHTML = ''; // Tabelle leeren
+    
+    let materialData = [];
+    try {
+        const materialDataJson = document.getElementById('material_data').value;
+        if (materialDataJson) {
+            materialData = JSON.parse(materialDataJson);
+        }
+    } catch (e) {
+        console.error('Fehler beim Parsen der Material-Daten:', e);
+        materialData = [];
     }
+    
+    // Wenn keine Daten vorhanden sind, eine leere Zeile hinzufügen
+    if (materialData.length === 0) {
+        addMaterialRow();
+        return;
+    }
+    
+    // Bestehende Daten laden
+    materialData.forEach(item => {
+        addMaterialRow();
+        const lastRow = tbody.lastElementChild;
+        const materialSelect = lastRow.querySelector('.material-name');
+        const quantityInput = lastRow.querySelector('.material-quantity');
+        
+        // Den richtigen Wert im Dropdown finden und auswählen
+        if (materialSelect.tagName === 'SELECT') {
+            for (let i = 0; i < materialSelect.options.length; i++) {
+                if (materialSelect.options[i].text === item.material) {
+                    materialSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        } else {
+            materialSelect.value = item.material;
+        }
+        
+        quantityInput.value = item.menge;
+    });
+}
+
+// Vor dem Absenden des Formulars ausführen
+document.getElementById('timesheet-form').addEventListener('submit', function() {
+    const materialData = collectMaterialData();
+    document.getElementById('material_data').value = JSON.stringify(materialData);
+});
     
     // Arbeitskraft-Feld bearbeitbar machen
     const arbeitskraftField = document.getElementById('arbeitskraft');
@@ -490,38 +594,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 5. Feld in die Tab-Reihenfolge einfügen
     arbeitskraftField.tabIndex = 0;
-    
-    // Fügen Sie diese beiden Funktionen zum vorhandenen Code hinzu:
-    // A. Aktualisieren der Vorschau für das bearbeitbare Arbeitskraft-Feld
-    const originalUpdatePreview = window.updatePreview || function() {};
-    window.updatePreview = function() {
-        originalUpdatePreview();
-        document.getElementById('preview-arbeitskraft').textContent = document.getElementById('arbeitskraft').value;
-    };
-    
-    // B. Validierung vor dem Absenden
-    const originalFormSubmit = document.getElementById('timesheet-form').onsubmit || function() { return true; };
-    document.getElementById('timesheet-form').onsubmit = function(e) {
-        // Prüfen, ob das Arbeitskraft-Feld ausgefüllt ist
-        if (!arbeitskraftField.value.trim()) {
-            e.preventDefault();
-            alert('Bitte geben Sie mindestens eine Arbeitskraft ein.');
-            arbeitskraftField.focus();
-            return false;
-        }
-        return originalFormSubmit.call(this, e);
-    }
-    function updateMaterialRemoveButtons() {
-        const rows = document.querySelectorAll('#material-table tbody tr');
-        rows.forEach((row, index) => {
-            const btn = row.querySelector('.remove-material-btn');
-            if (rows.length > 1) {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
-            }
-        });
-    }
     
     // JSON-Daten für das Formular sammeln
     function updateJsonData() {
@@ -587,76 +659,86 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Vorschau-Funktionalität
-    function updatePreview() {
-        // Kopfdaten
-        document.getElementById('preview-datum').textContent = document.getElementById('datum').value;
-        document.getElementById('preview-bv').textContent = document.getElementById('bauvorhaben').value;
-        document.getElementById('preview-arbeitskraft').textContent = document.getElementById('arbeitskraft').value;
-        document.getElementById('preview-an-abreise').textContent = document.getElementById('an_abreise').value;
-        
-        // Arbeitseinsatz
-        const arbeitseinsatzPreview = document.getElementById('preview-arbeitseinsatz');
-        arbeitseinsatzPreview.innerHTML = '';
-        
-        let totalHours = 0;
-        document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
-            const activity = row.querySelector('.activity-select option:checked').text;
-            const von = row.querySelector('.time-from').value;
-            const bis = row.querySelector('.time-to').value;
-            const std = parseFloat(row.querySelector('.time-hours').value) || 0;
-            
-            totalHours += std;
-            
+   
+// Modify the updatePreview function to handle empty material rows better
+function updatePreview() {
+    // Kopfdaten
+    document.getElementById('preview-datum').textContent = document.getElementById('datum').value;
+    document.getElementById('preview-bv').textContent = document.getElementById('bauvorhaben').value;
+    document.getElementById('preview-arbeitskraft').textContent = document.getElementById('arbeitskraft').value;
+    document.getElementById('preview-an-abreise').textContent = document.getElementById('an_abreise').value;
+
+    // Arbeitseinsatz
+    const arbeitseinsatzPreview = document.getElementById('preview-arbeitseinsatz');
+    arbeitseinsatzPreview.innerHTML = '';
+    let totalHours = 0;
+    document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
+        const activity = row.querySelector('.activity-select option:checked').text;
+        const von = row.querySelector('.time-from').value;
+        const bis = row.querySelector('.time-to').value;
+        const std = parseFloat(row.querySelector('.time-hours').value) || 0;
+        totalHours += std;
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${activity}</td>
+            <td>${von}</td>
+            <td>${bis}</td>
+            <td>${std.toFixed(1)}</td>
+        `;
+        arbeitseinsatzPreview.appendChild(newRow);
+    });
+    document.getElementById('preview-stunden-summe').textContent = totalHours.toFixed(1);
+
+    // Material
+    const materialPreview = document.getElementById('preview-material');
+    materialPreview.innerHTML = '';
+    const validMaterialEntries = [];
+    document.querySelectorAll('#material-table tbody tr').forEach(row => {
+        const materialSelect = row.querySelector('.material-name');
+        const quantity = row.querySelector('.material-quantity').value.trim();
+        let materialText = "";
+        if (materialSelect.tagName === 'SELECT') {
+            const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+            materialText = selectedOption ? selectedOption.text : "";
+        } else {
+            materialText = materialSelect.value.trim();
+        }
+        // Nur gültige Einträge hinzufügen
+        if ((materialText && materialText !== "Bitte auswählen") || quantity) {
+            validMaterialEntries.push({
+                material: materialText,
+                quantity: quantity
+            });
+        }
+    });
+    // Wenn gültige Materialien vorhanden sind, anzeigen
+    if (validMaterialEntries.length > 0) {
+        validMaterialEntries.forEach(entry => {
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>${activity}</td>
-                <td>${von}</td>
-                <td>${bis}</td>
-                <td>${std.toFixed(1)}</td>
+                <td>${entry.material}</td>
+                <td>${entry.quantity}</td>
             `;
-            arbeitseinsatzPreview.appendChild(newRow);
+            materialPreview.appendChild(newRow);
         });
-        
-        document.getElementById('preview-stunden-summe').textContent = totalHours.toFixed(1);
-        
-        // Material
-        const materialPreview = document.getElementById('preview-material');
-        materialPreview.innerHTML = '';
-        
-        let hasMaterial = false;
-        document.querySelectorAll('#material-table tbody tr').forEach(row => {
-            const name = row.querySelector('.material-name').value;
-            const quantity = row.querySelector('.material-quantity').value;
-            
-            if (name || quantity) {
-                hasMaterial = true;
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${name}</td>
-                    <td>${quantity}</td>
-                `;
-                materialPreview.appendChild(newRow);
-            }
-        });
-        
-        // Wenn keine Materialien vorhanden sind, Platzhalterzeile anzeigen
-        if (!hasMaterial) {
-            const emptyRow = document.createElement('tr');
-            emptyRow.innerHTML = `
-                <td colspan="2" class="text-center text-muted">Keine Materialien eingetragen</td>
-            `;
-            materialPreview.appendChild(emptyRow);
-        }
-        
-        // Notizen
-        const notes = document.getElementById('{{ form.notes.id }}').value;
-        if (notes.trim()) {
-            document.getElementById('preview-notes-section').style.display = 'block';
-            document.getElementById('preview-notes').textContent = notes;
-        } else {
-            document.getElementById('preview-notes-section').style.display = 'none';
-        }
+    } else {
+        // Keine Materialien eingetragen
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="2" class="text-center text-muted">Keine Materialien eingetragen</td>
+        `;
+        materialPreview.appendChild(emptyRow);
     }
+
+    // Notizen
+    const notes = document.getElementById('{{ form.notes.id }}').value.trim();
+    if (notes) {
+        document.getElementById('preview-notes-section').style.display = 'block';
+        document.getElementById('preview-notes').textContent = notes;
+    } else {
+        document.getElementById('preview-notes-section').style.display = 'none';
+    }
+}
     
     // Event-Listener für alle Inputs
     function setupEventListeners() {
@@ -678,48 +760,311 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('add-row-btn').addEventListener('click', addTimeRow);
         document.getElementById('add-material-btn').addEventListener('click', addMaterialRow);
         
-        // Zeichenzähler für Notizen
-        const notesTextarea = document.getElementById('{{ form.notes.id }}');
-        const charCount = document.getElementById('char-count');
+        // Material-Eingaben
+        const materialInputs = document.querySelectorAll('.material-name, .material-quantity');
+        materialInputs.forEach(input => {
+            input.addEventListener('input', updateJsonData);
+        });
+    }
+    
+    // Zeichenzähler für Notizen
+    function setupCharCounter() {
+        const notesField = document.getElementById('{{ form.notes.id }}');
+        const charCounter = document.getElementById('char-count');
         
-        notesTextarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
-            if (this.value.length > 450) {
-                charCount.classList.add('text-danger');
+        notesField.addEventListener('input', function() {
+            const length = this.value.length;
+            charCounter.textContent = length;
+            
+            if (length > 500) {
+                charCounter.classList.add('text-danger');
+                charCounter.classList.remove('text-muted');
             } else {
-                charCount.classList.remove('text-danger');
+                charCounter.classList.remove('text-danger');
+                charCounter.classList.add('text-muted');
             }
         });
-        
-        // Formular-Absenden
-        document.getElementById('timesheet-form').addEventListener('submit', function(e) {
-            // Aktualisiere noch einmal alle Daten vor dem Absenden
-            updateJsonData();
-        });
-        
-        // Tastenkürzel (Strg+Enter zum Speichern)
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
+    }
+    
+    // Keyboard-Shortcuts
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', function(event) {
+            // Strg+S zum Speichern
+            if (event.ctrlKey && event.key === 's') {
+                event.preventDefault();
                 document.getElementById('save-btn').click();
             }
+            
+            // Strg+P für Vorschau
+            if (event.ctrlKey && event.key === 'p') {
+                event.preventDefault();
+                const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');
+                previewBtn.click();
+            }
         });
     }
     
-    // Initialisierung
-    setupEventListeners();
-    updateAllHours();
-    checkForOtherActivity();
-    updateJsonData();
-    
-    // Heutiges Datum als Standard
-    const dateInput = document.getElementById('datum');
-    if (!dateInput.value) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    // Form-Validierung
+    function setupFormValidation() {
+        const form = document.getElementById('timesheet-form');
+        
+        form.addEventListener('submit', function(event) {
+            // Validiere Datum
+            const datumInput = document.getElementById('datum');
+            if (!datumInput.value) {
+                event.preventDefault();
+                datumInput.classList.add('is-invalid');
+                datumInput.focus();
+                return;
+            }
+            
+            // Validiere Arbeitskraft
+            const arbeitskraftInput = document.getElementById('arbeitskraft');
+            if (!arbeitskraftInput.value.trim()) {
+                event.preventDefault();
+                arbeitskraftInput.classList.add('is-invalid');
+                arbeitskraftInput.focus();
+                return;
+            }
+            
+            // Validiere Stunden
+            const totalHours = parseFloat(document.querySelector('.total-hours').value);
+            if (totalHours <= 0) {
+                event.preventDefault();
+                alert('Bitte tragen Sie mindestens eine Tätigkeit mit gültiger Zeiterfassung ein.');
+                return;
+            }
+            
+            // Validiere 'Andere Tätigkeit', falls ausgewählt
+            const hasOtherActivity = Array.from(document.querySelectorAll('.activity-select')).some(select => select.value === 'andere');
+            if (hasOtherActivity) {
+                const otherActivityInput = document.getElementById('{{ form.other_activity.id }}');
+                if (!otherActivityInput.value.trim()) {
+                    event.preventDefault();
+                    otherActivityInput.classList.add('is-invalid');
+                    otherActivityInput.focus();
+                    return;
+                }
+            }
+        });
     }
+    
+    // Bestätigungsdialog vor dem Verlassen der Seite
+    function setupLeaveConfirmation() {
+        let formChanged = false;
+        
+        // Überwachen aller Eingaben
+        const formInputs = document.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                formChanged = true;
+            });
+        });
+        
+        // Bestätigungsdialog anzeigen
+        window.addEventListener('beforeunload', function(event) {
+            if (formChanged) {
+                event.preventDefault();
+                event.returnValue = 'Sie haben ungespeicherte Änderungen. Möchten Sie die Seite wirklich verlassen?';
+                return event.returnValue;
+            }
+        });
+        
+        // Bestätigung beim Abbrechen-Button deaktivieren
+        document.querySelector('a.btn-outline-secondary').addEventListener('click', function() {
+            formChanged = false;
+        });
+        
+        // Bestätigung beim Speichern-Button deaktivieren
+        document.getElementById('save-btn').addEventListener('click', function() {
+            formChanged = false;
+        });
+    }
+    
+    // Datum automatisch auf heute setzen
+    function setDateToday() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        
+        const datumInput = document.getElementById('datum');
+        if (!datumInput.value) {
+            datumInput.value = `${year}-${month}-${day}`;
+        }
+    }
+    
+    // Funktion für automatische Zeit-Vorschläge
+    function setupTimeAutocomplete() {
+        // Vorschläge für gängige Arbeitszeiten
+        const commonStartTimes = ['07:00', '07:30', '08:00', '08:30', '09:00'];
+        const commonEndTimes = ['16:00', '16:30', '17:00', '17:30', '18:00'];
+        
+        // Datalist für Von-Zeit
+        const fromDatalistId = 'time-from-options';
+        let fromDatalist = document.getElementById(fromDatalistId);
+        
+        if (!fromDatalist) {
+            fromDatalist = document.createElement('datalist');
+            fromDatalist.id = fromDatalistId;
+            document.body.appendChild(fromDatalist);
+            
+            commonStartTimes.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                fromDatalist.appendChild(option);
+            });
+        }
+        
+        // Datalist für Bis-Zeit
+        const toDatalistId = 'time-to-options';
+        let toDatalist = document.getElementById(toDatalistId);
+        
+        if (!toDatalist) {
+            toDatalist = document.createElement('datalist');
+            toDatalist.id = toDatalistId;
+            document.body.appendChild(toDatalist);
+            
+            commonEndTimes.forEach(time => {
+                const option = document.createElement('option');
+                option.value = time;
+                toDatalist.appendChild(option);
+            });
+        }
+        
+        // Datalist den Eingabefeldern zuweisen
+        document.querySelectorAll('.time-from').forEach(input => {
+            input.setAttribute('list', fromDatalistId);
+        });
+        
+        document.querySelectorAll('.time-to').forEach(input => {
+            input.setAttribute('list', toDatalistId);
+        });
+    }
+    
+    // Autosave-Funktion
+    function setupAutosave() {
+        const AUTOSAVE_KEY = 'timesheet_autosave_' + window.location.pathname;
+        const AUTOSAVE_INTERVAL = 30000; // 30 Sekunden
+        
+        // Wiederherstellen von Autosave-Daten
+        try {
+            const savedData = localStorage.getItem(AUTOSAVE_KEY);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Datum und Kopfdaten wiederherstellen
+                if (data.date) document.getElementById('datum').value = data.date;
+                if (data.arbeitskraft) document.getElementById('arbeitskraft').value = data.arbeitskraft;
+                if (data.an_abreise) document.getElementById('an_abreise').value = data.an_abreise;
+                
+                // Arbeitseinsatz wiederherstellen
+                if (data.arbeitseinsatz && data.arbeitseinsatz.length > 0) {
+                    // Erste Zeile füllen
+                    const firstRow = document.querySelector('#arbeitseinsatz-table tbody tr');
+                    firstRow.querySelector('.activity-select').value = data.arbeitseinsatz[0].activity;
+                    firstRow.querySelector('.time-from').value = data.arbeitseinsatz[0].von;
+                    firstRow.querySelector('.time-to').value = data.arbeitseinsatz[0].bis;
+                    
+                    // Weitere Zeilen hinzufügen
+                    for (let i = 1; i < data.arbeitseinsatz.length; i++) {
+                        addTimeRow();
+                        const row = document.querySelectorAll('#arbeitseinsatz-table tbody tr')[i];
+                        row.querySelector('.activity-select').value = data.arbeitseinsatz[i].activity;
+                        row.querySelector('.time-from').value = data.arbeitseinsatz[i].von;
+                        row.querySelector('.time-to').value = data.arbeitseinsatz[i].bis;
+                    }
+                }
+                
+                // Material wiederherstellen
+                if (data.material && data.material.length > 0) {
+                    // Erste Zeile füllen
+                    const firstRow = document.querySelector('#material-table tbody tr');
+                    firstRow.querySelector('.material-name').value = data.material[0].material;
+                    firstRow.querySelector('.material-quantity').value = data.material[0].menge;
+                    
+                    // Weitere Zeilen hinzufügen
+                    for (let i = 1; i < data.material.length; i++) {
+                        addMaterialRow();
+                        const row = document.querySelectorAll('#material-table tbody tr')[i];
+                        row.querySelector('.material-name').value = data.material[i].material;
+                        row.querySelector('.material-quantity').value = data.material[i].menge;
+                    }
+                }
+                
+                // Notizen wiederherstellen
+                if (data.notes) document.getElementById('{{ form.notes.id }}').value = data.notes;
+                
+                // Interface aktualisieren
+                updateAllHours();
+                checkForOtherActivity();
+                
+                // Autosave-Info anzeigen
+                const autosaveInfo = document.createElement('div');
+                autosaveInfo.className = 'alert alert-info animate__animated animate__fadeIn';
+                autosaveInfo.innerHTML = `
+                    <i class="fas fa-history me-2"></i>
+                    <strong>Automatisch gespeicherte Daten wiederhergestellt.</strong>
+                    <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Schließen"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(autosaveInfo, document.querySelector('form'));
+                
+                // Alert nach 5 Sekunden ausblenden
+                setTimeout(() => {
+                    autosaveInfo.classList.add('animate__fadeOut');
+                    setTimeout(() => autosaveInfo.remove(), 500);
+                }, 5000);
+            }
+        } catch (error) {
+            console.error('Fehler beim Wiederherstellen der Autosave-Daten:', error);
+        }
+        
+        // Regelmäßiges Speichern
+        setInterval(() => {
+            try {
+                // Daten sammeln
+                const data = {
+                    date: document.getElementById('datum').value,
+                    arbeitskraft: document.getElementById('arbeitskraft').value,
+                    an_abreise: document.getElementById('an_abreise').value,
+                    arbeitseinsatz: JSON.parse(document.getElementById('arbeitseinsatz_data').value || '[]'),
+                    material: JSON.parse(document.getElementById('material_data').value || '[]'),
+                    notes: document.getElementById('{{ form.notes.id }}').value
+                };
+                
+                // Im LocalStorage speichern
+                localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
+            } catch (error) {
+                console.error('Fehler beim Autosave:', error);
+            }
+        }, AUTOSAVE_INTERVAL);
+        
+        // Beim erfolgreichen Absenden des Formulars Autosave löschen
+        document.getElementById('timesheet-form').addEventListener('submit', function() {
+            localStorage.removeItem(AUTOSAVE_KEY);
+        });
+    }
+    
+    // Alle Initialisierungen starten
+    setupEventListeners();
+    setupCharCounter();
+    setupKeyboardShortcuts();
+    setupFormValidation();
+    setupLeaveConfirmation();
+    setDateToday();
+    setupTimeAutocomplete();
+    setupAutosave();
+    
+    // Initialen Zustand aktualisieren
+    updateAllHours();
+    updateJsonData();
+    updateRemoveButtons();
+    updateMaterialRemoveButtons();
+    checkForOtherActivity();
+    
+    // Modal-Events für die Vorschau
+    const previewModal = document.getElementById('previewModal');
+    previewModal.addEventListener('show.bs.modal', updatePreview);
 });
 </script>
 {% endblock %}
