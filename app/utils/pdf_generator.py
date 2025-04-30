@@ -106,26 +106,38 @@ def generate_fortuna_timesheet(output_path,
     # Debug information
     print(f"Current working directory: {os.getcwd()}")
     
-    # Header mit Firmeninfos und Logo
-    header_data = [
-        [
-            Paragraph("<font color='#003f87'><b>Fortuna Elektro GmbH</b></font><br/>" +
-                     "Lothar-Bucher-Straße 5<br/>" +
-                     "12157 Berlin<br/>" +
-                     "+49 (030) 499 657 15<br/>" +
-                     "info@fortuna-elektro.com", normal_style),
-            ""  # Platzhalter für Logo (wird später gefüllt, wenn möglich)
-        ]
-    ]
+    # Für die erste Seite definieren wir eine Funktion, die das Logo und die Firmeninfos platziert
+    def first_page(canvas, doc):
+        canvas.saveState()
+        # Logo links platzieren
+        logo_found = False
+        for logo_path in logo_paths:
+            if os.path.exists(logo_path):
+                try:
+                    # Logo links oben platzieren
+                    canvas.drawImage(logo_path, 1*cm, doc.height - 3*cm, width=4*cm, preserveAspectRatio=True)
+                    logo_found = True
+                    break
+                except Exception as e:
+                    print(f"Error loading logo from {logo_path}: {e}")
+                    continue
+        
+        # Firmeninformationen rechts platzieren
+        canvas.setFont("Helvetica-Bold", 12)
+        canvas.setFillColorRGB(0, 0.25, 0.53)  # FORTUNA_BLUE als RGB
+        canvas.drawRightString(doc.width + 1*cm, doc.height - 1.5*cm, "Fortuna Elektro GmbH")
+        
+        canvas.setFillColorRGB(0.4, 0.4, 0.4)  # Dunkelgrau
+        canvas.setFont("Helvetica", 10)
+        canvas.drawRightString(doc.width + 1*cm, doc.height - 2*cm, "Lothar-Bucher-Straße 5")
+        canvas.drawRightString(doc.width + 1*cm, doc.height - 2.5*cm, "12157 Berlin")
+        canvas.drawRightString(doc.width + 1*cm, doc.height - 3*cm, "+49 (030) 499 657 15")
+        canvas.drawRightString(doc.width + 1*cm, doc.height - 3.5*cm, "info@fortuna-elektro.com")
+        
+        canvas.restoreState()
     
-    header_table = Table(header_data, colWidths=[10*cm, 7.5*cm])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (0, 0), 'TOP'),
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-    ]))
-    
-    elements.append(header_table)
-    elements.append(Spacer(1, 0.5*cm))
+    # Wir generieren keinen Header als normales Element, stattdessen wird er beim Build-Prozess hinzugefügt
+    elements.append(Spacer(1, 4*cm))  # Platz für Header reservieren
     
     # Titel
     elements.append(Paragraph("Bau-Tagesbericht und Stundennachweis", title_style))
@@ -208,7 +220,7 @@ def generate_fortuna_timesheet(output_path,
     
     # Summe der Stunden
     if total_hours > 0:
-        total_data = [['', '', 'Summe:', f"{total_hours:.1f}"]]
+        total_data = [['', '', 'Gesamtstunden:', f"{total_hours:.1f}"]]
         total_table = Table(total_data, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
         
         # FIX: Use a safer approach for emphasizing text - avoid using custom font names
@@ -275,24 +287,10 @@ def generate_fortuna_timesheet(output_path,
         elements.append(Paragraph("Notizen:", title_style))
         elements.append(Paragraph(notes, normal_style))
     
-    # Unterschriftsbereich
-    elements.append(Spacer(1, 1*cm))
-    sig_data = [['___________________________', '___________________________'],
-                ['Unterschrift Fortuna Elektro', 'Unterschrift Kunde']]
+
     
-    sig_table = Table(sig_data, colWidths=[8.5*cm, 8.5*cm])
-    sig_table.setStyle(TableStyle([
-        ('FONT', (0, 0), (-1, -1), default_font, 9),
-        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 1), (-1, 1), 1),
-    ]))
-    
-    elements.append(sig_table)
-    
-    # PDF erstellen
-    doc.build(elements)
+    # PDF erstellen mit first_page als Template für die erste Seite
+    doc.build(elements, onFirstPage=first_page)
     
     # Wenn in den Speicher geschrieben wurde, BytesIO zurückgeben
     if output_path == "memory":
