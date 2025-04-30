@@ -1,4 +1,3 @@
-# app/routes/timesheets.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from app import db
@@ -12,7 +11,7 @@ from wtforms.validators import DataRequired, NumberRange
 from datetime import datetime
 import os
 import uuid
-import json  # Für die Verarbeitung von JSON-String-Daten
+import json
 
 timesheets = Blueprint('timesheets', __name__)
 
@@ -39,22 +38,18 @@ def new_timesheet(project_id):
     project = Project.query.get_or_404(project_id)
     form = TimesheetForm()
 
-    # Heutiges Datum als Standardwert
     if not form.date.data:
         form.date.data = datetime.utcnow().date()
 
     if form.validate_on_submit():
         try:
-            # Daten aus dem Formular extrahieren
             date = form.date.data
             hours = form.hours.data
             notes = form.notes.data
             
-            # Arbeitseinsatz und Material-Daten aus JSON extrahieren
             arbeitseinsatz_string = request.form.get('arbeitseinsatz_data', '[]')
             material_string = request.form.get('material_data', '[]')
             
-            # JSON-Strings in Listen von Dictionaries konvertieren
             try:
                 arbeitseinsatz_data = json.loads(arbeitseinsatz_string)
             except json.JSONDecodeError:
@@ -68,15 +63,12 @@ def new_timesheet(project_id):
             an_abreise = request.form.get('an_abreise', '')
             arbeitskraft = request.form.get('arbeitskraft', current_user.username)
             
-            # Bestimme die tatsächliche Aktivität
             activity_text = form.activity.data
             if activity_text == 'andere' and form.other_activity.data:
                 activity_text = form.other_activity.data
             else:
-                # Hole den angezeigten Text für die ausgewählte Aktivität
                 activity_text = dict(ACTIVITY_CHOICES).get(activity_text, activity_text)
 
-            # Stundenbericht erstellen
             timesheet = Timesheet(
                 date=date,
                 activity=activity_text,
@@ -89,7 +81,6 @@ def new_timesheet(project_id):
             db.session.add(timesheet)
             db.session.commit()
 
-            # Erstelle PDF und speichere es
             pdf_filename = f"stundenbericht_{project.id}_{timesheet.id}_{uuid.uuid4().hex}.pdf"
             pdf_folder = os.path.join(
                 current_app.config['UPLOAD_FOLDER'],
@@ -99,13 +90,11 @@ def new_timesheet(project_id):
             os.makedirs(pdf_folder, exist_ok=True)
             pdf_path = os.path.join(pdf_folder, pdf_filename)
 
-            # Formatiere das Datum als String für den PDF-Generator
             date_string = date.strftime("%d.%m.%Y")
 
-            # PDF generieren mit den vollständigen Formular-Daten
             generate_fortuna_timesheet(
                 pdf_path,
-                datum=date_string,  # Hier das Datum als String übergeben
+                datum=date_string,
                 bauvorhaben=project.name,
                 arbeitskraft=arbeitskraft,
                 an_abreise=an_abreise,
@@ -113,13 +102,10 @@ def new_timesheet(project_id):
                 material_list=material_data
             )
 
-            # Relative Pfadangabe für die Datenbank
             relative_pdf_path = os.path.join(f'project_{project.id}', 'stundenberichte', pdf_filename)
 
-            # PDF-Pfad zur Stundenbericht-Tabelle hinzufügen
             timesheet.pdf_path = relative_pdf_path
 
-            # PDF auch in der Dateitabelle erfassen
             pdf_file = File(
                 filename=pdf_filename,
                 original_filename=f"Stundenbericht_{timesheet.date.strftime('%Y-%m-%d')}.pdf",
@@ -139,9 +125,8 @@ def new_timesheet(project_id):
             flash(f"Fehler beim Speichern des Stundenberichts: {str(e)}", "danger")
             return redirect(url_for('projects.view_project', project_id=project.id))
 
-    # Hier sollte das spezielle Template für Fortuna verwendet werden
     return render_template(
-        'timesheets/new_fortuna.html',  # Verwenden Sie das Fortuna-Template
+        'timesheets/new_fortuna.html',
         title='Neuer Bau-Tagesbericht',
         form=form,
         project=project
