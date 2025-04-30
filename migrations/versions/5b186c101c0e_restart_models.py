@@ -1,8 +1,8 @@
-"""Add Vacation model
+"""restart  models
 
-Revision ID: 2ce231a8fa45
+Revision ID: 5b186c101c0e
 Revises: 
-Create Date: 2025-04-27 17:55:17.828645
+Create Date: 2025-04-30 14:59:55.906934
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2ce231a8fa45'
+revision = '5b186c101c0e'
 down_revision = None
 branch_labels = None
 depends_on = None

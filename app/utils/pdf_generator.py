@@ -48,6 +48,9 @@ def generate_fortuna_timesheet(output_path,
     except:
         default_font = 'Helvetica'
     
+    # Define the available width for all content - will use this for alignment
+    content_width = 17.5*cm  # Total width for all tables
+    
     # Erstelle PDF mit ReportLab
     # Entscheide, ob in den Speicher oder in eine Datei geschrieben wird
     
@@ -57,8 +60,8 @@ def generate_fortuna_timesheet(output_path,
         doc = SimpleDocTemplate(
             buffer, 
             pagesize=A4, 
-            leftMargin=1*cm, 
-            rightMargin=1*cm, 
+            leftMargin=1.5*cm,  # Increased margin to center content 
+            rightMargin=1.5*cm, 
             topMargin=1*cm, 
             bottomMargin=1*cm
         )
@@ -68,8 +71,8 @@ def generate_fortuna_timesheet(output_path,
         doc = SimpleDocTemplate(
             output_path, 
             pagesize=A4, 
-            leftMargin=1*cm, 
-            rightMargin=1*cm, 
+            leftMargin=1.5*cm,  # Increased margin to center content
+            rightMargin=1.5*cm, 
             topMargin=1*cm, 
             bottomMargin=1*cm
         )
@@ -83,7 +86,8 @@ def generate_fortuna_timesheet(output_path,
         fontName=default_font,
         fontSize=14,
         textColor=FORTUNA_BLUE,
-        spaceAfter=12
+        spaceAfter=12,
+        alignment=1  # Center alignment for title
     )
     normal_style = ParagraphStyle(
         'NormalStyle',
@@ -109,30 +113,41 @@ def generate_fortuna_timesheet(output_path,
     # Für die erste Seite definieren wir eine Funktion, die das Logo und die Firmeninfos platziert
     def first_page(canvas, doc):
         canvas.saveState()
+        
+        # Calculate the left margin position
+        left_margin = doc.leftMargin
+        
+        # Calculate positions to ensure content stays within table width
+        logo_x = left_margin
+        company_info_x = left_margin + content_width  # Right align at the right edge of content area
+        
+        # Move logo and address up by 1cm
+        logo_y_position = doc.height - 2*cm  # 1cm higher than before
+        
         # Logo links platzieren
         logo_found = False
         for logo_path in logo_paths:
             if os.path.exists(logo_path):
                 try:
-                    # Logo links oben platzieren
-                    canvas.drawImage(logo_path, 1*cm, doc.height - 3*cm, width=4*cm, preserveAspectRatio=True)
+                    # Logo links oben platzieren, respecting the margin and 1cm higher
+                    canvas.drawImage(logo_path, logo_x, logo_y_position, width=3*cm, preserveAspectRatio=True)
                     logo_found = True
                     break
                 except Exception as e:
                     print(f"Error loading logo from {logo_path}: {e}")
                     continue
         
-        # Firmeninformationen rechts platzieren
+        # Firmeninformationen rechts platzieren, ebenfalls 1cm höher
         canvas.setFont("Helvetica-Bold", 12)
         canvas.setFillColorRGB(0, 0.25, 0.53)  # FORTUNA_BLUE als RGB
-        canvas.drawRightString(doc.width + 1*cm, doc.height - 1.5*cm, "Fortuna Elektro GmbH")
+        canvas.drawRightString(company_info_x, doc.height - 0.5*cm, "Fortuna Elektro GmbH")
         
         canvas.setFillColorRGB(0.4, 0.4, 0.4)  # Dunkelgrau
         canvas.setFont("Helvetica", 10)
-        canvas.drawRightString(doc.width + 1*cm, doc.height - 2*cm, "Lothar-Bucher-Straße 5")
-        canvas.drawRightString(doc.width + 1*cm, doc.height - 2.5*cm, "12157 Berlin")
-        canvas.drawRightString(doc.width + 1*cm, doc.height - 3*cm, "+49 (030) 499 657 15")
-        canvas.drawRightString(doc.width + 1*cm, doc.height - 3.5*cm, "info@fortuna-elektro.com")
+        canvas.drawRightString(company_info_x, doc.height - 1.0*cm, "Lothar-Bucher-Straße 5")
+        canvas.drawRightString(company_info_x, doc.height - 1.5*cm, "12157 Berlin")
+        canvas.drawRightString(company_info_x, doc.height - 2.0*cm, "+49 (030) 499 657 15")
+        canvas.drawRightString(company_info_x, doc.height - 2.5*cm, "info@fortuna-elektro.com")
         
         canvas.restoreState()
     
@@ -143,13 +158,18 @@ def generate_fortuna_timesheet(output_path,
     elements.append(Paragraph("Bau-Tagesbericht und Stundennachweis", title_style))
     elements.append(Spacer(1, 0.3*cm))
     
-    # Informationen zum Auftrag
+    # Informationen zum Auftrag - adjust column widths to match total content width
+    col1_width = 3*cm
+    col2_width = 5.75*cm
+    col3_width = 3*cm
+    col4_width = 5.75*cm
+    
     auftrag_data = [
         ['Datum:', datum, 'Bauvorhaben:', bauvorhaben],
         ['Arbeitskraft:', arbeitskraft, 'An-/Abreise:', an_abreise]
     ]
     
-    auftrag_table = Table(auftrag_data, colWidths=[3*cm, 4.5*cm, 3*cm, 7*cm])
+    auftrag_table = Table(auftrag_data, colWidths=[col1_width, col2_width, col3_width, col4_width])
     auftrag_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, -1), default_font, 9),
         ('FONT', (0, 0), (0, -1), 'Helvetica-Bold' if default_font == 'Helvetica' else default_font, 9),
@@ -162,9 +182,14 @@ def generate_fortuna_timesheet(output_path,
     elements.append(auftrag_table)
     elements.append(Spacer(1, 0.5*cm))
     
+    # Adjust column widths for Arbeitseinsatz to match the total content width
+    activity_col_width = 10*cm
+    time_col_width = 2.5*cm  # for 'von', 'bis', 'Std' columns
+    
     # Arbeitseinsatz Tabellenüberschrift
     arbeitseinsatz_header = [['Arbeitseinsatz', 'von', 'bis', 'Std']]
-    arbeitseinsatz_header_table = Table(arbeitseinsatz_header, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+    arbeitseinsatz_header_table = Table(arbeitseinsatz_header, 
+                                         colWidths=[activity_col_width, time_col_width, time_col_width, time_col_width])
     arbeitseinsatz_header_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), FORTUNA_BLUE),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -199,7 +224,8 @@ def generate_fortuna_timesheet(output_path,
     if not arbeitseinsatz_data:
         arbeitseinsatz_data = [['', '', '', '']]
     
-    arbeitseinsatz_table = Table(arbeitseinsatz_data, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+    arbeitseinsatz_table = Table(arbeitseinsatz_data, 
+                                  colWidths=[activity_col_width, time_col_width, time_col_width, time_col_width])
     
     row_styles = []
     for i in range(len(arbeitseinsatz_data)):
@@ -221,7 +247,8 @@ def generate_fortuna_timesheet(output_path,
     # Summe der Stunden
     if total_hours > 0:
         total_data = [['', '', 'Gesamtstunden:', f"{total_hours:.1f}"]]
-        total_table = Table(total_data, colWidths=[10*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+        total_table = Table(total_data, 
+                            colWidths=[activity_col_width, time_col_width, time_col_width, time_col_width])
         
         # FIX: Use a safer approach for emphasizing text - avoid using custom font names
         # Using a combination of font size and color instead of trying to use a bold font
@@ -237,9 +264,13 @@ def generate_fortuna_timesheet(output_path,
     
     elements.append(Spacer(1, 0.5*cm))
     
+    # Material table with adjusted column widths
+    material_col_width = 15*cm
+    amount_col_width = 2.5*cm
+    
     # Material Tabellenüberschrift
     material_header = [['Material', 'Menge']]
-    material_header_table = Table(material_header, colWidths=[15*cm, 2.5*cm])
+    material_header_table = Table(material_header, colWidths=[material_col_width, amount_col_width])
     material_header_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), FORTUNA_BLUE),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -262,7 +293,7 @@ def generate_fortuna_timesheet(output_path,
     if not material_data:
         material_data = [['', '']]
     
-    material_table = Table(material_data, colWidths=[15*cm, 2.5*cm])
+    material_table = Table(material_data, colWidths=[material_col_width, amount_col_width])
     
     row_styles = []
     for i in range(len(material_data)):
@@ -281,13 +312,26 @@ def generate_fortuna_timesheet(output_path,
     
     elements.append(material_table)
     
-    # Notizen hinzufügen, wenn vorhanden
+    # Notizen hinzufügen, wenn vorhanden, mit angepasster Breite, die der Tabellenbreite entspricht
     if notes:
         elements.append(Spacer(1, 0.5*cm))
-        elements.append(Paragraph("Notizen:", title_style))
-        elements.append(Paragraph(notes, normal_style))
-    
-
+        
+        # Notizen-Überschrift
+        notes_title = Paragraph("Notizen:", title_style)
+        elements.append(notes_title)
+        
+        # Create a notes style with the proper alignment
+        notes_style = ParagraphStyle(
+            'NotesStyle',
+            parent=normal_style,
+            alignment=0,  # Left alignment
+            leftIndent=0,
+            rightIndent=0
+        )
+        
+        # Add the notes paragraph with the same width as the tables
+        notes_paragraph = Paragraph(notes, notes_style)
+        elements.append(notes_paragraph)
     
     # PDF erstellen mit first_page als Template für die erste Seite
     doc.build(elements, onFirstPage=first_page)
