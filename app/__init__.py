@@ -38,8 +38,8 @@ def create_app(config_class=Config):
     from app.routes.timesheets import timesheets as timesheets_bp
     app.register_blueprint(timesheets_bp)
     
-    from app.routes.admin import admin as admin_bp
-    app.register_blueprint(admin_bp)
+    from app.routes.admin import admin
+    app.register_blueprint(admin)
 
     from app.routes.api import api_bp
     app.register_blueprint(api_bp, url_prefix='/api')

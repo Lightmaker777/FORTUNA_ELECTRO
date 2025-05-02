@@ -8,16 +8,20 @@
       <h1 style="color: var(--accent)">{{ project.name }}</h1>
     </div>
     <div class="col-12 col-md-6">
-      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
-        <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2">
-          <i class="fas fa-cloud-upload-alt me-2" ></i>
-          <span>Datei hochladen</span>
-        </a>
-        <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm px-4 py-2">
-          <i class="far fa-calendar-check me-2" ></i>
-          <span>Stundenbericht</span>
-        </a>
-      </div>
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
+            <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2">
+              <i class="fas fa-cloud-upload-alt me-2" ></i>
+              <span>Datei hochladen</span>
+            </a>
+            <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm px-4 py-2">
+              <i class="far fa-calendar-check me-2" ></i>
+              <span>Stundenbericht</span>
+            </a>
+            <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-outline-info rounded-pill shadow-sm px-4 py-2">
+              <i class="fas fa-download me-2" ></i>
+              <span>Projekt herunterladen</span>
+            </a>
+          </div>
     </div>
   </div>
 </div>
@@ -97,7 +101,38 @@
         </button>
     </li>
 </ul>
-
+<!-- CSS for styling the tabs -->
+<style>
+    .nav-tabs .nav-link {
+        color: #fff;
+        background-color: #1e4a73; /* Darker blue for inactive tabs */
+        margin-right: 2px;
+        border: none;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background-color: #255a8a;
+        border: none;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background-color: #14304d; /* The blue color you specified */
+        color: var(--accent);
+        border: none;
+    }
+    
+    .nav-tabs {
+        border-bottom: 1px solid #14304d;
+    }
+    
+    /* Optional: styling for the tab content area */
+    .tab-content {
+        background-color: #0e2135;
+        color: #fff;
+        padding: 15px;
+        border-radius: 0 0 5px 5px;
+    }
+</style>
 <!-- Tab-Inhalte -->
 <div class="tab-content" id="projectTabsContent">
     <!-- Fotos -->
@@ -169,7 +204,111 @@
     </div>
     
     <!-- Reste der Tab-Inhalte für andere Dateitypen folgen dem gleichen Muster -->
-    <!-- ... -->
+    <!-- Hier beginnen die fehlenden Tab-Inhalte -->
+<!-- Stundenberichte -->
+<div class="tab-pane fade" id="timesheets" role="tabpanel">
+    <div class="row">
+        {% if timesheets %}
+            {% for file in timesheets %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ file.original_filename }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ (file.file_size / 1024)|round(1) }} KB - 
+                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
+                                </small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                                    <i class="fas fa-file-pdf"></i> Anzeigen
+                                </a>
+                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted">Keine Stundenberichte vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Prüfberichte -->
+<div class="tab-pane fade" id="reports" role="tabpanel">
+    <div class="row">
+        {% if reports %}
+            {% for file in reports %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ file.original_filename }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ (file.file_size / 1024)|round(1) }} KB - 
+                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
+                                </small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                                    <i class="fas fa-file-alt"></i> Anzeigen
+                                </a>
+                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted">Keine Prüfberichte vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sonstiges -->
+<div class="tab-pane fade" id="other" role="tabpanel">
+    <div class="row">
+        {% if other_files %}
+            {% for file in other_files %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ file.original_filename }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ (file.file_size / 1024)|round(1) }} KB - 
+                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
+                                </small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                                    <i class="fas fa-file"></i> Anzeigen
+                                </a>
+                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-muted">Keine sonstigen Dateien vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
     <!-- Arbeitsstunden -->
     <div class="tab-pane fade" id="timesheet-data" role="tabpanel">

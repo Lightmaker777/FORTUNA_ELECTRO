@@ -6,11 +6,11 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #14304d; color: var(--accent)">
                     <h3 class="mb-0">
                         <i class="fas fa-clipboard-list me-2"></i>Bau-Tagesbericht und Stundennachweis
                     </h3>
-                    <span class="badge bg-light text-primary">{{ project.name }}</span>
+                    <span class="badge" style="background-color: #14304d; color: var(--accent)">{{ project.name }}</span>
                 </div>
                 <div class="card-body p-4">
                     <p class="text-muted mb-4">Erfassen Sie Ihren Bau-Tagesbericht für das Projekt "{{ project.name }}"</p>
@@ -21,7 +21,7 @@
                         <!-- Fortuna Elektro Kopfdaten -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
                                     <label for="datum" class="form-label fw-bold">Datum:</label>
                                     {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date", id="datum") }}
                                     {% if form.date.errors %}
@@ -33,24 +33,24 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="mb-3">
+                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
                                     <label for="bauvorhaben" class="form-label fw-bold">BV (Bauvorhaben):</label>
                                     <input type="text" class="form-control" id="bauvorhaben" name="bauvorhaben" value="{{ project.name }}" readonly>
                                 </div>
                             
-                                <div class="mb-3">
+                                <div class="mb-3" >
                                     <label for="arbeitskraft" class="form-label fw-bold">Arbeitskraft:</label>
-                                    <input type="text" class="form-control text_dark" id="arbeitskraft" name="arbeitskraft" value="{{ current_user.username }}" placeholder="Name(n) der Arbeitskraft(e) eingeben">
+                                    <input style="background-color: #14304d; color: var(--accent)"type="text" class="form-control" id="arbeitskraft" name="arbeitskraft" value="{{ current_user.username }}" placeholder="Name(n) der Arbeitskraft(e) eingeben">
                                 </div>
                                 
-                                <div class="mb-3">
+                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
                                     <label for="an_abreise" class="form-label fw-bold">An-u. Abreise:</label>
                                     <input type="text" class="form-control" id="an_abreise" name="an_abreise" placeholder="z.B. '07:45 - 17:15'">
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
-                                <div class="bg-light p-3 h-100 rounded">
+                                <div class="p-3 h-100 rounded" style="background-color: #14304d; color: var(--accent)">
                                     <div class="text-center mb-3">
                                         <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">
                                     </div>
@@ -68,11 +68,11 @@
                         <hr class="my-4">
                         
                         <!-- Arbeitseinsatz-Tabelle -->
-                        <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Arbeitseinsatz</h5>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered" id="arbeitseinsatz-table">
-                                <thead class="table-light">
-                                    <tr>
+                        <h5 class="mb-3" style="background-color: #14304d; color: var(--accent)"><i class="fas fa-clock me-2"></i>Arbeitseinsatz</h5>
+                        <div class="table-responsive mb-4" >
+                            <table class="table table-bordered" id="arbeitseinsatz-table" style="background-color: #14304d; color: var(--accent)">
+                                <thead class="table" style="background-color: #14304d; color: var(--accent)">
+                                    <tr style="background-color: #14304d; color: var(--accent)">
                                         <th style="width: 40%">Tätigkeit</th>
                                         <th>Von</th>
                                         <th>Bis</th>
@@ -82,33 +82,33 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>
-                                            <select class="form-select activity-select">
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <select class="form-select activity-select" style="background-color: #14304d !important; color: var(--accent) !important;">
                                                 {% for value, label in form.activity.choices %}
                                                 <option value="{{ value }}">{{ label }}</option>
                                                 {% endfor %}
                                             </select>
                                         </td>
-                                        <td>
-                                            <input type="time" class="form-control time-from" value="00:00">
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <input type="time" class="form-control time-from" value="00:00" style="background-color: #14304d !important; color: var(--accent) !important;">
                                         </td>
-                                        <td>
-                                            <input type="time" class="form-control time-to" value="00:00">
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <input type="time" class="form-control time-to" value="00:00" style="background-color: #14304d !important; color: var(--accent) !important;">
                                         </td>
-                                        <td>
-                                            <input type="text" class="form-control time-hours" value="0.0" readonly>
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <input type="text" class="form-control time-hours" value="0.0" readonly style="background-color: #14304d !important; color: var(--accent) !important;">
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center" style="background-color: #14304d !important; color: var(--accent) !important;">
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn" style="display:none;">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </td>
                                     </tr>
                                 </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3" class="text-end fw-bold">Gesamtstunden:</td>
-                                        <td>
+                                <tfoot >
+                                    <tr >
+                                        <td colspan="3" class="text-end fw-bold" style="background-color: #14304d; color: var(--accent)">Gesamtstunden:</td>
+                                        <td style="background-color: #14304d; color: var(--accent)">
                                             {{ form.hours(class="form-control total-hours" + (" is-invalid" if form.hours.errors else ""), readonly=true) }}
                                             {% if form.hours.errors %}
                                                 <div class="invalid-feedback">
@@ -118,11 +118,11 @@
                                                 </div>
                                             {% endif %}
                                         </td>
-                                        <td></td>
+                                        <td style="background-color: #14304d; color: var(--accent)"></td>
                                     </tr>
                                 </tfoot>
                             </table>
-                            <div class="text-end">
+                            <div class="text-end" style="background-color: #14304d; color: var(--accent)">
                                 <button type="button" class="btn btn-sm btn-primary" id="add-row-btn">
                                     <i class="fas fa-plus me-1"></i>Zeile hinzufügen
                                 </button>
@@ -156,14 +156,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <input type="text" class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm² text-light">
+                                    <tr >
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <input type="text"  class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm² text-light">
                                         </td>
-                                        <td>
+                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
                                             <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center" style="background-color: #14304d !important; color: var(--accent) !important;">
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn" style="display:none;">
                                                 <i class="fas fa-times"></i>
                                             </button>
@@ -200,11 +200,11 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
                         <!-- Versteckte Felder für Arbeitseinsatz und Material JSON-Daten -->
                         <input type="hidden" name="arbeitseinsatz_data" id="arbeitseinsatz_data">
                         <input type="hidden" name="material_data" id="material_data" value="[]">
                         {{ form.activity(type="hidden", id="activity-hidden") }}
+                        
                         
                         <hr class="my-4">
                         
@@ -225,7 +225,7 @@
                             <i class="fas fa-info-circle me-1"></i> Alle Felder werden für die PDF-Erstellung verwendet
                         </div>
                         <div>
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#previewModal">
+                            <button type="button" class="btn btn-sm btn-outline-primary" style="background-color: #14304d; color: var(--accent)"data-bs-toggle="modal" data-bs-target="#previewModal">
                                 <i class="fas fa-eye me-1"></i>Vorschau
                             </button>
                         </div>
@@ -320,6 +320,26 @@
         </div>
     </div>
 </div>
+
+<style>
+#arbeitskraft.form-control {
+  background-color: #14304d !important;
+  color: var(--accent) !important;
+  
+}
+.dark-input.form-control,
+input.dark-input.form-control,
+select.dark-input.form-select,
+.dark-input .form-select,
+.dark-input .form-control,
+#arbeitseinsatz-tabelle input,
+#arbeitseinsatz-tabelle select,
+#arbeitseinsatz-tabelle td {
+    background-color: #14304d !important;
+    color: var(--accent) !important;
+    border-color: #2c5682 !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1066,5 +1086,35 @@ function updatePreview() {
     const previewModal = document.getElementById('previewModal');
     previewModal.addEventListener('show.bs.modal', updatePreview);
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // Alle Formularelemente auswählen
+    const inputs = document.querySelectorAll('.form-control, .form-select');
+    
+    // Stile anwenden
+    inputs.forEach(input => {
+        input.style.setProperty('background-color', '#14304d', 'important');
+        input.style.setProperty('color', 'var(--accent)', 'important');
+    });
+    
+    // Auch auf neue Elemente anwenden, die später hinzugefügt werden
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.querySelectorAll) {
+                        const newInputs = node.querySelectorAll('.form-control, .form-select');
+                        newInputs.forEach(input => {
+                            input.style.setProperty('background-color', '#14304d', 'important');
+                            input.style.setProperty('color', 'var(--accent)', 'important');
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+});
 </script>
+
 {% endblock %}

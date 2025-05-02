@@ -1,4 +1,3 @@
-# app/models/user.py
 from app import db, login_manager
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,12 +10,12 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), nullable=False, default='installateur')  # 'admin' oder 'installateur'
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     # Beziehungen
     projects = db.relationship('Project', backref='creator', lazy='dynamic')
     files = db.relationship('File', backref='uploader', lazy='dynamic')
     timesheets = db.relationship('Timesheet', backref='employee', lazy='dynamic')
-
+    
     @property
     def name(self):
         return self.username
@@ -32,13 +31,7 @@ class User(UserMixin, db.Model):
     
     def __repr__(self):
         return f'<User {self.username}>'
-
+        
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
-
-
-
-
-
-

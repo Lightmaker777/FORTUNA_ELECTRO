@@ -1,8 +1,8 @@
 """Add new admin/user model
 
-Revision ID: 2d86b9f0a008
+Revision ID: 418bbc8f1655
 Revises: 
-Create Date: 2025-04-30 19:40:40.071273
+Create Date: 2025-05-01 15:37:56.199345
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '2d86b9f0a008'
+revision = '418bbc8f1655'
 down_revision = None
 branch_labels = None
 depends_on = None

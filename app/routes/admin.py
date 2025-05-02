@@ -5,9 +5,10 @@ from app.forms.user_forms import AddUserForm, EditUserForm, ResetPasswordForm, D
 from app.utils.decorators import admin_required
 from app import db
 
-admin = Blueprint('admin', __name__, url_prefix='/admin')
+# Definieren Sie den Blueprint ohne Präfix, falls die App es bereits hinzufügt
+admin = Blueprint('admin', __name__)
 
-@admin.route('/users', methods=['GET'])
+@admin.route('/admin/users', methods=['GET'])
 @login_required
 @admin_required
 def list_users():
@@ -24,18 +25,22 @@ def list_users():
                           add_user_form=add_user_form,
                           edit_user_form=edit_user_form,
                           reset_password_form=reset_password_form,
-                          delete_user_form=delete_user_form)
+                          delete_user_form=delete_user_form,
+                          current_user=current_user)
 
-@admin.route('/users/add', methods=['POST'])
+@admin.route('/admin/users/add', methods=['POST'])
 @login_required
 @admin_required
 def add_user():
     """Add a new user."""
     form = AddUserForm()
     if form.validate_on_submit():
+        # Setze die Rolle basierend auf der Checkbox
+        role = 'admin' if form.is_admin.data else 'installateur'
+        
         user = User(
             username=form.username.data,
-            is_admin=form.is_admin.data,
+            role=role,  # Rolle direkt setzen
             is_active=True
         )
         user.set_password(form.password.data)
@@ -48,7 +53,7 @@ def add_user():
                 flash(f'{getattr(form, field).label.text}: {error}', 'danger')
     return redirect(url_for('admin.list_users'))
 
-@admin.route('/users/edit', methods=['POST'])
+@admin.route('/admin/users/edit', methods=['POST'])
 @login_required
 @admin_required
 def edit_user():
@@ -57,33 +62,80 @@ def edit_user():
     if form.validate_on_submit():
         user = User.query.get_or_404(form.user_id.data)
         user.username = form.username.data
-        user.is_admin = form.is_admin.data
+        
+        # Setze die Rolle basierend auf der Checkbox
+        user.role = 'admin' if form.is_admin.data else 'installateur'
+        
         user.is_active = form.is_active.data
         db.session.commit()
         flash(f'Benutzer {user.username} wurde erfolgreich aktualisiert.', 'success')
     return redirect(url_for('admin.list_users'))
 
-@admin.route('/users/reset-password', methods=['POST'])
+@admin.route('/admin/users/reset-password', methods=['POST'])
 @login_required
 @admin_required
 def reset_password():
     """Reset user's password."""
+    print("Reset password route called")
+    print(f"Form data: {request.form}")
+    
     form = ResetPasswordForm()
     if form.validate_on_submit():
+        print(f"Form validated for user_id: {form.user_id.data}")
         user = User.query.get_or_404(form.user_id.data)
         user.set_password(form.new_password.data)
         db.session.commit()
         flash(f'Das Passwort für Benutzer {user.username} wurde zurückgesetzt.', 'success')
+    else:
+        print(f"Form validation failed: {form.errors}")
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{getattr(form, field).label.text}: {error}', 'danger')
+    
     return redirect(url_for('admin.list_users'))
 
-@admin.route('/users/delete', methods=['POST'])
+@admin.route('/admin/users/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_user():
     """Delete a user."""
-    form = DeleteUserForm()
-    if form.validate_on_submit():
-        user = User.query.get_or_404(form.user_id.data)
+    print(f"Form data received: {request.form}")  # Print all form data for debugging
+    
+    # Check if user_id is in the form data at all
+    if 'user_id' in request.form:
+        user_id = request.form.get('user_id')
+        print(f"User ID from form data: {user_id}")
+        
+        # Try to delete the user directly without form validation
+        try:
+            user = User.query.get_or_404(user_id)
+            if user.id == current_user.id:
+                flash('Sie können Ihren eigenen Benutzer nicht löschen.', 'danger')
+            else:
+                username = user.username
+                db.session.delete(user)
+                db.session.commit()
+                flash(f'Benutzer {username} wurde erfolgreich gelöscht.', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error deleting user: {str(e)}")
+            flash(f'Fehler beim Löschen des Benutzers: {str(e)}', 'danger')
+    else:
+        print("user_id not found in form data!")
+        flash('User ID nicht gefunden!', 'danger')
+    
+    return redirect(url_for('admin.list_users'))
+
+# If you still have issues with the form approach, you could use a direct URL approach:
+
+# In routes.py, add this alternative route:
+@admin.route('/admin/users/delete-direct/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_user_direct(user_id):
+    """Delete a user directly via URL."""
+    try:
+        user = User.query.get_or_404(user_id)
         if user.id == current_user.id:
             flash('Sie können Ihren eigenen Benutzer nicht löschen.', 'danger')
         else:
@@ -91,4 +143,10 @@ def delete_user():
             db.session.delete(user)
             db.session.commit()
             flash(f'Benutzer {username} wurde erfolgreich gelöscht.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting user: {str(e)}")
+        flash(f'Fehler beim Löschen des Benutzers: {str(e)}', 'danger')
+    
     return redirect(url_for('admin.list_users'))
+

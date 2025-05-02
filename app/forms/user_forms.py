@@ -36,5 +36,5 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Passwort zurücksetzen')
 
 class DeleteUserForm(FlaskForm):
-    user_id = HiddenField('User ID')
+    user_id = HiddenField('User ID',validators=[DataRequired()])
     submit = SubmitField('Löschen')

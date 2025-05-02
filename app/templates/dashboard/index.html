@@ -124,6 +124,11 @@
                                             </div>
                                         </td>
                                         <td class="text-end"  style="background-color: #3e5063">
+                                            <!-- In der Datei, die die Dashboard-Projektliste enthält, fügen Sie diesen Code für jede Projekt-Zeile hinzu: -->
+                                            <!-- Add the download button here -->
+                                            <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
                                             <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
                                                 Details
                                             </a>
