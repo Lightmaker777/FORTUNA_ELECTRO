@@ -231,15 +231,61 @@
         .card-body, .card-body p, .card-body label, .card-body .form-text, .card-body small {
     color: #66d9ff !important; /* schönes helles Blau */
 }
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 55px;
+    padding-right: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+/* Feste Position für Logo und Marke */
+.navbar-brand img, .navbar-brand svg {
+    margin-right: 10px;
+    /* Logo verkleinern */
+    width: auto;
+    height: 50px; /* Anpassen je nach gewünschter Größe */
+    max-width: 100%;
+}
+/* Wenn nötig, können wir auch die Innenabstände reduzieren */
+.navbar-dark, .mb-1 {
+    padding-left: 1px;
+    padding-right: 10px;
+}
+
+
+/* Stellen Sie sicher, dass Karten/Boxen nicht überlaufen */
+.card, .box {
+    max-width: 100%;
+}
+
+/* Für responsive Tabellen */
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
-                <i class="fas fa-bolt"></i> FORTUNA ELEKTRO
-            </a>
+    <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container position-relative">
+        <a class="navbar-brand" href="{{ url_for('dashboard.index') }}" style="padding-left: 80px;">
+            <span style="color: var(--accent)">FORTUNA ELEKTRO APP</span>
+        </a>
+        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Fortuna Elektro Logo" 
+             style="position: absolute; left: 20; top: 50%; transform: translateY(-50%); 
+                    height: 55px; width: auto; max-height: 90%;">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -248,7 +294,7 @@
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('dashboard.index') }}">
-                                <i class="fas fa-home"></i> Dashboard
+                                <i class="fas fa-home"></i> Home
                             </a>
                         </li>
                         {% if current_user.is_admin() %}
@@ -303,7 +349,7 @@
     <!-- Footer -->
     <footer class="footer mt-auto py-3">
         <div class="container text-center">
-            <span class="text-muted">&copy; 2025 FORTUNA ELEKTRO </span>
+            <span class="text-muted">&copy; 2025 FORTUNA ELEKTRO GmbH</span>
         </div>
     </footer>
 
