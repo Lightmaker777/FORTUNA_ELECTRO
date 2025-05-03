@@ -21,7 +21,7 @@
                         <!-- Fortuna Elektro Kopfdaten -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
+                                <div class="mb-3">
                                     <label for="datum" class="form-label fw-bold">Datum:</label>
                                     {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date", id="datum") }}
                                     {% if form.date.errors %}
@@ -33,7 +33,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
+                                <div class="mb-3" >
                                     <label for="bauvorhaben" class="form-label fw-bold">BV (Bauvorhaben):</label>
                                     <input type="text" class="form-control" id="bauvorhaben" name="bauvorhaben" value="{{ project.name }}" readonly>
                                 </div>
@@ -43,7 +43,7 @@
                                     <input style="background-color: #14304d; color: var(--accent)"type="text" class="form-control" id="arbeitskraft" name="arbeitskraft" value="{{ current_user.username }}" placeholder="Name(n) der Arbeitskraft(e) eingeben">
                                 </div>
                                 
-                                <div class="mb-3" style="background-color: #14304d; color: var(--accent)">
+                                <div class="mb-3">
                                     <label for="an_abreise" class="form-label fw-bold">An-u. Abreise:</label>
                                     <input type="text" class="form-control" id="an_abreise" name="an_abreise" placeholder="z.B. '07:45 - 17:15'">
                                 </div>
@@ -68,7 +68,7 @@
                         <hr class="my-4">
                         
                         <!-- Arbeitseinsatz-Tabelle -->
-                        <h5 class="mb-3" style="background-color: #14304d; color: var(--accent)"><i class="fas fa-clock me-2"></i>Arbeitseinsatz</h5>
+                        <h5 class="mb-3" ><i class="fas fa-clock me-2"></i>Arbeitseinsatz</h5>
                         <div class="table-responsive mb-4" >
                             <table class="table table-bordered" id="arbeitseinsatz-table" style="background-color: #14304d; color: var(--accent)">
                                 <thead class="table" style="background-color: #14304d; color: var(--accent)">
@@ -122,7 +122,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
-                            <div class="text-end" style="background-color: #14304d; color: var(--accent)">
+                            <div class="text-end" >
                                 <button type="button" class="btn btn-sm btn-primary" id="add-row-btn">
                                     <i class="fas fa-plus me-1"></i>Zeile hinzufügen
                                 </button>
@@ -152,19 +152,24 @@
                                     <tr>
                                         <th style="width: 70%">Material</th>
                                         <th>Menge</th>
-                                        <th style="width: 40px"></th>
+                                        <th style="width: 40px "></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr >
-                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <input type="text"  class="form-control material-name" placeholder="z.B. Kabel 3x1.5mm² text-light">
+                                        <td  style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <select class="form-select material-name">
+                                                <option value="">Bitte auswählen</option>
+                                                {% for value, label in material_choices %}
+                                                <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
                                         </td>
-                                        <td style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
+                                        <td  style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m ">
                                         </td>
-                                        <td class="text-center" style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn" style="display:none;">
+                                        <td class="text-center"  style="background-color: #14304d !important; color: var(--accent) !important;">
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </td>
