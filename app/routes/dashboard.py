@@ -11,13 +11,13 @@ dashboard = Blueprint('dashboard', __name__)
 def index():
     # Projekte nach Status gruppieren
     in_progress = Project.query.filter_by(status='in_bearbeitung').order_by(Project.start_date.desc()).all()
-    completed = Project.query.filter_by(status='abgeschlossen').order_by(Project.start_date.desc()).all()
+    #completed = Project.query.filter_by(status='abgeschlossen').order_by(Project.start_date.desc()).all()
     archived = Project.query.filter_by(status='archiviert').order_by(Project.start_date.desc()).all()
     
     return render_template(
         'dashboard/index.html',
         title='Dashboard',
         in_progress=in_progress,
-        completed=completed,
+        #completed=completed,
         archived=archived
     )

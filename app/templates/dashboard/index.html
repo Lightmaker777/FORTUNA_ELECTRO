@@ -1,3 +1,4 @@
+<!-- app/templates/dashboard/index.html -->
 {% extends "base.html" %}
 
 {% block content %}
@@ -228,7 +229,7 @@
                 <div class="tab-content pt-2" id="projectTabContent">
                     <!-- Alle Projekte Tab -->
                     <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
-                        {% set all_projects = in_progress + completed + archived %}
+                        {% set all_projects = in_progress + archived %}
                         {% if all_projects %}
                             <div class="row g-3 project-cards">
                                 {% for project in all_projects %}
@@ -247,7 +248,7 @@
                                                       {% elif project in completed %}bg-success-custom
                                                       {% else %}bg-secondary-custom{% endif %}">
                                                     {% if project in in_progress %}In Bearbeitung
-                                                    {% elif project in completed %}Abgeschlossen
+                                                   
                                                     {% else %}Archiviert{% endif %}
                                                 </span>
                                             </div>
@@ -468,6 +469,7 @@
     </div>
 </div>
 
+<!-- app/templates/dashboard/index.html -->
 <style>
 
 :root {
@@ -495,6 +497,9 @@
     --accent: #00bcd4; /* Akzentfarbe (blau-grün) */
     --border-color: #3a3a4d; /* Subtile Rahmenfarbe */
     --hover-bg: #33334d; /* Hover-Hintergrund */
+    --border-radius-sm: 4px;    /* Small border radius */
+    --border-radius-md: 8px;    /* Medium border radius */
+    --border-radius-lg: 12px;   /* Large border radius */
 }
 
 /* Dark background for dashboard */
@@ -516,7 +521,7 @@ body::before {
     width: 80px;
     height: 4px;
     background: var(--accent);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
     top: -10px;
     left: 0;
 }
@@ -528,13 +533,13 @@ h1.display-5 {
     text-transform: uppercase;
 }
 
-/* Square Button Design */
+/* Curved Button Design */
 .btn-gradient {
     background: var(--accent);
     color: var(--primary);
     border: none;
     padding: 10px 20px;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     font-weight: 500;
     transition: all 0.3s ease;
     text-transform: uppercase;
@@ -552,7 +557,7 @@ h1.display-5 {
 .btn-refresh {
     background-color: var(--primary-light);
     border: 1px solid var(--accent);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     padding: 10px 12px;
     color: var(--accent);
     transition: all 0.4s ease;
@@ -564,9 +569,9 @@ h1.display-5 {
     transform: none;
 }
 
-/* Square Stat Cards */
+/* Curved Stat Cards */
 .custom-stat-card {
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
     overflow: hidden;
     box-shadow: none;
     transition: all 0.3s ease;
@@ -594,7 +599,7 @@ h1.display-5 {
 .stat-icon-wrapper {
     width: 65px;
     height: 65px;
-    border-radius: 0; /* Square corners */
+    border-radius: 50%; /* Circular icon */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -640,9 +645,9 @@ h1.display-5 {
     display: none;
 }
 
-/* Square Project Cards */
+/* Curved Project Cards */
 .project-card {
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
     transition: all 0.3s ease;
     overflow: hidden;
     background-color: var(--primary-light);
@@ -658,6 +663,8 @@ h1.display-5 {
     padding: 1.25rem;
     background: var(--primary-light);
     border-bottom: 1px solid var(--accent);
+    border-top-left-radius: var(--border-radius-lg); /* Match card border radius */
+    border-top-right-radius: var(--border-radius-lg); /* Match card border radius */
 }
 
 .shadow-hover {
@@ -668,26 +675,29 @@ h1.display-5 {
 .project-card-progress {
     border-left: 3px solid var(--accent) !important;
     border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
 }
 
 .project-card-completed {
     border-left: 3px solid var(--success) !important;
     border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
 }
 
 .project-card-archived {
     border-left: 3px solid var(--secondary) !important;
     border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
 }
 
-/* Square Badges */
+/* Curved Badges */
 .badge {
     padding: 0.45em 0.8em;
     font-weight: 500;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     font-size: 0.7rem;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 .bg-primary-custom {
@@ -705,14 +715,14 @@ h1.display-5 {
     color: var(--primary);
 }
 
-/* Square Button Designs */
+/* Curved Button Designs */
 .btn-project-progress {
     color: var(--accent);
     border: 1px solid var(--accent);
     transition: all 0.3s ease;
     font-weight: 500;
     padding: 0.375rem 1rem;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
 }
 
 .btn-project-progress:hover {
@@ -727,7 +737,7 @@ h1.display-5 {
     transition: all 0.3s ease;
     font-weight: 500;
     padding: 0.375rem 1rem;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
 }
 
 .btn-project-completed:hover {
@@ -742,7 +752,7 @@ h1.display-5 {
     transition: all 0.3s ease;
     font-weight: 500;
     padding: 0.375rem 1rem;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
 }
 
 .btn-project-archived:hover {
@@ -769,7 +779,7 @@ h1.display-5 {
 .project-icon {
     width: 45px;
     height: 45px;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     background-color: var(--primary-light);
     border: 1px solid var(--accent);
     display: flex;
@@ -778,13 +788,13 @@ h1.display-5 {
     color: var(--accent);
 }
 
-/* Square Tabs & Navigation */
+/* Curved Tabs & Navigation */
 .custom-nav-pills {
     gap: 0;
 }
 
 .custom-nav-pills .nav-link {
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     padding: 1rem 1.5rem;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -798,6 +808,7 @@ h1.display-5 {
 .custom-nav-pills .nav-link:hover:not(.active) {
     background-color: rgba(102, 252, 241, 0.1);
     border-bottom: 3px solid var(--accent-light);
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; /* Rounded top corners */
 }
 
 .custom-nav-pills .nav-link.active {
@@ -806,11 +817,12 @@ h1.display-5 {
     color: var(--accent);
     transform: none;
     box-shadow: none;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; /* Rounded top corners */
 }
 
-/* Square Search Field */
+/* Curved Search Field */
 .search-group .form-control {
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     padding-left: 50px;
     height: 48px;
     font-size: 1rem;
@@ -834,12 +846,12 @@ h1.display-5 {
     color: var(--accent);
 }
 
-/* Square Select Dropdown */
+/* Curved Select Dropdown */
 .form-select {
     height: 48px;
     box-shadow: none;
     border: 1px solid var(--accent);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-md); /* Rounded corners */
     padding-left: 1rem;
     background-position: right 1rem center;
     background-color: var(--primary-light);
@@ -851,9 +863,9 @@ h1.display-5 {
     border-color: var(--accent);
 }
 
-/* Square Modal Styling */
+/* Curved Modal Styling */
 .modal-content {
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
     border: 1px solid var(--accent);
     box-shadow: 0 0 40px rgba(102, 252, 241, 0.2);
     background: var(--primary);
@@ -864,7 +876,7 @@ h1.display-5 {
     color: var(--accent);
     border-bottom: 1px solid var(--accent);
     padding: 1.5rem;
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; /* Rounded top corners */
 }
 
 .modal-header .modal-title {
@@ -878,7 +890,7 @@ h1.display-5 {
     opacity: 1;
     padding: 0.6rem;
     margin: -0.6rem -0.6rem -0.6rem auto;
-    border-radius: 0; /* Square corners */
+    border-radius: 50%; /* Circular close button */
 }
 
 .modal-header .btn-close:hover {
@@ -895,7 +907,7 @@ h1.display-5 {
     border-top: 1px solid var(--accent);
     padding: 1.5rem;
     background-color: var(--primary);
-    border-radius: 0; /* Square corners */
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Rounded bottom corners */
 }
 
 /* Empty State Styling */
@@ -903,8 +915,8 @@ h1.display-5 {
     padding: 3rem;
     max-width: 600px;
     margin: 0 auto;
-    background-color: #1f2937;;
-    border-radius: 0; /* Square corners */
+    background-color: #1f2937;
+    border-radius: var(--border-radius-lg); /* Rounded corners */
     border: 1px solid var(--accent);
 }
 
@@ -934,7 +946,7 @@ h1.display-5 {
 .card {
     transition: all 0.3s ease;
     background-color: var(--primary-light);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
     border: 1px solid var(--accent);
 }
 
@@ -964,12 +976,12 @@ h1.display-5 {
 
 ::-webkit-scrollbar-track {
     background: var(--primary);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--accent);
-    border-radius: 0; /* Square corners */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -1006,7 +1018,7 @@ h1.display-5 {
     }
     
     .modal-body {
-        padding: a.5rem;
+        padding: 1.5rem;
     }
 }
 
@@ -1063,6 +1075,8 @@ h1, h2, h3, h4, h5, h6 {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    border-radius: var(--border-radius-md); /* Rounded corners for calendar */
+    overflow: hidden;
 }
 
 .calendar-day {
@@ -1092,6 +1106,8 @@ h1, h2, h3, h4, h5, h6 {
 .list-group-item {
     position: relative;
     padding-right: 4rem;
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    margin-bottom: 2px;
 }
 
 .vacation-actions {
@@ -1125,16 +1141,19 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--dark-bg); /* Dunkler Hintergrund */
     border: none;
     color: var(--accent); /* Hellere Schriftfarbe */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
 }
 
 .card.aktuelle-projekte .card-header {
     background-color: var(--dark-bg-lighter); /* Etwas heller als der Haupt-Hintergrund */
     border-bottom: 1px solid var(--border-color); /* Subtile Trennlinie */
     color: var(--light-text);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; /* Rounded top corners */
 }
 
 .card.aktuelle-projekte .card-body {
     background-color: var(--dark-bg); /* Dunkler Hintergrund für den Inhalt */
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Rounded bottom corners */
 }
 
 .card.aktuelle-projekte .table {
@@ -1157,6 +1176,7 @@ h1, h2, h3, h4, h5, h6 {
 .card.aktuelle-projekte .btn-outline-primary {
     color: var(--accent); /* Akzentfarbe für Buttons */
     border-color: var(--accent);
+    border-radius: var(--border-radius-md); /* Rounded corners */
 }
 
 .card.aktuelle-projekte .btn-outline-primary:hover {
@@ -1166,10 +1186,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .card.aktuelle-projekte .progress {
     background-color: var(--dark-bg-lighter); /* Hintergrund für Fortschrittsbalken */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 .card.aktuelle-projekte .progress-bar {
     background-color: var(--accent); /* Akzentfarbe für Fortschrittsbalken */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 /* Statistik-Karte - Horizontaler Layout */
 .stat-card-content {
@@ -1204,18 +1226,23 @@ h1, h2, h3, h4, h5, h6 {
 /* Stile für Urlaubstypen */
 .vacation-type-urlaub {
     background-color: rgba(50, 228, 18, 0.1); /* Helles/durchsichtiges Grün */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 .vacation-type-krankheit {
     background-color: rgba(206, 19, 38, 0.1); /* Helles/durchsichtiges Rot */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 
 .vacation-type-sonstiges {
     background-color: rgba(10, 84, 196, 0.1); /* Helles/durchsichtiges Blau */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
 }
 #vacationList li {
     color: white; /* Weiße Schrift für besseren Kontrast */
     font-size: 14px; /* Angemessene Schriftgröße */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    margin-bottom: 4px;
 }
 body {
     max-width: 100%;
@@ -1258,7 +1285,6 @@ body {
 }
 
 </style>
-
 
 <!-- Script für Kalenderfunktionen -->
 <script>

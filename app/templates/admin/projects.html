@@ -27,7 +27,7 @@
         <div class="btn-group mb-3">
             <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">Alle</button>
             <button type="button" class="btn btn-outline-primary filter-btn" data-filter="in_progress">In Bearbeitung</button>
-            <button type="button" class="btn btn-outline-primary filter-btn" data-filter="completed">Abgeschlossen</button>
+            
             <button type="button" class="btn btn-outline-primary filter-btn" data-filter="archived">Archiviert</button>
         </div>
         
@@ -54,8 +54,7 @@
                         <td>
                             {% if project.status == 'in_progress' %}
                             <span class="badge bg-info">In Bearbeitung</span>
-                            {% elif project.status == 'completed' %}
-                            <span class="badge bg-success">Abgeschlossen</span>
+                            
                             {% elif project.status == 'archived' %}
                             <span class="badge bg-secondary">Archiviert</span>
                             {% endif %}

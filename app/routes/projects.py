@@ -22,7 +22,7 @@ class ProjectForm(FlaskForm):
 class ProjectStatusForm(FlaskForm):
     status = SelectField('Status', choices=[
         ('in_bearbeitung', 'In Bearbeitung'),
-        ('abgeschlossen', 'Abgeschlossen'),
+        
         ('archiviert', 'Archiviert')
     ], validators=[DataRequired()])
     submit = SubmitField('Status aktualisieren')

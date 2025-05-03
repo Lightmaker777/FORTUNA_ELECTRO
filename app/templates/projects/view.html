@@ -42,8 +42,7 @@
                 <p><strong>Status:</strong> 
                     {% if project.status == 'in_bearbeitung' %}
                         <span class="badge bg-primary">In Bearbeitung</span>
-                    {% elif project.status == 'abgeschlossen' %}
-                        <span class="badge bg-success">Abgeschlossen</span>
+                    
                     {% elif project.status == 'archiviert' %}
                         <span class="badge bg-secondary">Archiviert</span>
                     {% endif %}

@@ -139,11 +139,11 @@
         const projectStatusChart = new Chart(projectStatusCtx, {
             type: 'pie',
             data: {
-                labels: ['In Bearbeitung', 'Abgeschlossen', 'Archiviert'],
+                labels: ['In Bearbeitung',  'Archiviert'],
                 datasets: [{
                     data: [
                         {{ projects|selectattr('status', 'equalto', 'in_progress')|list|length }},
-                        {{ projects|selectattr('status', 'equalto', 'completed')|list|length }},
+                        
                         {{ projects|selectattr('status', 'equalto', 'archived')|list|length }}
                     ],
                     backgroundColor: [
