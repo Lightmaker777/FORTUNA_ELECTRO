@@ -361,6 +361,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .form-select, input.form-control {
     background-color: #1a3d5c !important;
 }
+/* Datumsauswahl-Icon weiß machen */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Macht das Kalendersymbol weiß */
+    opacity: 0.8; /* Etwas transparenter für bessere Sichtbarkeit */
+}
 </style>
 
 <script>
