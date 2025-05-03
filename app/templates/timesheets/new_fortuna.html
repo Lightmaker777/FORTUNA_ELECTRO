@@ -343,6 +343,23 @@ select.dark-input.form-select,
     background-color: #14304d !important;
     color: var(--accent) !important;
     border-color: #2c5682 !important;
+  
+}
+/* Einfache Lösung für bessere Sichtbarkeit */
+
+/* Dropdown-Pfeile weiß machen */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Zeit-Auswahlpfeile weiß machen */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* Optional: Hellerer Hintergrund für besseren Kontrast */
+.form-select, input.form-control {
+    background-color: #1a3d5c !important;
 }
 </style>
 
