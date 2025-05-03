@@ -199,6 +199,33 @@ body {
     box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
 }
 
+/* Placeholder styling - NEW */
+::placeholder {
+    color: var(--accent-light) !important;
+    opacity: 0.8 !important;
+}
+
+/* Also add webkit-specific placeholder selectors for better browser support */
+::-webkit-input-placeholder {
+    color: var(--accent-light) !important;
+    opacity: 0.8 !important;
+}
+
+:-ms-input-placeholder {
+    color: var(--accent-light) !important;
+    opacity: 0.8 !important;
+}
+
+::-ms-input-placeholder {
+    color: var(--accent-light) !important;
+    opacity: 0.8 !important;
+}
+
+/* Make sure all input text is visible */
+input, textarea, select {
+    color: var(--accent) !important;
+}
+
 /* Button styling */
 .btn {
     border-radius: var(--border-radius-md);
@@ -288,7 +315,6 @@ body {
         box-shadow: none;
     }
 }
-
 
     </style>
 </head>
