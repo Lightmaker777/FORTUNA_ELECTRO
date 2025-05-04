@@ -12,6 +12,10 @@ import os
 from flask import current_app
 from app.models.timesheet import Timesheet
 
+from app.forms.forms import ProjectStatusForm, ProjectEndDateForm
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 projects = Blueprint('projects', __name__)
 
 class ProjectForm(FlaskForm):
@@ -26,6 +30,39 @@ class ProjectStatusForm(FlaskForm):
         ('archiviert', 'Archiviert')
     ], validators=[DataRequired()])
     submit = SubmitField('Status aktualisieren')
+
+@projects.route('/<int:project_id>/update_end_date', methods=['POST'])
+@login_required
+def update_end_date(project_id):
+    """Aktualisiert das Enddatum eines Projekts."""
+    project = Project.query.get_or_404(project_id)
+    
+    # Überprüfen, ob der Benutzer das Projekt bearbeiten darf (Admin oder Ersteller)
+    if project.creator != current_user and not current_user.is_admin:
+        flash('Sie haben keine Berechtigung, dieses Projekt zu bearbeiten.', 'danger')
+        return redirect(url_for('projects.view_project', project_id=project_id))
+    
+    end_date_str = request.form.get('end_date')
+    if not end_date_str:
+        flash('Bitte geben Sie ein gültiges Enddatum ein.', 'warning')
+        return redirect(url_for('projects.view_project', project_id=project_id))
+    
+    try:
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        
+        # Überprüfen, ob das Enddatum nach dem Startdatum liegt
+        if end_date < project.start_date:
+            flash('Das Enddatum muss nach dem Startdatum liegen.', 'warning')
+            return redirect(url_for('projects.view_project', project_id=project_id))
+        
+        project.end_date = end_date
+        db.session.commit()
+        flash('Projekt-Enddatum erfolgreich aktualisiert.', 'success')
+    except ValueError:
+        flash('Ungültiges Datumsformat. Bitte verwenden Sie das Format YYYY-MM-DD.', 'danger')
+    
+    return redirect(url_for('projects.view_project', project_id=project_id))
+
 
 @projects.route('/project/new', methods=['GET', 'POST'])
 @login_required
@@ -52,7 +89,7 @@ def new_project():
 @login_required
 def view_project(project_id):
     project = Project.query.get_or_404(project_id)
-    
+    status_form = ProjectStatusForm(obj=project)
     # Dateien nach Typ gruppieren
     photos = project.files.filter_by(file_type='foto').all()
     videos = project.files.filter_by(file_type='video').all()
@@ -65,6 +102,11 @@ def view_project(project_id):
     
     status_form = ProjectStatusForm()
     status_form.status.data = project.status
+
+    # Formular für die Enddatum-Änderung
+    end_date_form = ProjectEndDateForm()
+    if project.end_date:
+        end_date_form.end_date.data = project.end_date
     
     return render_template(
         'projects/view.html',
@@ -76,7 +118,8 @@ def view_project(project_id):
         reports=reports,
         other_files=other_files,
         timesheets_data=timesheets_data,
-        status_form=status_form
+        status_form=status_form,
+        end_date_form=end_date_form
     )
 
 @projects.route('/project/<int:project_id>/status', methods=['POST'])
@@ -111,3 +154,37 @@ def create_project_folders(project_id):
     
     return project_folder
 
+@projects.route('/project/<int:project_id>/adjust_end_date', methods=['POST'])
+@login_required
+def adjust_end_date(project_id):
+    project = Project.query.get_or_404(project_id)
+
+    # Berechtigungsprüfung
+    if project.creator != current_user and not current_user.is_admin:
+        flash('Sie haben keine Berechtigung!', 'danger')
+        return redirect(url_for('projects.view_project', project_id=project_id))
+
+    adjustment_type = request.form.get('type')  # 'day', 'week', 'month'
+    delta_map = {
+        'day': 1,
+        'week': 7,
+        'month': 30  # Näherung
+    }
+
+    days_to_add = delta_map.get(adjustment_type)
+    if not days_to_add:
+        flash('Ungültiger Anpassungstyp.', 'danger')
+        return redirect(url_for('projects.view_project', project_id=project_id))
+
+    if not project.end_date:
+        flash('Setzen Sie zunächst ein Enddatum.', 'warning')
+        return redirect(url_for('projects.view_project', project_id=project_id))
+
+    if adjustment_type == 'month':
+        project.end_date += relativedelta(months=1)
+    else:
+        project.end_date += timedelta(days=days_to_add)
+    db.session.commit()
+
+    flash(f'Enddatum wurde um {days_to_add} Tage nach hinten verschoben.', 'success')
+    return redirect(url_for('projects.view_project', project_id=project.id))

@@ -1,8 +1,8 @@
-"""Add new admin/user model
+"""update
 
-Revision ID: 418bbc8f1655
+Revision ID: 49e67856225a
 Revises: 
-Create Date: 2025-05-01 15:37:56.199345
+Create Date: 2025-05-04 16:09:19.450626
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '418bbc8f1655'
+revision = '49e67856225a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -44,7 +44,7 @@ def upgrade():
     sa.Column('start_date', sa.DateTime(), nullable=True),
     sa.Column('end_date', sa.DateTime(), nullable=True),
     sa.Column('status', sa.String(length=20), nullable=True),
-    sa.Column('creator_id', sa.Integer(), nullable=False),
+    sa.Column('creator_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['creator_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

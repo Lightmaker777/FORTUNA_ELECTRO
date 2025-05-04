@@ -78,15 +78,14 @@
     </div>
 
 </div>
-
-
+<!-- app/templates/dashboard/index.html -->
 <!-- Aktuelle Projekte Vorschau -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card border-0 shadow-hover aktuelle-projekte">
             <div class="card-header border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"> Aktuelle Projekte</h5>
+                    <h5 class="mb-0">Aktuelle Projekte</h5>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectsModal">
                         Alle anzeigen <i class="fas fa-arrow-right ms-1"></i>
                     </button>
@@ -94,13 +93,13 @@
             </div>
             <div class="card-body p-0">
                 {% if in_progress %}
-                    <div class="table-responsive" >
-                        <table class="table table-hover align-middle mb-0" >
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Projektname</th>
                                     <th class="d-none d-md-table-cell">Startdatum</th>
-                                    <th class="d-none d-lg-table-cell" >Status</th>
+                                    <th class="d-none d-lg-table-cell">Verbleibende Zeit</th>
                                     <th class="text-end">Aktion</th>
                                 </tr>
                             </thead>
@@ -108,25 +107,53 @@
                                 {% for project in in_progress[:5] %}
                                     <tr>
                                         <td style="background-color: #14304d">
-                                            <div class="d-flex align-items-center" >
-                                                <div class="project-icon me-3" >
+                                            <div class="d-flex align-items-center">
+                                                <div class="project-icon me-3">
                                                     <i class="fas fa-folder" style="color: var(--accent);"></i>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0" >{{ project.name }}</h6>
+                                                    <h6 class="mb-0">{{ project.name }}</h6>
                                                     <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="d-none d-md-table-cell text-light" style="background-color: #2f4052">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
                                         <td class="d-none d-lg-table-cell" style="background-color: #533f66">
-                                            <div class="progress" style="height: 8px; background-color: var(--primary-light);">
-                                                <div class="progress-bar" role="progressbar" style="width:35%; background-color: var(--accent);"></div>
-                                            </div>
+                                            {% if project.end_date %}
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 8px; background-color: var(--primary-light);">
+                                                        <div class="progress-bar" role="progressbar" 
+                                                             style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                                                             aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <span class="badge countdown-badge 
+                                                        {% if not project.end_date %}
+                                                            bg-secondary
+                                                        {% elif project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
+                                                            bg-success
+                                                        {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
+                                                            bg-info
+                                                        {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
+                                                            bg-warning
+                                                        {% else %}
+                                                            bg-danger
+                                                        {% endif %}">
+                                                        {% if project.get_remaining_hours() is not none %}
+                                                        {% if project.end_date %}
+                                                        {{ project.end_date.strftime('%d.%m.%Y') }}
+                                                        {% else %}
+                                                            Kein Enddatum
+                                                        {% endif %}
+                                                        {% else %}
+                                                            Kein Enddatum
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Kein Enddatum</span>
+                                            {% endif %}
                                         </td>
-                                        <td class="text-end"  style="background-color: #3e5063">
-                                            <!-- In der Datei, die die Dashboard-Projektliste enthält, fügen Sie diesen Code für jede Projekt-Zeile hinzu: -->
-                                            <!-- Add the download button here -->
+                                        <td class="text-end" style="background-color: #3e5063">
                                             <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
@@ -155,7 +182,7 @@
         </div>
     </div>
 </div>
-</div>
+
 
 <!-- Verbessertes Projekte Modal -->
 <div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">

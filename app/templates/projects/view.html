@@ -25,7 +25,7 @@
     </div>
   </div>
 </div>
-
+<!-- app/templates/projects/view.html -->
 <!-- Projektdetails -->
 <div class="card mb-4 shadow-sm">
     <div class="card-header">
@@ -42,14 +42,52 @@
                 <p><strong>Status:</strong> 
                     {% if project.status == 'in_bearbeitung' %}
                         <span class="badge bg-primary">In Bearbeitung</span>
-                    
                     {% elif project.status == 'archiviert' %}
                         <span class="badge bg-secondary">Archiviert</span>
                     {% endif %}
                 </p>
-                {% if project.end_date %}
-                    <p><strong>Enddatum:</strong> {{ project.end_date.strftime('%d.%m.%Y') }}</p>
-                {% endif %}
+                <!-- app/templates/projects/view.html -->
+               <!-- Countdown Timer und Enddatum -->
+{% if project.end_date %}
+<p>
+    <strong>Enddatum:</strong> {{ project.end_date.strftime('%d.%m.%Y') }}
+    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal" title="Enddatum ändern">
+        <i class="fas fa-edit ms-2"></i>
+    </a>
+</p>
+<div class="countdown-container mt-2 mb-3">
+    <p><strong>Verbleibende Zeit:</strong></p>
+    <div class="progress" style="height: 16px; background-color: #2f4052;">
+        <div class="progress-bar" id="project-progress-bar" role="progressbar" 
+             style="background-color: var(--accent); width: {{ project.get_progress_percentage() }}%;" 
+             aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="d-flex justify-content-between mt-1">
+        <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
+        <span id="countdown-timer" class="badge 
+            {% if project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
+                bg-success
+            {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
+                bg-info
+            {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
+                bg-warning
+            {% else %}
+                bg-danger
+            {% endif %}">
+            {{ project.get_remaining_hours() }} STUNDEN
+        </span>
+        <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
+    </div>
+</div>
+{% else %}
+<p>
+    <strong>Enddatum:</strong> Nicht festgelegt
+    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal" title="Enddatum festlegen">
+        <i class="fas fa-calendar-plus ms-2"></i>
+    </a>
+</p>
+{% endif %}
+                
                 <p><strong>Beschreibung:</strong> {{ project.description or 'Keine Beschreibung' }}</p>
             </div>
         </div>
@@ -61,6 +99,49 @@
                 <div class="input-group">
                     {{ status_form.status(class="form-select") }}
                     <button type="submit" class="btn btn-primary">Status ändern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Enddatum ändern -->
+<div class="modal fade" id="changeEndDateModal" tabindex="-1" aria-labelledby="changeEndDateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeEndDateModalLabel">Projekt-Enddatum ändern</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}">
+                <div class="modal-body">
+                    {{ end_date_form.hidden_tag() if end_date_form }}
+                    <div class="mb-3">
+                        <label for="end_date" class="form-label">Neues Enddatum</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" 
+                               value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
+                    </div>
+                    <div class="quick-select mb-3">
+                        <label class="form-label">Schnellauswahl:</label>
+                        <div class="btn-group w-100" role="group">
+                            <form action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" method="POST">
+                                <input type="hidden" name="type" value="day">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">+1 Tag</button>
+                            </form>
+                            <form action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" method="POST">
+                                <input type="hidden" name="type" value="week">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">+1 Woche</button>
+                            </form>
+                            <form action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" method="POST">
+                                <input type="hidden" name="type" value="month">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">+1 Monat</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
                 </div>
             </form>
         </div>
@@ -379,4 +460,65 @@
     
 
 </style>
+
+<!-- JavaScript für einen echten Live-Countdown hinzufügen -->
+<!-- Modal + Countdown Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const endDateInput = document.getElementById('end_date');
+        const quickButtons = document.querySelectorAll('.quick-date');
+
+        // Funktion zur Aktualisierung des Countdowns
+        function updateCountdown() {
+            if (!endDateInput || !endDateInput.value) return;
+
+            const endDate = new Date(endDateInput.value);
+            const now = new Date();
+            const diff = endDate - now;
+            const timerEl = document.getElementById('countdown-timer');
+
+            if (!timerEl) return;
+
+            if (diff <= 0) {
+                timerEl.textContent = 'Fällig';
+                timerEl.className = 'badge bg-danger';
+            } else {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                timerEl.textContent = `${hours} STUNDEN`;
+
+                if (hours > 168) {
+                    timerEl.className = 'badge bg-success';
+                } else if (hours > 24) {
+                    timerEl.className = 'badge bg-info';
+                } else {
+                    timerEl.className = 'badge bg-warning';
+                }
+            }
+        }
+
+        // Initialer Countdown
+        {% if project.end_date %}
+            updateCountdown();
+            setInterval(updateCountdown, 60000); // Alle 60 Sekunden aktualisieren
+        {% endif %}
+
+        // Schnellauswahl (+1 Tag etc.)
+        quickButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                let daysToAdd = parseInt(this.getAttribute('data-days'));
+                let currentDate = endDateInput.value ? new Date(endDateInput.value) : new Date();
+
+                currentDate.setDate(currentDate.getDate() + daysToAdd);
+
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const day = String(currentDate.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+
+                endDateInput.value = formattedDate;
+                updateCountdown(); // Sofortiger Countdown-Update
+            });
+        });
+    });
+</script>
 {% endblock %}
