@@ -2,12 +2,13 @@
 
 <div align="center">
 
-![Fortuna Elektro](app/static/img/fortuna-logo.png)
+![Fortuna Elektro Logo](https://via.placeholder.com/150x150)
 
 **A comprehensive project management solution for electrical installation professionals**
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.2.5-lightgrey.svg)](https://flask.palletsprojects.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.2.3-purple.svg)](https://getbootstrap.com/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0.40-orange.svg)](https://www.sqlalchemy.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
