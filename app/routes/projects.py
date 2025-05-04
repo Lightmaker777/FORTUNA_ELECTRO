@@ -15,6 +15,8 @@ from app.models.timesheet import Timesheet
 from app.forms.forms import ProjectStatusForm, ProjectEndDateForm
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from flask import jsonify
+
 
 projects = Blueprint('projects', __name__)
 
@@ -188,3 +190,27 @@ def adjust_end_date(project_id):
 
     flash(f'Enddatum wurde um {days_to_add} Tage nach hinten verschoben.', 'success')
     return redirect(url_for('projects.view_project', project_id=project.id))
+
+@projects.route('/api/project/<int:project_id>/remaining-time', methods=['GET'])
+def get_remaining_time(project_id):
+    project = Project.query.get_or_404(project_id)
+    
+    if not project.end_date:
+        return jsonify({'error': 'Kein Enddatum gesetzt'}), 400
+
+    now = datetime.now()
+    time_diff = project.end_date - now
+
+    days = time_diff.days
+    hours = time_diff.seconds // 3600
+
+    if days > 0:
+        remaining = f"{days} Tage"
+    else:
+        remaining = f"{hours} STUNDEN"
+
+    return jsonify({
+        'remaining': remaining,
+        'end_date': project.end_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'formatted_end_date': project.end_date.strftime('%d.%m.%Y')
+    })
