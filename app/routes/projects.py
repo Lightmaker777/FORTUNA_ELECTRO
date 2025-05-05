@@ -166,29 +166,35 @@ def adjust_end_date(project_id):
         flash('Sie haben keine Berechtigung!', 'danger')
         return redirect(url_for('projects.view_project', project_id=project_id))
 
-    adjustment_type = request.form.get('type')  # 'day', 'week', 'month'
-    delta_map = {
-        'day': 1,
-        'week': 7,
-        'month': 30  # Näherung
-    }
-
-    days_to_add = delta_map.get(adjustment_type)
-    if not days_to_add:
+    adjustment_type = request.form.get('type')  # 'hour', 'day', 'week', 'month'
+    adjustment_value = int(request.form.get('value', 1))  # Standardwert ist 1
+    
+    # Mapping für die verschiedenen Zeiteinheiten
+    if not project.end_date:
+        project.end_date = datetime.now()  # Falls noch kein Enddatum gesetzt ist
+    
+    if adjustment_type == 'hour':
+        project.end_date += timedelta(hours=adjustment_value)
+    elif adjustment_type == 'day':
+        project.end_date += timedelta(days=adjustment_value)
+    elif adjustment_type == 'week':
+        project.end_date += timedelta(weeks=adjustment_value)
+    elif adjustment_type == 'month':
+        project.end_date += relativedelta(months=adjustment_value)
+    else:
         flash('Ungültiger Anpassungstyp.', 'danger')
         return redirect(url_for('projects.view_project', project_id=project_id))
 
-    if not project.end_date:
-        flash('Setzen Sie zunächst ein Enddatum.', 'warning')
-        return redirect(url_for('projects.view_project', project_id=project_id))
-
-    if adjustment_type == 'month':
-        project.end_date += relativedelta(months=1)
-    else:
-        project.end_date += timedelta(days=days_to_add)
     db.session.commit()
 
-    flash(f'Enddatum wurde um {days_to_add} Tage nach hinten verschoben.', 'success')
+    unit_display = {
+        'hour': 'Stunde(n)',
+        'day': 'Tag(e)',
+        'week': 'Woche(n)',
+        'month': 'Monat(e)'
+    }
+    
+    flash(f'Enddatum wurde um {adjustment_value} {unit_display.get(adjustment_type)} nach hinten verschoben.', 'success')
     return redirect(url_for('projects.view_project', project_id=project.id))
 
 @projects.route('/api/project/<int:project_id>/remaining-time', methods=['GET'])

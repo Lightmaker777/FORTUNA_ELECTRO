@@ -104,7 +104,7 @@
     </div>
 </div>
 
-<!-- Verbesserte Version des Modals mit korrekter Form-Action -->
+<!-- Verbesserte Version des Modals mit korrekter Form-Action und weißem Kalendar-Icon -->
 <div class="modal fade" id="changeEndDateModal_{{ project.id }}" tabindex="-1" aria-labelledby="changeEndDateModalLabel_{{ project.id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #14304d; color: #ffffff; border: 1px solid #2f4052;">
@@ -118,17 +118,28 @@
                     {{ end_date_form.hidden_tag() if end_date_form }}
                     <div class="mb-3">
                         <label for="end_date_{{ project.id }}" class="form-label">Neues Enddatum</label>
-                        <input type="date" class="form-control bg-dark text-light border-secondary" 
-                               id="end_date_{{ project.id }}" name="end_date" 
-                               value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
+                        <div class="input-group">
+                            <input type="date" class="form-control bg-dark text-light border-secondary" 
+                                id="end_date_{{ project.id }}" name="end_date" 
+                                value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
+                            <span class="input-group-text bg-dark border-secondary">
+                                <i class="bi bi-calendar-date text-white"></i>
+                            </span>
+                        </div>
                     </div>
                     <div class="quick-select mb-3">
                         <label class="form-label">Schnellauswahl:</label>
-                        <div class="d-flex gap-2" role="group">
-                            <!-- Einzelne Buttons für Schnellauswahl statt verschachtelter Forms -->
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="1">+1 Tag</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="7">+1 Woche</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="30">+1 Monat</button>
+                        <div class="d-flex flex-wrap gap-2" role="group">
+                            <!-- Erweiterte Schnellauswahl-Optionen -->
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="hour">+1 Stunde</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="4" data-unit="hour">+4 Stunden</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="8" data-unit="hour">+8 Stunden</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="day">+1 Tag</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="3" data-unit="day">+3 Tage</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="7" data-unit="day">+1 Woche</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="14" data-unit="day">+2 Wochen</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="30" data-unit="day">+1 Monat</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="90" data-unit="day">+3 Monate</button>
                         </div>
                     </div>
                 </div>
@@ -520,8 +531,8 @@
         });
     });
 </script>
-<!-- JavaScript für die Schnellauswahl-Funktionalität -->
 <script>
+    // JavaScript für die erweiterte Schnellauswahl-Funktionalität
 document.addEventListener('DOMContentLoaded', function() {
     // Event-Listener für das Modal, wenn es geöffnet wird
     const modal = document.getElementById('changeEndDateModal_{{ project.id }}');
@@ -537,7 +548,8 @@ document.addEventListener('DOMContentLoaded', function() {
     quickSelectButtons.forEach(button => {
         button.addEventListener('click', function() {
             const dateInput = document.getElementById('end_date_{{ project.id }}');
-            const days = parseInt(this.getAttribute('data-days'));
+            const value = parseInt(this.getAttribute('data-value'));
+            const unit = this.getAttribute('data-unit');
             
             // Aktuelles Datum oder das im Input vorhandene Datum verwenden
             let currentDate;
@@ -547,8 +559,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentDate = new Date();
             }
             
-            // Tage hinzufügen
-            currentDate.setDate(currentDate.getDate() + days);
+            // Zeit je nach Einheit hinzufügen
+            if (unit === 'hour') {
+                currentDate.setHours(currentDate.getHours() + value);
+            } else if (unit === 'day') {
+                currentDate.setDate(currentDate.getDate() + value);
+            }
             
             // Datum formatieren (YYYY-MM-DD)
             const year = currentDate.getFullYear();
