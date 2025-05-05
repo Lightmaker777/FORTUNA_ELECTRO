@@ -39,47 +39,40 @@ class Project(db.Model):
         
     
         
-    def get_progress_percentage(self):
-        """Calculate the project progress as a percentage."""
-        if not self.end_date or not self.start_date:
-            return 0
-            
-        now = datetime.now()
-        
-        # If project hasn't started yet
-        if now < self.start_date:
-            return 0
-            
-        # If project is overdue
-        if now > self.end_date:
-            return 100
-            
-        total_duration = (self.end_date - self.start_date).total_seconds()
-        elapsed_time = (now - self.start_date).total_seconds()
-        
-        # Avoid division by zero
-        if total_duration == 0:
-            return 100
-            
-        progress = (elapsed_time / total_duration) * 100
-        return min(round(progress), 100)  # Ensure we don't exceed 100%
-    
+    # Ergänzung für app/models/project.py
+
     def get_remaining_hours(self):
-        """Get the remaining time specifically in hours for consistent display."""
+        """Berechnet die verbleibenden Stunden bis zum Projektende."""
         if not self.end_date:
             return None
             
         now = datetime.now()
         time_diff = self.end_date - now
         
-        # Convert to hours
-        total_hours = int(time_diff.total_seconds() / 3600)
-        
-        # Handle negative values (overdue projects)
-        if total_hours < 0:
+        # Wenn das Projekt bereits überfällig ist
+        if time_diff.total_seconds() <= 0:
             return 0
             
-        return total_hours
-    
+        # Gesamtstunden berechnen
+        total_hours = time_diff.total_seconds() / 3600
+        return round(total_hours, 1)  # Auf eine Dezimalstelle runden
+
+    def get_progress_percentage(self):
+        """Berechnet den Fortschritt des Projekts in Prozent."""
+        if not self.end_date:
+            return 0
+            
+        now = datetime.now()
+        total_duration = (self.end_date - self.start_date).total_seconds()
+        elapsed_time = (now - self.start_date).total_seconds()
+        
+        # Falls Endzeit bereits überschritten
+        if elapsed_time >= total_duration:
+            return 100
+            
+        # Fortschritt berechnen (als Prozentsatz)
+        progress = (elapsed_time / total_duration) * 100
+        return round(progress, 1)  # Auf eine Dezimalstelle runden
+        
     def __repr__(self):
         return f'<Project {self.name}>'

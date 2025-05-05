@@ -54,12 +54,13 @@
                         <i class="fas fa-edit ms-2"></i>
                     </a>
                 </p>
+                <!-- Verbesserter Countdown-Bereich -->
                 <div class="countdown-container mt-2 mb-3">
                     <p><strong>Verbleibende Zeit:</strong></p>
                     <div class="progress" style="height: 16px; background-color: #2f4052;">
                         <div class="progress-bar" id="project-progress-bar" role="progressbar" 
-                             style="background-color: var(--accent); width: {{ project.get_progress_percentage() }}%;" 
-                             aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            style="background-color: var(--accent); width: {{ project.get_progress_percentage() }}%;" 
+                            aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex justify-content-between mt-1">
                         <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
@@ -73,7 +74,7 @@
                             {% else %}
                                 bg-danger
                             {% endif %}">
-                            {{ project.get_remaining_hours() }} STUNDEN
+                            Wird geladen...
                         </span>
                         <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
                     </div>
@@ -153,9 +154,10 @@
     </div>
 </div>
 
-<!-- Separate Formular für die Schnellauswahl-Buttons -->
+<!-- Korrigierte Form für die Schnellauswahl-Buttons -->
 <form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
-    <input type="hidden" name="type" id="adjustType_{{ project.id }}" value="">
+    <input type="hidden" name="value" id="adjustValue_{{ project.id }}" value="1">
+    <input type="hidden" name="unit" id="adjustUnit_{{ project.id }}" value="hour">
 </form>
 
 <!-- Tab-Navigation für Dateien und Stundenberichte -->
@@ -466,75 +468,15 @@
     /* Weißer Dropdown-Pfeil */
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
 }
+   
     </style>
-    
-
-</style>
-
+<!-- app/templates/projects/view.html -->
 <!-- JavaScript für einen echten Live-Countdown hinzufügen -->
 <!-- Modal + Countdown Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const endDateInput = document.getElementById('end_date');
-        const quickButtons = document.querySelectorAll('.quick-date');
-
-        // Funktion zur Aktualisierung des Countdowns
-        function updateCountdown() {
-            if (!endDateInput || !endDateInput.value) return;
-
-            const endDate = new Date(endDateInput.value);
-            const now = new Date();
-            const diff = endDate - now;
-            const timerEl = document.getElementById('countdown-timer');
-
-            if (!timerEl) return;
-
-            if (diff <= 0) {
-                timerEl.textContent = 'Fällig';
-                timerEl.className = 'badge bg-danger';
-            } else {
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                timerEl.textContent = `${hours} STUNDEN`;
-
-                if (hours > 168) {
-                    timerEl.className = 'badge bg-success';
-                } else if (hours > 24) {
-                    timerEl.className = 'badge bg-info';
-                } else {
-                    timerEl.className = 'badge bg-warning';
-                }
-            }
-        }
-
-        // Initialer Countdown
-        {% if project.end_date %}
-            updateCountdown();
-            setInterval(updateCountdown, 60000); // Alle 60 Sekunden aktualisieren
-        {% endif %}
-
-        // Schnellauswahl (+1 Tag etc.)
-        quickButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                let daysToAdd = parseInt(this.getAttribute('data-days'));
-                let currentDate = endDateInput.value ? new Date(endDateInput.value) : new Date();
-
-                currentDate.setDate(currentDate.getDate() + daysToAdd);
-
-                const year = currentDate.getFullYear();
-                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                const day = String(currentDate.getDate()).padStart(2, '0');
-                const formattedDate = `${year}-${month}-${day}`;
-
-                endDateInput.value = formattedDate;
-                updateCountdown(); // Sofortiger Countdown-Update
-            });
-        });
-    });
-</script>
-<script>
-    // JavaScript für die erweiterte Schnellauswahl-Funktionalität
+// JavaScript für Modal und Zeitsteuerung
 document.addEventListener('DOMContentLoaded', function() {
-    // Event-Listener für das Modal, wenn es geöffnet wird
+    // Event-Listener für das Modal
     const modal = document.getElementById('changeEndDateModal_{{ project.id }}');
     if (modal) {
         modal.addEventListener('shown.bs.modal', function() {
@@ -547,32 +489,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     quickSelectButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const dateInput = document.getElementById('end_date_{{ project.id }}');
+            // Werte aus dem Button abrufen
             const value = parseInt(this.getAttribute('data-value'));
             const unit = this.getAttribute('data-unit');
             
-            // Aktuelles Datum oder das im Input vorhandene Datum verwenden
-            let currentDate;
-            if (dateInput.value) {
-                currentDate = new Date(dateInput.value);
-            } else {
-                currentDate = new Date();
+            console.log(`Quick select: +${value} ${unit}`);
+            
+            // Formular für die Schnellauswahl vorbereiten und absenden
+            const adjustForm = document.getElementById('adjustForm_{{ project.id }}');
+            
+            // Versteckte Felder erstellen oder aktualisieren
+            let valueInput = adjustForm.querySelector('input[name="value"]');
+            if (!valueInput) {
+                valueInput = document.createElement('input');
+                valueInput.type = 'hidden';
+                valueInput.name = 'value';
+                adjustForm.appendChild(valueInput);
             }
+            valueInput.value = value;
             
-            // Zeit je nach Einheit hinzufügen
-            if (unit === 'hour') {
-                currentDate.setHours(currentDate.getHours() + value);
-            } else if (unit === 'day') {
-                currentDate.setDate(currentDate.getDate() + value);
+            let unitInput = adjustForm.querySelector('input[name="unit"]');
+            if (!unitInput) {
+                unitInput = document.createElement('input');
+                unitInput.type = 'hidden';
+                unitInput.name = 'unit';
+                adjustForm.appendChild(unitInput);
             }
+            unitInput.value = unit;
             
-            // Datum formatieren (YYYY-MM-DD)
-            const year = currentDate.getFullYear();
-            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-            const day = String(currentDate.getDate()).padStart(2, '0');
-            
-            // Neues Datum setzen
-            dateInput.value = `${year}-${month}-${day}`;
+            // Formular absenden
+            adjustForm.submit();
         });
     });
     
@@ -591,6 +537,45 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Submitting form with end date:', dateInput.value);
         });
     }
+    
+    // Funktion zum Aktualisieren des Countdowns
+    updateRemainingTime();
+    // Alle 30 Sekunden aktualisieren
+    setInterval(updateRemainingTime, 30000);
 });
+
+// Funktion zum Aktualisieren der verbleibenden Zeit via API
+function updateRemainingTime() {
+    const countdownTimer = document.getElementById('countdown-timer');
+    const projectId = {{ project.id }};
+    
+    if (!countdownTimer) return;
+    
+    fetch(`/api/project/${projectId}/remaining-time`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Netzwerkantwort war nicht ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Countdown-Badge aktualisieren
+            countdownTimer.textContent = data.remaining_detailed;
+            countdownTimer.className = `badge bg-${data.status}`;
+            
+            // Fortschrittsbalken aktualisieren, falls vorhanden
+            const progressBar = document.getElementById('project-progress-bar');
+            if (progressBar) {
+                progressBar.className = `progress-bar bg-${data.status}`;
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Abrufen der verbleibenden Zeit:', error);
+            countdownTimer.textContent = 'Fehler';
+            countdownTimer.className = 'badge bg-danger';
+        });
+}
 </script>
+
+
 {% endblock %}

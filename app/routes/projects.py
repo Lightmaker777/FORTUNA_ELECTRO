@@ -45,12 +45,19 @@ def update_end_date(project_id):
         return redirect(url_for('projects.view_project', project_id=project_id))
     
     end_date_str = request.form.get('end_date')
+    end_time_str = request.form.get('end_time', '00:00')  # Standardwert 00:00 falls nicht gesetzt
+    
     if not end_date_str:
         flash('Bitte geben Sie ein gültiges Enddatum ein.', 'warning')
         return redirect(url_for('projects.view_project', project_id=project_id))
     
     try:
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        # Datum und Zeit kombinieren
+        if end_time_str:
+            date_time_str = f"{end_date_str} {end_time_str}"
+            end_date = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+        else:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
         
         # Überprüfen, ob das Enddatum nach dem Startdatum liegt
         if end_date < project.start_date:
@@ -60,8 +67,8 @@ def update_end_date(project_id):
         project.end_date = end_date
         db.session.commit()
         flash('Projekt-Enddatum erfolgreich aktualisiert.', 'success')
-    except ValueError:
-        flash('Ungültiges Datumsformat. Bitte verwenden Sie das Format YYYY-MM-DD.', 'danger')
+    except ValueError as e:
+        flash(f'Ungültiges Datums- oder Zeitformat: {str(e)}', 'danger')
     
     return redirect(url_for('projects.view_project', project_id=project_id))
 
@@ -121,7 +128,8 @@ def view_project(project_id):
         other_files=other_files,
         timesheets_data=timesheets_data,
         status_form=status_form,
-        end_date_form=end_date_form
+        end_date_form=end_date_form,
+        now=datetime.now(),
     )
 
 @projects.route('/project/<int:project_id>/status', methods=['POST'])
@@ -166,19 +174,22 @@ def adjust_end_date(project_id):
         flash('Sie haben keine Berechtigung!', 'danger')
         return redirect(url_for('projects.view_project', project_id=project_id))
 
-    adjustment_type = request.form.get('type')  # 'hour', 'day', 'week', 'month'
+    adjustment_type = request.form.get('unit')  # 'hour', 'day', etc.
     adjustment_value = int(request.form.get('value', 1))  # Standardwert ist 1
     
-    # Mapping für die verschiedenen Zeiteinheiten
-    if not project.end_date:
-        project.end_date = datetime.now()  # Falls noch kein Enddatum gesetzt ist
+    print(f"Adjusting end date: {adjustment_value} {adjustment_type}")
     
+    # Setze Enddatum auf jetzt, falls noch keins vorhanden
+    if not project.end_date:
+        project.end_date = datetime.now()
+    
+    # Zeit je nach Einheit hinzufügen
     if adjustment_type == 'hour':
         project.end_date += timedelta(hours=adjustment_value)
     elif adjustment_type == 'day':
         project.end_date += timedelta(days=adjustment_value)
     elif adjustment_type == 'week':
-        project.end_date += timedelta(weeks=adjustment_value)
+        project.end_date += timedelta(days=adjustment_value * 7)
     elif adjustment_type == 'month':
         project.end_date += relativedelta(months=adjustment_value)
     else:
@@ -197,26 +208,106 @@ def adjust_end_date(project_id):
     flash(f'Enddatum wurde um {adjustment_value} {unit_display.get(adjustment_type)} nach hinten verschoben.', 'success')
     return redirect(url_for('projects.view_project', project_id=project.id))
 
+# Korrigierte get_remaining_time Funktion für projects.py
 @projects.route('/api/project/<int:project_id>/remaining-time', methods=['GET'])
 def get_remaining_time(project_id):
     project = Project.query.get_or_404(project_id)
     
     if not project.end_date:
-        return jsonify({'error': 'Kein Enddatum gesetzt'}), 400
+        return jsonify({
+            'error': 'Kein Enddatum gesetzt',
+            'remaining': 'Kein Enddatum',
+            'remaining_detailed': 'Kein Enddatum gesetzt',
+            'days': 0,
+            'hours': 0,
+            'minutes': 0,
+            'total_seconds': 0,
+            'status': 'secondary',
+            'end_date': None,
+            'formatted_end_date': 'Nicht festgelegt'
+        }), 200
 
     now = datetime.now()
     time_diff = project.end_date - now
+    
+    # Negative Zeit abfangen
+    if time_diff.total_seconds() < 0:
+        return jsonify({
+            'remaining': 'Fällig',
+            'remaining_detailed': 'Projekt ist überfällig',
+            'days': 0,
+            'hours': 0,
+            'minutes': 0,
+            'total_seconds': 0,
+            'status': 'danger',
+            'end_date': project.end_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'formatted_end_date': project.end_date.strftime('%d.%m.%Y %H:%M')
+        })
 
+    # Berechnung der einzelnen Zeitkomponenten
+    total_seconds = int(time_diff.total_seconds())
     days = time_diff.days
-    hours = time_diff.seconds // 3600
-
-    if days > 0:
-        remaining = f"{days} Tage"
+    weeks = days // 7
+    days_remainder = days % 7
+    hours = (total_seconds % (24 * 3600)) // 3600
+    minutes = (total_seconds % 3600) // 60
+    
+    # Status basierend auf verbleibender Zeit
+    if days > 14:
+        status = 'success'
+    elif days > 7:
+        status = 'info'
+    elif days > 0:
+        status = 'warning'
+    elif hours > 4:
+        status = 'warning'
     else:
-        remaining = f"{hours} STUNDEN"
+        status = 'danger'
+    
+    # Formatierte Anzeige
+    remaining_parts = []
+    detailed_parts = []
+    
+    # Wochen hinzufügen
+    if weeks > 0:
+        remaining_parts.append(f"{weeks} {'Wochen' if weeks != 1 else 'Woche'}")
+        detailed_parts.append(f"{weeks} {'Wochen' if weeks != 1 else 'Woche'}")
+    
+    # Tage hinzufügen (nach Wochen)
+    if days_remainder > 0 or (weeks == 0 and days > 0):
+        days_to_show = days_remainder if weeks > 0 else days
+        remaining_parts.append(f"{days_to_show} {'Tage' if days_to_show != 1 else 'Tag'}")
+        detailed_parts.append(f"{days_to_show} {'Tage' if days_to_show != 1 else 'Tag'}")
+    
+    # Stunden hinzufügen, wenn weniger als 2 Tage oder keine Tage
+    if days < 2 or (weeks == 0 and days == 0):
+        remaining_parts.append(f"{hours} {'Stunden' if hours != 1 else 'Stunde'}")
+        detailed_parts.append(f"{hours} {'Stunden' if hours != 1 else 'Stunde'}")
+    
+    # Minuten hinzufügen für kurze Zeiträume
+    if days == 0 and hours < 2:
+        detailed_parts.append(f"{minutes} {'Minuten' if minutes != 1 else 'Minute'}")
+        if hours == 0:
+            remaining_parts.append(f"{minutes} {'Minuten' if minutes != 1 else 'Minute'}")
+    
+    # Kompakte und detaillierte Anzeige zusammenstellen
+    if not remaining_parts:
+        remaining = "Weniger als 1 Minute"
+    else:
+        remaining = ", ".join(remaining_parts[:2])  # Maximal 2 Einheiten für kompakte Anzeige
+    
+    remaining_detailed = ", ".join(detailed_parts) if detailed_parts else "Weniger als 1 Minute"
 
     return jsonify({
         'remaining': remaining,
+        'remaining_detailed': remaining_detailed,
+        'weeks': weeks,
+        'days': days,
+        'days_remainder': days_remainder,
+        'hours': hours,
+        'minutes': minutes,
+        'total_seconds': total_seconds,
+        'status': status,
         'end_date': project.end_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'formatted_end_date': project.end_date.strftime('%d.%m.%Y')
+        'formatted_end_date': project.end_date.strftime('%d.%m.%Y %H:%M')
     })

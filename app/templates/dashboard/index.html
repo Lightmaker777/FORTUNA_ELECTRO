@@ -126,32 +126,21 @@
                                                          style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
                                                          aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
                                                 </div>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="badge countdown-badge 
-                                                        {% if not project.end_date %}
-                                                            bg-secondary
-                                                        {% elif project.get_remaining_hours() > 168 %}
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
+                                                    <span id="countdown-timer" class="badge 
+                                                        {% if project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
                                                             bg-success
-                                                        {% elif project.get_remaining_hours() > 24 %}
+                                                        {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
                                                             bg-info
-                                                        {% elif project.get_remaining_hours() > 0 %}
+                                                        {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
                                                             bg-warning
                                                         {% else %}
                                                             bg-danger
                                                         {% endif %}">
-                                                        {% if project.get_remaining_hours() is not none %}
-                                                        {% if project.end_date %}
-                                                        {{ project.end_date.strftime('%d.%m.%Y') }}
-                                                        {% else %}
-                                                            Kein Enddatum
-                                                        {% endif %}
-                                                        {% else %}
-                                                            Kein Enddatum
-                                                        {% endif %}
+                                                        Wird geladen...
                                                     </span>
-                                                    <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern">
-                                                        <i class="fas fa-edit text-light"></i>
-                                                    </a>
+                                                    <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
                                                 </div>
                                             </div>
                                         {% else %}
@@ -221,9 +210,10 @@
     </div>
 </div>
 
-<!-- Separate Formular für die Schnellauswahl-Buttons -->
+<!-- Korrigierte Form für die Schnellauswahl-Buttons -->
 <form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
-    <input type="hidden" name="type" id="adjustType_{{ project.id }}" value="">
+    <input type="hidden" name="value" id="adjustValue_{{ project.id }}" value="1">
+    <input type="hidden" name="unit" id="adjustUnit_{{ project.id }}" value="hour">
 </form>
                                     
                             {% endfor %}
