@@ -93,47 +93,48 @@
             </div>
             <div class="card-body p-0">
                 {% if in_progress %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Projektname</th>
+                                <th class="d-none d-md-table-cell">Startdatum</th>
+                                <th class="d-none d-lg-table-cell">Verbleibende Zeit</th>                                   
+                                <th class="text-end">Aktion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in in_progress[:5] %}
                                 <tr>
-                                    <th>Projektname</th>
-                                    <th class="d-none d-md-table-cell">Startdatum</th>
-                                    <th class="d-none d-lg-table-cell">Verbleibende Zeit</th>
-                                    <th class="text-end">Aktion</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for project in in_progress[:5] %}
-                                    <tr>
-                                        <td style="background-color: #14304d">
-                                            <div class="d-flex align-items-center">
-                                                <div class="project-icon me-3">
-                                                    <i class="fas fa-folder" style="color: var(--accent);"></i>
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0">{{ project.name }}</h6>
-                                                    <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
-                                                </div>
+                                    <td style="background-color: #14304d">
+                                        <div class="d-flex align-items-center">
+                                            <div class="project-icon me-3">
+                                                <i class="fas fa-folder" style="color: var(--accent);"></i>
                                             </div>
-                                        </td>
-                                        <td class="d-none d-md-table-cell text-light" style="background-color: #2f4052">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
-                                        <td class="d-none d-lg-table-cell" style="background-color: #533f66">
-                                            {% if project.end_date %}
+                                            <div>
+                                                <h6 class="mb-0">{{ project.name }}</h6>
+                                                <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-md-table-cell text-light" style="background-color: #2f4052">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                    <td class="d-none d-lg-table-cell" style="background-color: #533f66">
+                                        {% if project.end_date %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px; background-color: var(--primary-light);">
+                                                    <div class="progress-bar" role="progressbar" 
+                                                         style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                                                         aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="progress flex-grow-1 me-2" style="height: 8px; background-color: var(--primary-light);">
-                                                        <div class="progress-bar" role="progressbar" 
-                                                             style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
-                                                             aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
                                                     <span class="badge countdown-badge 
                                                         {% if not project.end_date %}
                                                             bg-secondary
-                                                        {% elif project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
+                                                        {% elif project.get_remaining_hours() > 168 %}
                                                             bg-success
-                                                        {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
+                                                        {% elif project.get_remaining_hours() > 24 %}
                                                             bg-info
-                                                        {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
+                                                        {% elif project.get_remaining_hours() > 0 %}
                                                             bg-warning
                                                         {% else %}
                                                             bg-danger
@@ -148,24 +149,76 @@
                                                             Kein Enddatum
                                                         {% endif %}
                                                     </span>
+                                                    <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern">
+                                                        <i class="fas fa-edit text-light"></i>
+                                                    </a>
                                                 </div>
-                                            {% else %}
+                                            </div>
+                                        {% else %}
+                                            <div class="d-flex align-items-center">
                                                 <span class="badge bg-secondary">Kein Enddatum</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-end" style="background-color: #3e5063">
-                                            <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-download"></i> Download
-                                            </a>
-                                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
-                                                Details
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                                <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen">
+                                                    <i class="fas fa-calendar-plus text-light"></i>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end" style="background-color: #3e5063">
+                                        <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                        <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Verbesserte Version des Modals mit korrekter Form-Action -->
+<div class="modal fade" id="changeEndDateModal_{{ project.id }}" tabindex="-1" aria-labelledby="changeEndDateModalLabel_{{ project.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #14304d; color: #ffffff; border: 1px solid #2f4052;">
+            <div class="modal-header" style="border-bottom: 1px solid #2f4052;">
+                <h5 class="modal-title" id="changeEndDateModalLabel_{{ project.id }}">Projekt-Enddatum ändern - {{ project.name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <!-- WICHTIG: Die korrekte Form-Action für diese Route -->
+            <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}" id="endDateForm_{{ project.id }}">
+                <div class="modal-body">
+                    {{ end_date_form.hidden_tag() if end_date_form }}
+                    <div class="mb-3">
+                        <label for="end_date_{{ project.id }}" class="form-label">Neues Enddatum</label>
+                        <input type="date" class="form-control bg-dark text-light border-secondary" 
+                               id="end_date_{{ project.id }}" name="end_date" 
+                               value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
                     </div>
+                    <div class="quick-select mb-3">
+                        <label class="form-label">Schnellauswahl:</label>
+                        <div class="d-flex gap-2" role="group">
+                            <!-- Einzelne Buttons für Schnellauswahl statt verschachtelter Forms -->
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="1">+1 Tag</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="7">+1 Woche</button>
+                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-days="30">+1 Monat</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #2f4052;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <!-- Der wichtige Speichern-Button -->
+                    <button type="submit" class="btn btn-info" style="background-color: #00BCD4; border-color: #00BCD4;">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Separate Formular für die Schnellauswahl-Buttons -->
+<form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
+    <input type="hidden" name="type" id="adjustType_{{ project.id }}" value="">
+</form>>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
                     <div class="text-center py-5">
                         <div class="empty-state">
@@ -2119,4 +2172,5 @@ function showDayDetails(day, className) {
     }
 });
 </script>
+
 {% endblock %}
