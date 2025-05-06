@@ -1,8 +1,12 @@
+ 
 # FORTUNA ELEKTRO Web App
+
 
 <div align="center">
 
-![Fortuna Elektro Logo](https://via.placeholder.com/150x150)
+![Fortuna Elektro Logo](app/static/img/fortuna-logo.png) 
+
+<img src="app/static/img/dashboard1.png" alt="Dashboard" width="80%">
 
 **A comprehensive project management solution for electrical installation professionals**
 
@@ -142,7 +146,7 @@ six==1.17.0
 
 <div align="center">
    <p><i>Dashboard Overview</i></p>
-  <img src="app/static/img/dashboard.png" alt="Dashboard" width="80%">
+  <img src="app/static/img/dashboard1.png" alt="Dashboard" width="80%">
   
   <p><i>Project Management Interface</i></p>
   <img src="app/static/img/admin.png" alt="Project Management" width="80%">
