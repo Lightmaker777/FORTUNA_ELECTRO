@@ -132,29 +132,17 @@
                 </div>
                 
                 <div class="date-time-container">
-                    <span class="start-date date-text text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</span>
                     
-                    <span id="countdown-timer-{{ project.id }}" class="countdown-badge badge 
-                        {% if project.get_remaining_hours() > 168 %}
-                            bg-success
-                        {% elif project.get_remaining_hours() > 24 %}
-                            bg-info
-                        {% elif project.get_remaining_hours() > 0 %}
-                            bg-warning
-                        {% else %}
-                            bg-danger
-                        {% endif %}">
+                    
+                    <span id="countdown-timer" class="badge bg-info">
                         Wird geladen...
                     </span>
                     
-                    <span class="end-date date-text text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</span>
-                    
-                    <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern">
-                                                <!-- Combined Function Icons -->
-                        <i class="fas fa-calendar-alt"></i><i class="fas fa-pen fa-xs"></i>
+                    <span class="end-date date-text text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}
+                        <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern"></a>
+                    </span>
+                                                           
                         
-                         
-                    </a>
                 </div>
             </div>
         </div>

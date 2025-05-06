@@ -208,7 +208,7 @@ def adjust_end_date(project_id):
     flash(f'Enddatum wurde um {adjustment_value} {unit_display.get(adjustment_type)} nach hinten verschoben.', 'success')
     return redirect(url_for('projects.view_project', project_id=project.id))
 
-# Korrigierte get_remaining_time Funktion für projects.py
+# Modifizierte get_remaining_time Funktion - immer "info" Status zurückgeben
 @projects.route('/api/project/<int:project_id>/remaining-time', methods=['GET'])
 def get_remaining_time(project_id):
     project = Project.query.get_or_404(project_id)
@@ -222,7 +222,7 @@ def get_remaining_time(project_id):
             'hours': 0,
             'minutes': 0,
             'total_seconds': 0,
-            'status': 'secondary',
+            'status': 'info',  # Immer Info statt secondary
             'end_date': None,
             'formatted_end_date': 'Nicht festgelegt'
         }), 200
@@ -239,7 +239,7 @@ def get_remaining_time(project_id):
             'hours': 0,
             'minutes': 0,
             'total_seconds': 0,
-            'status': 'danger',
+            'status': 'info',  # Immer blau (info) statt danger
             'end_date': project.end_date.strftime('%Y-%m-%d %H:%M:%S'),
             'formatted_end_date': project.end_date.strftime('%d.%m.%Y %H:%M')
         })
@@ -252,17 +252,8 @@ def get_remaining_time(project_id):
     hours = (total_seconds % (24 * 3600)) // 3600
     minutes = (total_seconds % 3600) // 60
     
-    # Status basierend auf verbleibender Zeit
-    if days > 14:
-        status = 'success'
-    elif days > 7:
-        status = 'info'
-    elif days > 0:
-        status = 'warning'
-    elif hours > 4:
-        status = 'warning'
-    else:
-        status = 'danger'
+    # Status immer auf info (blau) setzen, unabhängig von der verbleibenden Zeit
+    status = 'info'
     
     # Formatierte Anzeige
     remaining_parts = []
@@ -307,7 +298,7 @@ def get_remaining_time(project_id):
         'hours': hours,
         'minutes': minutes,
         'total_seconds': total_seconds,
-        'status': status,
+        'status': status,  # Immer 'info' für blau
         'end_date': project.end_date.strftime('%Y-%m-%d %H:%M:%S'),
         'formatted_end_date': project.end_date.strftime('%d.%m.%Y %H:%M')
     })

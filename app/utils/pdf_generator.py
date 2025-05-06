@@ -205,8 +205,13 @@ def generate_fortuna_timesheet(output_path,
     arbeitseinsatz_data = []
     total_hours = 0
     
-    for einsatz in arbeitseinsatz:
-        activity = einsatz.get('activity', '')
+    # Debug print to see what's in arbeitseinsatz
+    print("Arbeitseinsatz entries:", len(arbeitseinsatz))
+    for idx, einsatz in enumerate(arbeitseinsatz):
+        print(f"Entry {idx}: {einsatz}")
+        
+        # Here's the fix: Use activityText if available, otherwise fall back to activity
+        activity = einsatz.get('activityText', einsatz.get('activity', ''))
         von = einsatz.get('von', '')
         bis = einsatz.get('bis', '')
         std = einsatz.get('std', '')
