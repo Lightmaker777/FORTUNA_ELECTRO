@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 style="color: var(--accent)"><i class="fas fa-users-cog"></i> Mitarbeiterverwaltung</h1>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
@@ -26,23 +27,23 @@
                 <tbody>
                     {% for user in users %}
                     <tr>
-                        <td class="text-center" style="background-color: #14304d; color: var(--accent)">{{ user.username }}</td>
-                        <td class="text-center" style="background-color:  #2f4052">
+                        <td class="text-center" style="background-color:#1d1d30; color: white">{{ user.username }}</td>
+                        <td class="text-center" style="background-color:#1d1d30">
                             {% if user.role == 'admin' %}
                             <span class="badge bg-danger">Administrator</span>
                             {% else %}
                             <span class="badge bg-info">Installateur</span>
                             {% endif %}
                         </td>
-                        <td class="text-center" style="background-color: #533f66">
+                        <td class="text-center" style="background-color: #1d1d30">
                             {% if user.is_active %}
                             <span class="badge bg-success">Aktiv</span>
                             {% else %}
                             <span class="badge bg-secondary">Inaktiv</span>
                             {% endif %}
                         </td>
-                        <td class="text-center" style="background-color:  #3e5063">
-                            <div class="btn-group" style="background-color: #14304d">
+                        <td class="text-center" style="background-color:  #1d1d30">
+                            <div class="btn-group" style="background-color: #1d1d30">
                                 <button type="button" class="btn btn-sm btn-outline-primary"
                                         onclick="editUser('{{ user.id }}', '{{ user.username }}', {{ 'true' if user.role == 'admin' else 'false' }}, {{ 'true' if user.is_active else 'false' }})">
                                     <i class="fas fa-edit"></i>

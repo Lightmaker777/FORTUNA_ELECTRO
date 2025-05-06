@@ -2,41 +2,50 @@
 {% extends "base.html" %}
 
 {% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- Aktualisierte Aktionsbuttons im gleichen Stil wie STATUS ÄNDERN -->
 <div class="container-fluid py-3">
   <div class="row align-items-center">
     <div class="col-12 col-md-6 mb-3 mb-md-0">
       <h1 style="color: var(--accent)">{{ project.name }}</h1>
     </div>
     <div class="col-12 col-md-6">
-        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
-            <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-outline-success rounded-pill shadow-sm px-4 py-2">
-              <i class="fas fa-cloud-upload-alt me-2" ></i>
-              <span>Datei hochladen</span>
-            </a>
-            <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm px-4 py-2">
-              <i class="far fa-calendar-check me-2" ></i>
-              <span>Stundenbericht</span>
-            </a>
-            <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-outline-info rounded-pill shadow-sm px-4 py-2">
-              <i class="fas fa-download me-2" ></i>
-              <span>Projekt herunterladen</span>
-            </a>
-          </div>
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
+        <!-- DATEI HOCHLADEN im türkisen Design -->
+        <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-status-change">
+          <i class="fas fa-cloud-upload-alt me-2"></i>
+           HOCHLADEN
+        </a>
+        
+        <!-- STUNDENBERICHT im türkisen Design -->
+        <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-status-change">
+          <i class="far fa-calendar-check me-2"></i>
+          STUNDENBERICHT
+        </a>
+        
+        <!-- PROJEKT HERUNTERLADEN im türkisen Design -->
+        <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-status-change">
+          <i class="fas fa-download me-2"></i>
+           HERUNTERLADEN
+        </a>
+      </div>
     </div>
   </div>
 </div>
+
 <!-- app/templates/projects/view.html -->
 <!-- Projektdetails -->
 <div class="card mb-4 shadow-sm">
     <div class="card-header">
         <h5 class="mb-0">Projektdetails</h5>
     </div>
-    <div class="card-body">
+    <div class="card-body" style="background-color:  #1d1d30;">
         <div class="row">
             <div class="col-md-6">
                 <p><strong>Adresse:</strong> {{ project.name }}</p>
                 <p><strong>Erstellt von:</strong> {{ project.creator.username }}</p>
                 <p><strong>Startdatum:</strong> {{ project.start_date.strftime('%d.%m.%Y') }}</p>
+                <p><strong>Beschreibung:</strong> {{ project.description or 'Keine Beschreibung' }}</p>
             </div>
             <div class="col-md-6">
                 <p><strong>Status:</strong> 
@@ -50,7 +59,7 @@
                 {% if project.end_date %}
                 <p>
                     <strong>Enddatum:</strong> {{ project.end_date.strftime('%d.%m.%Y') }}
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern" class="text-info">
                         <i class="fas fa-edit ms-2"></i>
                     </a>
                 </p>
@@ -82,13 +91,16 @@
                 {% else %}
                 <p>
                     <strong>Enddatum:</strong> Nicht festgelegt
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen">
-                        <i class="fas fa-calendar-plus ms-2"></i>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen" class="text-info">
+                        <span class="fa-stack fa-xs">
+                            <i class="fas fa-calendar fa-stack-1x"></i>
+                            <i class="fas fa-plus fa-stack-1x" style="font-size: 0.6em; position: absolute; top: 3px; right: -3px;"></i>
+                        </span>
                     </a>
                 </p>
                 {% endif %}
                 
-                <p><strong>Beschreibung:</strong> {{ project.description or 'Keine Beschreibung' }}</p>
+                
             </div>
         </div>
         
@@ -113,7 +125,6 @@
                 <h5 class="modal-title" id="changeEndDateModalLabel_{{ project.id }}">Projekt-Enddatum ändern - {{ project.name }}</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <!-- WICHTIG: Die korrekte Form-Action für diese Route -->
             <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}" id="endDateForm_{{ project.id }}">
                 <div class="modal-body">
                     {{ end_date_form.hidden_tag() if end_date_form }}
@@ -123,9 +134,12 @@
                             <input type="date" class="form-control bg-dark text-light border-secondary" 
                                 id="end_date_{{ project.id }}" name="end_date" 
                                 value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
-                            <span class="input-group-text bg-dark border-secondary">
-                                <i class="bi bi-calendar-date text-white"></i>
-                            </span>
+                            <style>
+                                /* Make the calendar icon white */
+                                input[type="date"]::-webkit-calendar-picker-indicator {
+                                    filter: invert(1);
+                                }
+                            </style>
                         </div>
                     </div>
                     <div class="quick-select mb-3">
@@ -469,7 +483,94 @@
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
 }
    
-    </style>
+</style>
+<style> /* Make form elements and icons visible on dark backgrounds */
+    
+.form-control, .input-group-text {
+    color: #ffffff !important;
+}
+
+/* Ensure calendar icon is white in the date input group */
+.input-group-text .fas.fa-calendar,
+.input-group-text .fas.fa-plus-circle {
+    color: #00BCD4 !important; /* Match your accent color */
+}
+
+/* Style for calendar+plus stack icon */
+.fa-stack {
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    vertical-align: middle;
+}
+
+.fa-stack .fas.fa-calendar {
+    color: #00BCD4;
+}
+
+.fa-stack .fas.fa-plus {
+    color: #ffffff;
+    background-color: #00BCD4;
+    border-radius: 50%;
+    padding: 1px;
+}
+
+/* Custom styling for date input to ensure consistent appearance across browsers */
+input[type="date"] {
+    position: relative;
+}
+
+
+
+/* Ensure the date picker is usable on dark backgrounds */
+input[type="date"]::-webkit-datetime-edit {
+    color: #ffffff;
+}
+</style>
+<style>/* Button Style Adjustments */
+    
+/* Einheitlicher Button-Stil für Aktions- und Status-Buttons */
+.btn-status-change {
+    background-color: #00BCD4;
+    border-color: #00BCD4;
+    color: #000;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 6px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.btn-status-change:hover {
+    background-color: #00acc1;
+    border-color: #00acc1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Anpassungen für die Aktionsbuttons im Header */
+.btn-status-change i {
+    color: inherit;
+}
+
+/* Optionales Styling für verschiedene Hintergrundfarben bei Bedarf */
+.btn-upload {
+    background-color: #28a745; /* Grün für Upload */
+    border-color: #28a745;
+}
+
+.btn-timesheet {
+    background-color: #0d6efd; /* Blau für Stundenberichte */
+    border-color: #0d6efd;
+}
+
+.btn-download {
+    background-color: #00BCD4; /* Bleibt türkis für Downloads */
+    border-color: #00BCD4;
+}
+
+</style>
 <!-- app/templates/projects/view.html -->
 <!-- JavaScript für einen echten Live-Countdown hinzufügen -->
 <!-- Modal + Countdown Script -->
@@ -576,6 +677,21 @@ function updateRemainingTime() {
         });
 }
 </script>
-
+<script> // Mache das Kalendersymbol klickbar
+    $(document).ready(function(){
+        // Initialisiere den Datepicker
+        $('.datepicker').datepicker({
+            format: 'dd.mm.yy',
+            autoclose: true,
+            todayHighlight: true,
+            language: 'de'
+        });
+        
+        
+        $('.date-icon-trigger').click(function(){
+            $(this).parent().find('input').focus();
+        });
+    });
+    </script>
 
 {% endblock %}

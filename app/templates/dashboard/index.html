@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
@@ -106,53 +107,68 @@
                         <tbody>
                             {% for project in in_progress[:5] %}
                                 <tr>
-                                    <td style="background-color: #14304d">
+                                    <td style="background-color: #1d1d30">
                                         <div class="d-flex align-items-center">
                                             <div class="project-icon me-3">
                                                 <i class="fas fa-folder" style="color: var(--accent);"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0">{{ project.name }}</h6>
+                                                <h6 class="mb-0" style="color: white;">{{ project.name }}</h6>
                                                 <small class="text-muted d-block d-md-none">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="d-none d-md-table-cell text-light" style="background-color: #2f4052">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
-                                    <td class="d-none d-lg-table-cell" style="background-color: #533f66">
-                                        {% if project.end_date %}
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2" style="height: 8px; background-color: var(--primary-light);">
-                                                    <div class="progress-bar" role="progressbar" 
-                                                         style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
-                                                         aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-1">
-                                                    <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
-                                                    <span id="countdown-timer" class="badge 
-                                                        {% if project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
-                                                            bg-success
-                                                        {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
-                                                            bg-info
-                                                        {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
-                                                            bg-warning
-                                                        {% else %}
-                                                            bg-danger
-                                                        {% endif %}">
-                                                        Wird geladen...
-                                                    </span>
-                                                    <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
-                                                </div>
-                                            </div>
-                                        {% else %}
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-secondary">Kein Enddatum</span>
-                                                <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen">
-                                                    <i class="fas fa-calendar-plus text-light"></i>
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end" style="background-color: #3e5063">
+                                    <td class="d-none d-md-table-cell text-light" style="background-color: #1d1d30">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                    <!-- Replace the original timeline section with this improved structure -->
+<td class="d-none d-lg-table-cell" style="background-color: #27273d">
+    {% if project.end_date %}
+        <div class="progress-container">
+            <div class="progress-wrapper">
+                <div class="progress" style="height: 8px; background-color: var(--primary-light);">
+                    <div class="progress-bar" id="progress-bar-{{ project.id }}" role="progressbar" 
+                        style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                        aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                
+                <div class="date-time-container">
+                    <span class="start-date date-text text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</span>
+                    
+                    <span id="countdown-timer-{{ project.id }}" class="countdown-badge badge 
+                        {% if project.get_remaining_hours() > 168 %}
+                            bg-success
+                        {% elif project.get_remaining_hours() > 24 %}
+                            bg-info
+                        {% elif project.get_remaining_hours() > 0 %}
+                            bg-warning
+                        {% else %}
+                            bg-danger
+                        {% endif %}">
+                        Wird geladen...
+                    </span>
+                    
+                    <span class="end-date date-text text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</span>
+                    
+                    <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern">
+                                                <!-- Combined Function Icons -->
+                        <i class="fas fa-calendar-alt"></i><i class="fas fa-pen fa-xs"></i>
+                        
+                         
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="d-flex align-items-center">
+            <span class="badge bg-secondary">Kein Enddatum</span>
+            <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen">
+                <i class="fas fa-calendar-plus text-light"></i>
+            </a>
+        </div>
+    {% endif %}
+</td>
+                                    
+                                    <td class="text-end" style="background-color:#1d1d30">
                                         <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-download"></i> Download
                                         </a>
@@ -179,9 +195,12 @@
                             <input type="date" class="form-control bg-dark text-light border-secondary" 
                                 id="end_date_{{ project.id }}" name="end_date" 
                                 value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
-                            <span class="input-group-text bg-dark border-secondary">
-                                <i class="bi bi-calendar-date text-white"></i>
-                            </span>
+                            <style>
+                                /* Make the calendar icon white */
+                                input[type="date"]::-webkit-calendar-picker-indicator {
+                                    filter: invert(1);
+                                }
+                            </style>
                         </div>
                     </div>
                     <div class="quick-select mb-3">
@@ -247,7 +266,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
             <div class="modal-body">
-                <!-- Suche und Filter -->
+                <!-- Suche und Filter mit verbesserten Dropdown-Indikatoren -->
                 <div class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-6">
@@ -257,7 +276,7 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select form-select-lg py-2" id="statusFilter">
+                            <select class="form-select form-select-lg py-2 select-visible-indicator" id="statusFilter">
                                 <option value="all">Alle Status</option>
                                 <option value="in_progress">In Bearbeitung</option>
                                 <option value="completed">Kalender</option>
@@ -265,7 +284,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <select class="form-select form-select-lg py-2" id="sortProjects">
+                            <select class="form-select form-select-lg py-2 select-visible-indicator" id="sortProjects">
                                 <option value="newest">Neueste zuerst</option>
                                 <option value="oldest">Älteste zuerst</option>
                                 <option value="az">A-Z</option>
@@ -333,7 +352,7 @@
                                                     {% else %}Archiviert{% endif %}
                                                 </span>
                                             </div>
-                                            <div class="card-body">
+                                            <div class="card-body" style="background-color:  #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -384,7 +403,7 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-primary-custom rounded-pill ms-2">In Bearbeitung</span>
                                             </div>
-                                            <div class="card-body">
+                                            <div class="card-body"  style="background-color:  #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -505,7 +524,7 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-secondary-custom rounded-pill ms-2">Archiviert</span>
                                             </div>
-                                            <div class="card-body">
+                                            <div class="card-body" style="background-color:  #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -1378,7 +1397,79 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+</style>
 
+<style> /* CSS Fixes for Timeline View Spacing */
+/* Add spacing between dates and time indicators */
+.progress-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.date-time-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.start-date {
+  margin-right: 12px; /* Space between start date and progress bar */
+  white-space: nowrap;
+}
+
+.end-date {
+  margin-left: 12px; /* Space between end date and progress bar */
+  white-space: nowrap;
+}
+
+.countdown-badge {
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0 10px; /* Add spacing on both sides of the badge */
+  white-space: nowrap;
+}
+
+/* Improve progress bar positioning */
+.progress-wrapper {
+  flex-grow: 1;
+  position: relative;
+}
+
+.progress {
+  width: 100%;
+}
+
+/* Optional: Make the dates a bit smaller to fit better */
+.date-text {
+  font-size: 0.85rem;
+}    
+</style>
+
+<style> /* Make dropdown arrows visible against dark backgrounds */
+    
+.form-select {
+    /* Change the color of the dropdown indicator */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300ccff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Alternatively, you can add a custom class to your select elements */
+.select-visible-indicator {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300ccff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* If you want to change text color for better visibility */
+.form-select {
+    color: #00ccff; /* Matching your existing teal text color */
+}
+
+/* Ensure dropdown options are visible when opened */
+.form-select option {
+    color: #212529; /* Dark text for options */
+    background-color: #fff; /* Light background for the dropdown menu */
+}
 </style>
 
 <!-- Script für Kalenderfunktionen -->
@@ -2187,5 +2278,127 @@ function showDayDetails(day, className) {
     }
 });
 </script>
+<script>
+// JavaScript für die Dashboard-Seite (index.html)
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Fix für den Countdown-Timer "WIRD GELADEN..."
+    updateAllCountdownTimers();
+    // Alle 30 Sekunden aktualisieren
+    setInterval(updateAllCountdownTimers, 30000);
+    
+    // 2. Event-Listener für die Schnellauswahl-Buttons in allen Modals
+    setupQuickSelectButtons();
+    
+    // 3. Formular-Validierung und Übermittlung für alle End-Date-Formulare
+    setupEndDateForms();
+});
 
+// Funktion zum Aktualisieren aller Countdown-Timer auf der Seite
+function updateAllCountdownTimers() {
+    // Alle Countdown-Timer auf der Seite finden
+    const countdownTimers = document.querySelectorAll('[id^="countdown-timer"]');
+    
+    countdownTimers.forEach(timer => {
+        // Projekt-ID aus dem Timer-Element oder dem übergeordneten Element extrahieren
+        const row = timer.closest('tr');
+        if (!row) return;
+        
+        // Projekt-ID aus der Modal-ID oder einem data-Attribut extrahieren
+        const modalId = row.querySelector('[data-bs-target^="#changeEndDateModal_"]');
+        if (!modalId) return;
+        
+        const projectId = modalId.getAttribute('data-bs-target').split('_')[1];
+        
+        updateTimerForProject(timer, projectId);
+    });
+}
+
+// Funktion zum Aktualisieren eines einzelnen Countdown-Timers
+function updateTimerForProject(timerElement, projectId) {
+    if (!timerElement || !projectId) return;
+    
+    fetch(`/api/project/${projectId}/remaining-time`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Netzwerkantwort war nicht ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Countdown-Badge aktualisieren
+            timerElement.textContent = data.remaining_detailed;
+            timerElement.className = `badge bg-${data.status}`;
+            
+            // Fortschrittsbalken aktualisieren, falls vorhanden
+            const progressBarId = `progress-bar-${projectId}`;
+            const progressBar = document.getElementById(progressBarId);
+            if (progressBar) {
+                progressBar.style.width = `${data.progress_percentage}%`;
+                progressBar.className = `progress-bar bg-${data.status}`;
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Abrufen der verbleibenden Zeit:', error);
+            timerElement.textContent = 'Fehler';
+            timerElement.className = 'badge bg-danger';
+        });
+}
+
+// Funktion zum Einrichten der Schnellauswahl-Buttons für alle Modals
+function setupQuickSelectButtons() {
+    // Alle Schnellauswahl-Buttons finden
+    const quickSelectButtons = document.querySelectorAll('.quick-select-btn');
+    
+    quickSelectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Werte aus dem Button abrufen
+            const value = parseInt(this.getAttribute('data-value'));
+            const unit = this.getAttribute('data-unit');
+            
+            // Modal-ID finden, um die Projekt-ID zu extrahieren
+            const modal = this.closest('.modal');
+            if (!modal) return;
+            
+            const projectId = modal.id.split('_')[1];
+            if (!projectId) return;
+            
+            console.log(`Quick select for project ${projectId}: +${value} ${unit}`);
+            
+            // Formular für die Schnellauswahl vorbereiten und absenden
+            const adjustForm = document.getElementById(`adjustForm_${projectId}`);
+            if (!adjustForm) return;
+            
+            // Versteckte Felder setzen
+            let valueInput = adjustForm.querySelector('input[name="value"]');
+            if (valueInput) valueInput.value = value;
+            
+            let unitInput = adjustForm.querySelector('input[name="unit"]');
+            if (unitInput) unitInput.value = unit;
+            
+            // Formular absenden
+            adjustForm.submit();
+        });
+    });
+}
+
+// Funktion zum Einrichten der Enddatum-Formulare
+function setupEndDateForms() {
+    // Alle Enddatum-Formulare finden
+    const endDateForms = document.querySelectorAll('[id^="endDateForm_"]');
+    
+    endDateForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const dateInput = this.querySelector('input[name="end_date"]');
+            
+            if (!dateInput || !dateInput.value) {
+                event.preventDefault();
+                alert('Bitte ein gültiges Datum eingeben.');
+                return false;
+            }
+            
+            console.log('Submitting form with end date:', dateInput.value);
+        });
+    });
+}    
+</script>
 {% endblock %}
