@@ -118,19 +118,20 @@ def generate_fortuna_timesheet(output_path,
         left_margin = doc.leftMargin
         
         # Calculate positions to ensure content stays within table width
-        logo_x = left_margin
+        # MODIFIED: Move logo further left to align with red line and tables
+        logo_x = 1.8*cm     #Adjusted to be more left, inside the red line area
         company_info_x = left_margin + content_width  # Right align at the right edge of content area
         
         # Move logo and address up by 1cm
-        logo_y_position = doc.height - 2*cm  # 1cm higher than before
+        logo_y_position = doc.height -2.3*cm  # 1cm higher than before
         
         # Logo links platzieren
         logo_found = False
         for logo_path in logo_paths:
             if os.path.exists(logo_path):
                 try:
-                    # Logo links oben platzieren, respecting the margin and 1cm higher
-                    canvas.drawImage(logo_path, logo_x, logo_y_position, width=3*cm, preserveAspectRatio=True)
+                    # MODIFIED: Increased logo size 
+                    canvas.drawImage(logo_path, logo_x, logo_y_position, width=4*cm, preserveAspectRatio=True)
                     logo_found = True
                     break
                 except Exception as e:

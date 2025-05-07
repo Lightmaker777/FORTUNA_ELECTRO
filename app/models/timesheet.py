@@ -6,6 +6,7 @@ class Timesheet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
     activity = db.Column(db.String(64), nullable=False)
+    material = db.Column(db.String(64), nullable=True)
     hours = db.Column(db.Float, nullable=False)
     notes = db.Column(db.Text)
     pdf_path = db.Column(db.String(256))

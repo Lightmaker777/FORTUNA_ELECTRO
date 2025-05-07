@@ -423,6 +423,9 @@ class TimesheetForm(FlaskForm):
     date = DateField('Datum', format='%Y-%m-%d', validators=[DataRequired()])
     notes = TextAreaField('Notizen')
     submit = SubmitField('PDF erstellen und speichern')
+    material = SelectField('Material', choices=MATERIAL_CHOICES, validators=[DataRequired()])
+    other_material = StringField('Andere Materialien (bitte angeben)')
+                              
 
 @timesheets.route('/project/<int:project_id>/timesheet/new', methods=['GET', 'POST'])
 @login_required
@@ -441,7 +444,7 @@ def new_timesheet(project_id):
             
             arbeitseinsatz_string = request.form.get('arbeitseinsatz_data', '[]')
             material_string = request.form.get('material_data', '[]')
-            
+            material_data = json.loads(request.form.get('material_data', '[]'))
             try:
                 arbeitseinsatz_data = json.loads(arbeitseinsatz_string)
                 # Überprüfen, ob arbeitseinsatz_data leer ist und erstelle mindestens einen Eintrag
@@ -460,7 +463,13 @@ def new_timesheet(project_id):
                 
             an_abreise = request.form.get('an_abreise', '07:45-17:00')  # Standardwert setzen
             arbeitskraft = request.form.get('arbeitskraft', current_user.username)
-            
+
+            # Handle the "other_material" case
+            for material in material_data:
+                if material.get('name') == 'Andere Materialien':
+                    # Replace with the actual input from other_material field
+                    material['name'] = form.other_material.data or 'Unspezifizierte Materialien'
+
             # Formatieren aller activity-Werte
             for eintrag in arbeitseinsatz_data:
                 activity_text = eintrag['activity']

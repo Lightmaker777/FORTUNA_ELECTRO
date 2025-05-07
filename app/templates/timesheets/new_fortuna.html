@@ -182,6 +182,20 @@
                                 </button>
                             </div>
                         </div>
+                        <!-- Andere Materialien Box (erscheint wenn 'Andere Materialien' ausgewählt) -->
+                        <div id="other-material-div" style="display:none;" class="mb-4 animate__animated animate__fadeIn">
+                            <label for="{{ form.other_material.id }}" class="form-label fw-bold">
+                                <i class="fas fa-edit me-2"></i>{{ form.other_material.label.text }}
+                            </label>
+                            {{ form.other_material(class="form-control" + (" is-invalid" if form.other_material.errors else ""), placeholder="Bitte geben Sie das Material ein...") }}
+                            {% if form.other_material.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.other_material.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                         
                         <!-- Notizen mit Markdown-Hinweis -->
                         <div class="mb-4">
@@ -209,6 +223,7 @@
                         <input type="hidden" name="arbeitseinsatz_data" id="arbeitseinsatz_data">
                         <input type="hidden" name="material_data" id="material_data" value="[]">
                         {{ form.activity(type="hidden", id="activity-hidden") }}
+                        {{ form.material(type="hidden", id="material-hidden") }}
                         
                         
                         <hr class="my-4">
@@ -1144,5 +1159,70 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
+<script>
+    // Funktion um zu prüfen, ob "Andere Materialien" ausgewählt wurde
+    function checkForOtherMaterial() {
+        const materialSelects = document.querySelectorAll('.material-name');
+        const otherMaterialDiv = document.getElementById('other-material-div');
+        
+        // Prüfen, ob irgendeine der Material-Selects "Andere Materialien" enthält
+        let hasOtherMaterial = false;
+        materialSelects.forEach(select => {
+            if (select.value === 'other') {
+                hasOtherMaterial = true;
+            }
+        });
+        
+        // Ein-/Ausblenden des "Andere Materialien"-Felds
+        otherMaterialDiv.style.display = hasOtherMaterial ? 'block' : 'none';
+        
+        // Wenn keine "Andere Materialien" ausgewählt sind, das Feld leeren
+        if (!hasOtherMaterial) {
+            document.getElementById('{{ form.other_material.id }}').value = '';
+        }
+    }
+    
+    // Event-Listener nach dem Laden der Seite hinzufügen
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial-Check durchführen
+        checkForOtherMaterial();
+        
+        // Event-Listener für Material-Selects
+        const materialTable = document.getElementById('material-table');
+        
+        // Event-Delegation verwenden
+        materialTable.addEventListener('change', function(event) {
+            if (event.target.classList.contains('material-name')) {
+                checkForOtherMaterial();
+            }
+        });
+        
+        // Event-Listener für "Material hinzufügen"-Button
+        document.getElementById('add-material-btn').addEventListener('click', function() {
+            // Zeitverzögerung, um dem DOM Zeit zu geben, die neuen Elemente zu rendern
+            setTimeout(checkForOtherMaterial, 10);
+        });
+    });
+    // Add this JavaScript to your page (in a <script> tag or external JS file)
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure hidden fields stay hidden (in case CSS is overriding them)
+    const hiddenFields = [
+        'arbeitseinsatz_data',
+        'material_data',
+        'activity-hidden',
+        'material-hidden'
+    ];
+    
+    hiddenFields.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            // Force hide with inline style
+            element.style.display = 'none';
+            element.style.position = 'absolute';
+            element.style.left = '-9999px';
+        }
+    });
+});
+    </script>
 
 {% endblock %}
