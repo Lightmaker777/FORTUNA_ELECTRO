@@ -18,12 +18,32 @@ from datetime import datetime
 files = Blueprint('files', __name__)
 
 ALLOWED_EXTENSIONS = {
-    'foto': {'png', 'jpg', 'jpeg', 'gif'},
-    'video': {'mp4', 'avi', 'mov', 'wmv'},
-    'stundenbericht': {'pdf'},
-    'pruefbericht': {'pdf'},
-    'sonstiges': {'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'}
+    'foto': {
+        'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp', 'svg'
+    },
+    'video': {
+        'mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm', 'flv'
+    },
+    'stundenbericht': {
+        'pdf'
+    },
+    'pruefbericht': {
+        'pdf'
+    },
+    'sonstiges': {
+        # Office-Dokumente
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'rtf', 'odt', 'ods', 'odp',
+        # Textbasierte Dateien
+        'txt', 'log', 'md', 'ini', 'cfg', 'json', 'xml', 'yaml', 'yml',
+        # Code-Dateien
+        'py', 'java', 'c', 'cpp', 'cs', 'js', 'ts', 'html', 'htm', 'css', 'php', 'rb', 'go', 'rs', 'sh', 'bat',
+        # Archivformate
+        'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'iso',
+        # Sonstige gebräuchliche Dateitypen
+        'sql', 'db', 'sqlite', 'psd', 'ai', 'eps', 'sketch', 'xd'
+    }
 }
+
 
 def allowed_file(filename, file_type):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS.get(file_type, {})

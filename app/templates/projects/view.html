@@ -3,6 +3,7 @@
 
 {% block content %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 <!-- Aktualisierte Aktionsbuttons im gleichen Stil wie STATUS ÄNDERN -->
 <div class="container-fluid py-3">
   <div class="row align-items-center">
@@ -239,108 +240,166 @@
         border-radius: 0 0 5px 5px;
     }
 </style>
+
 <!-- Tab-Inhalte -->
 <div class="tab-content" id="projectTabsContent">
-    <!-- Fotos -->
-    <div class="tab-pane fade show active" id="photos" role="tabpanel">
-        <div class="row">
-            {% if photos %}
-                {% for file in photos %}
-                    <div class="col-md-4 col-lg-3 mb-4">
-                        <div class="card h-100">
-                            <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank">
-                                <img src="{{ url_for('files.view_file', filename=file.file_path) }}" class="card-img-top" alt="{{ file.original_filename }}">
-                            </a>
-                            <div class="card-body">
-                                <h6 class="card-title text-truncate">{{ file.original_filename }}</h6>
-                                <p class="card-text">
-                                    <small class="text-muted">
-                                        {{ (file.file_size / 1024)|round(1) }} KB - 
-                                        {{ file.upload_date.strftime('%d.%m.%Y') }}
-                                    </small>
-                                </p>
-                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
+    
+<!-- Gemeinsames Card-Layout für alle Tabs -->
+{% macro file_card(file, file_type) %}
+    <div class="col-md-4 col-lg-3 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <!-- Card Header mit Dateityp-Indikator -->
+            <div class="card-header bg-secondary text-white p-2 d-flex justify-content-between align-items-center">
+                <small class="text-truncate">
+                    <i class="{% if file_type == 'photo' %}fas fa-image
+                              {% elif file_type == 'video' %}fas fa-video
+                              {% elif file_type == 'timesheet' %}fas fa-clock
+                              {% elif file_type == 'report' %}fas fa-clipboard-check
+                              {% else %}fas fa-file{% endif %}"></i>
+                    {{ file_type|capitalize }}
+                </small>
+                <small>{{ file.upload_date.strftime('%d.%m.%Y') }}</small>
+            </div>
+            
+            <!-- Card Vorschau-Container mit einheitlicher Höhe -->
+            <div class="card-img-container" style="height: 300px; overflow: hidden; background-color: #2c3e50; position: relative;">
+                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank" style="width: 100%; height: 100%;">
+                    {% if file_type == 'photo' or file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')) %}
+                        <!-- Bild-Vorschau - füllt die gesamte Card aus -->
+                        <div class="h-100 w-100 overflow-hidden">
+                            <img src="{{ url_for('files.view_file', filename=file.file_path) }}" alt="{{ file.original_filename }}" 
+                                class="w-100 h-100" style="object-fit: cover;">
                         </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12">
-                    <p class="text-muted">Keine Fotos vorhanden.</p>
+                    {% elif file_type == 'video' or file.original_filename.endswith(('.mp4', '.webm', '.ogg')) %}
+                        <!-- Video-Vorschau - füllt die gesamte Card aus -->
+                        <div class="position-relative h-100 w-100">
+                            <video class="w-100 h-100" style="object-fit: cover;" poster="{{ url_for('files.get_video_thumbnail', filename=file.file_path) if has_video_thumbnail_function else '' }}">
+                                <source src="{{ url_for('files.view_file', filename=file.file_path) }}" type="video/mp4">
+                            </video>
+                            <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
+                                <i class="fas fa-play-circle fa-3x text-white" style="filter: drop-shadow(0 0 3px rgba(0,0,0,0.7));"></i>
+                            </div>
+                            <!-- Video Overlay für besseren Kontrast zum Play-Button -->
+                            <div class="position-absolute top-0 left-0 w-100 h-100" style="background-color: rgba(0,0,0,0.2);"></div>
+                        </div>
+                    {% elif file_type == 'timesheet' or file_type == 'report' or file.original_filename.endswith('.pdf') %}
+                        <!-- PDF-Vorschau -->
+                        <object data="{{ url_for('files.view_file', filename=file.file_path) }}" type="application/pdf" width="100%" height="100%" style="object-fit: contain;">
+                            <!-- Fallback für Browser, die keine PDF-Objekte unterstützen -->
+                            <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                            </div>
+                        </object>
+                    {% else %}
+                        <!-- Andere Dateien mit passendem Icon -->
+                        <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                            {% if file.original_filename.endswith(('.doc', '.docx')) %}
+                                <i class="fas fa-file-word fa-4x text-primary"></i>
+                            {% elif file.original_filename.endswith(('.xls', '.xlsx', '.csv')) %}
+                                <i class="fas fa-file-excel fa-4x text-success"></i>
+                            {% elif file.original_filename.endswith(('.ppt', '.pptx')) %}
+                                <i class="fas fa-file-powerpoint fa-4x text-warning"></i>
+                            {% elif file.original_filename.endswith(('.pdf',)) %}
+                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                            {% elif file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp')) %}
+                                <i class="fas fa-file-image fa-4x text-info"></i>
+                            {% elif file.original_filename.endswith(('.mp4', '.mov', '.wmv', '.avi', '.mkv', '.webm')) %}
+                                <i class="fas fa-file-video fa-4x text-dark"></i>
+                            {% elif file.original_filename.endswith(('.mp3', '.wav', '.ogg', '.flac')) %}
+                                <i class="fas fa-file-audio fa-4x text-warning"></i>
+                            {% elif file.original_filename.endswith(('.zip', '.rar', '.7z', '.tar', '.gz')) %}
+                                <i class="fas fa-file-archive fa-4x text-secondary"></i>
+                            {% elif file.original_filename.endswith(('.txt', '.md', '.log')) %}
+                                <i class="fas fa-file-alt fa-4x text-muted"></i>
+                            {% elif file.original_filename.endswith(('.html', '.css', '.js', '.json', '.xml')) %}
+                                <i class="fas fa-file-code fa-4x text-primary"></i>
+                            {% elif file.original_filename.endswith(('.py', '.java', '.cpp', '.c', '.rb', '.php', '.go', '.rs')) %}
+                                <i class="fas fa-file-code fa-4x text-secondary"></i>
+                            {% else %}
+                                <i class="fas fa-file fa-4x text-info"></i>
+                            {% endif %}
+                        </div>
+                        
+                    {% endif %}
+                </a>
+            </div>
+            
+            <!-- Card Body mit Dateiinfos -->
+            <div class="card-body d-flex flex-column">
+                <h6 class="card-title text-truncate mb-2">{{ file.original_filename }}</h6>
+                <p class="card-text mb-3">
+                    <small class="text-muted">
+                        {% if file.file_size > 1024 * 1024 %}
+                            {{ (file.file_size / 1024 / 1024)|round(2) }} MB
+                        {% else %}
+                            {{ (file.file_size / 1024)|round(1) }} KB
+                        {% endif %}
+                    </small>
+                </p>
+                <!-- Buttons immer am Ende -->
+                <div class="mt-auto d-flex justify-content-between">
+                    <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                        {% if file_type == 'photo' %}
+                            <i class="fas fa-image"></i> Anzeigen
+                        {% elif file_type == 'video' %}
+                            <i class="fas fa-play"></i> Abspielen
+                        {% elif file_type == 'timesheet' %}
+                            <i class="fas fa-clock"></i> Anzeigen
+                        {% elif file_type == 'report' %}
+                            <i class="fas fa-clipboard-check"></i> Anzeigen
+                        {% else %}
+                            <i class="fas fa-file"></i> Anzeigen
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
                 </div>
-            {% endif %}
+            </div>
         </div>
     </div>
-    
-    <!-- Videos -->
-    <div class="tab-pane fade" id="videos" role="tabpanel">
-        <div class="row">
-            {% if videos %}
-                {% for file in videos %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ file.original_filename }}</h5>
-                                <p class="card-text">
-                                    <small class="text-muted">
-                                        {{ (file.file_size / 1024 / 1024)|round(2) }} MB - 
-                                        {{ file.upload_date.strftime('%d.%m.%Y') }}
-                                    </small>
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                                        <i class="fas fa-play"></i> Abspielen
-                                    </a>
-                                    <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12">
-                    <p class="text-muted">Keine Videos vorhanden.</p>
-                </div>
-            {% endif %}
-        </div>
+{% endmacro %}
+
+<!-- Fotos -->
+<div class="tab-pane fade show active" id="photos" role="tabpanel">
+    <div class="row">
+        {% if photos %}
+            {% for file in photos %}
+                {{ file_card(file, 'photo') }}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-light">Keine Fotos vorhanden.</p>
+            </div>
+        {% endif %}
     </div>
-    
-    <!-- Reste der Tab-Inhalte für andere Dateitypen folgen dem gleichen Muster -->
-    <!-- Hier beginnen die fehlenden Tab-Inhalte -->
+</div>
+
+<!-- Videos -->
+<div class="tab-pane fade" id="videos" role="tabpanel">
+    <div class="row">
+        {% if videos %}
+            {% for file in videos %}
+                {{ file_card(file, 'video') }}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-light">Keine Videos vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Stundenberichte -->
 <div class="tab-pane fade" id="timesheets" role="tabpanel">
     <div class="row">
         {% if timesheets %}
             {% for file in timesheets %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ file.original_filename }}</h5>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    {{ (file.file_size / 1024)|round(1) }} KB - 
-                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
-                                </small>
-                            </p>
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                                    <i class="fas fa-file-pdf"></i> Anzeigen
-                                </a>
-                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{ file_card(file, 'timesheet') }}
             {% endfor %}
         {% else %}
             <div class="col-12">
-                <p class="text-muted">Keine Stundenberichte vorhanden.</p>
+                <p class="text-light">Keine Stundenberichte vorhanden.</p>
             </div>
         {% endif %}
     </div>
@@ -351,45 +410,126 @@
     <div class="row">
         {% if reports %}
             {% for file in reports %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ file.original_filename }}</h5>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    {{ (file.file_size / 1024)|round(1) }} KB - 
-                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
-                                </small>
-                            </p>
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                                    <i class="fas fa-file-alt"></i> Anzeigen
-                                </a>
-                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{ file_card(file, 'report') }}
             {% endfor %}
         {% else %}
             <div class="col-12">
-                <p class="text-muted">Keine Prüfberichte vorhanden.</p>
+                <p class="text-light">Keine Prüfberichte vorhanden.</p>
             </div>
         {% endif %}
     </div>
 </div>
 
-<!-- Sonstiges -->
+<!-- Sonstige Dateien -->
 <div class="tab-pane fade" id="other" role="tabpanel">
     <div class="row">
         {% if other_files %}
             {% for file in other_files %}
-                <div class="col-md-6 col-lg-4 mb-4">
+                {{ file_card(file, 'other') }}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-light">Keine sonstigen Dateien vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Unterstützte Dateiformate hinzufügen -->
+<div style="display:none">
+    <!-- Liste der erlaubten Dateiformate für verschiedene Kategorien -->
+    <div id="allowed-photos">.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.tiff,.tif</div>
+    <div id="allowed-videos">.mp4,.webm,.ogg,.mov,.avi,.wmv,.flv,.mkv</div>
+    <div id="allowed-timesheets">.pdf,.doc,.docx,.xls,.xlsx</div>
+    <div id="allowed-reports">.pdf,.doc,.docx,.xls,.xlsx</div>
+    <div id="allowed-other">.txt,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.csv,.json,.xml,.html,.css,.js,.md,.rtf,.odt,.ods,.odp,.wav,.mp3,.psd,.ai,.eps,.indd,.ttf,.otf,.woff,.woff2,.eot,.sql,.db,.tar,.gz,.exe,.dll,.bat,.sh,.iso,.dmg,.apk,.ipa</div>
+</div>
+
+<!-- Stunden (falls benötigt) -->
+<div class="tab-pane fade" id="hours" role="tabpanel">
+    <div class="row">
+        {% if hours %}
+            {% for file in hours %}
+                {{ file_card(file, 'hours') }}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <p class="text-light">Keine Arbeitsstunden vorhanden.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Zusätzliches CSS für konsistente Darstellung -->
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        background-color: #343a40;
+        color: #f8f9fa;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .card-header {
+        border-radius: 0.25rem 0.25rem 0 0;
+    }
+    
+    .card-img-container {
+        border-top: none;
+        position: relative;
+    }
+    
+    /* Spezielle Stile für Bild- und Videovorschauen */
+    .card-img-container img[style*="object-fit: cover"],
+    .card-img-container video[style*="object-fit: cover"] {
+        transition: transform 0.5s;
+    }
+    
+    .card:hover .card-img-container img[style*="object-fit: cover"],
+    .card:hover .card-img-container video[style*="object-fit: cover"] {
+        transform: scale(1.05);
+    }
+    
+    .btn-primary {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    
+    .btn-primary:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+    
+    .text-muted {
+        color: #adb5bd !important;
+    }
+</style>
+
+<!-- Arbeitsstunden -->
+<div class="tab-pane fade" id="worktime" role="tabpanel">
+    <div class="row">
+        {% if worktime %}
+            {% for file in worktime %}
+                <div class="col-md-4 col-lg-3 mb-4">
                     <div class="card h-100">
+                        <div class="card-img-top document-thumbnail">
+                            <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank">
+                                <div class="position-relative">
+                                    <!-- Dokument-Vorschaubild -->
+                                    <div class="document-preview" style="background-color: #f8f9fa; height: 160px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-file-excel fa-3x text-success"></i>
+                                    </div>
+                                    <div class="position-absolute bottom-0 right-0 p-2 bg-success text-white">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">{{ file.original_filename }}</h5>
+                            <h6 class="card-title text-truncate">{{ file.original_filename }}</h6>
                             <p class="card-text">
                                 <small class="text-muted">
                                     {{ (file.file_size / 1024)|round(1) }} KB - 
@@ -398,7 +538,7 @@
                             </p>
                             <div class="d-flex justify-content-between">
                                 <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                                    <i class="fas fa-file"></i> Anzeigen
+                                    <i class="fas fa-file-excel"></i> Anzeigen
                                 </a>
                                 <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
                                     <i class="fas fa-trash"></i>
@@ -410,7 +550,7 @@
             {% endfor %}
         {% else %}
             <div class="col-12">
-                <p class="text-muted">Keine sonstigen Dateien vorhanden.</p>
+                <p class="text-muted">Keine Arbeitsstunden vorhanden.</p>
             </div>
         {% endif %}
     </div>

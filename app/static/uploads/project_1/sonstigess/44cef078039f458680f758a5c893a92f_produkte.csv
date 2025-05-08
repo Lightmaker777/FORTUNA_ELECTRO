@@ -1,0 +1,16 @@
+ID,Produkt,Temperatur,Lagerort,Status,Risikostufe
+1,Hönig,18.0,Irgendwo,None,None
+2,Hönig,18.0,Irgendwo,None,None
+3,Hönig & Etwas,10.0,Kühlschrank,None,None
+4,Hönig,50.0,Lagerraum,None,None
+5,Hönig,50.0,Lagerraum,None,None
+6,Hönig,47.0,Lagerraum2,None,None
+7,Hönig,47.0,Lagerraum2,None,None
+8,Hönig,77.0,Lagerraum3,None,None
+9,Hönig,93.0,Lagerraum5,OK,unbekannt
+10,Hönig,34.0,Lagerraum4,OK,unbekannt
+11,Hönig,34.0,Lagerraum4,OK,unbekannt
+12,Hönig,34.0,Lagerraum4,OK,unbekannt
+13,Hönig,34.0,Lagerraum4,OK,unbekannt
+14,Fleisch,2.0,Kühlschrank2,OK,hoch
+15,Hönig,34.0,Lagerraum,OK,unbekannt

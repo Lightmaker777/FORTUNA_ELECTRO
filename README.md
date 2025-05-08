@@ -162,6 +162,9 @@ six==1.17.0
   
   <p><i>Projectdetails Page</i></p>
   <img src="app/static/img/projekt.png" alt="Project" width="80%">
+
+  <p><i>Projectdetails Page Others  </i></p>
+  <img src="app/static/img/projekt1.png" alt="Project1" width="80%">
   
    <p><i>User Password Changing</i></p>
   <img src="app/static/img/userpassword.png" alt="User Password" width="80%">
