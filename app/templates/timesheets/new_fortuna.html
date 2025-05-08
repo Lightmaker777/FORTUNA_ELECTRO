@@ -493,6 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
 // Modify the addMaterialRow function to avoid duplicating "Andere Materialien"
+// Modify the addMaterialRow function to handle events properly
 function addMaterialRow() {
     const tbody = document.querySelector('#material-table tbody');
     const newRow = document.createElement('tr');
@@ -554,8 +555,10 @@ function addMaterialRow() {
     
     newRow.querySelector('.material-quantity').addEventListener('input', updateJsonData);
     
+    updateMaterialRemoveButtons();
     checkForOtherMaterial();
-} 
+    updateJsonData();
+}
 
 
 function updateMaterialRemoveButtons() {
@@ -570,8 +573,7 @@ function updateMaterialRemoveButtons() {
     });
 }
 
-// Diese Funktion sollte aufgerufen werden, wenn das Formular abgesendet wird
-// Also update the collectMaterialData function to filter out "Bitte auswählen" rows
+// Fix the collectMaterialData function for form submission
 function collectMaterialData() {
     const materialData = [];
     const rows = document.querySelectorAll('#material-table tbody tr');
@@ -580,13 +582,18 @@ function collectMaterialData() {
         const materialSelect = row.querySelector('.material-name');
         const quantityInput = row.querySelector('.material-quantity');
         
+        // Skip empty selections
+        if (materialSelect.value === "") {
+            return;
+        }
+        
         // Get the displayed text
-        let materialText = "";
-        if (materialSelect.tagName === 'SELECT') {
+        let materialText;
+        if (materialSelect.value === 'other') {
+            materialText = document.getElementById('{{ form.other_material.id }}').value.trim() || "Andere Materialien";
+        } else {
             const selectedOption = materialSelect.options[materialSelect.selectedIndex];
             materialText = selectedOption ? selectedOption.text : "";
-        } else {
-            materialText = materialSelect.value;
         }
         
         const quantity = quantityInput.value.trim();
@@ -594,7 +601,8 @@ function collectMaterialData() {
         // Only add if it's not "Bitte auswählen" and at least one field is filled
         if ((materialText && materialText !== "Bitte auswählen") || quantity) {
             materialData.push({
-                material: materialText,
+                material: materialSelect.value,
+                materialText: materialText,
                 menge: quantity
             });
         }
@@ -603,7 +611,7 @@ function collectMaterialData() {
     return materialData;
 }
 
-// Funktion zum Laden vorhandener Materialdaten ins Modal
+// Fix the loadMaterialData function to handle other materials
 function loadMaterialData() {
     const tbody = document.querySelector('#material-table tbody');
     tbody.innerHTML = ''; // Tabelle leeren
@@ -632,20 +640,18 @@ function loadMaterialData() {
         const materialSelect = lastRow.querySelector('.material-name');
         const quantityInput = lastRow.querySelector('.material-quantity');
         
-        // Den richtigen Wert im Dropdown finden und auswählen
-        if (materialSelect.tagName === 'SELECT') {
-            for (let i = 0; i < materialSelect.options.length; i++) {
-                if (materialSelect.options[i].text === item.material) {
-                    materialSelect.selectedIndex = i;
-                    break;
-                }
-            }
-        } else {
-            materialSelect.value = item.material;
-        }
+        // Set the value from the saved data
+        materialSelect.value = item.material || '';
+        quantityInput.value = item.menge || '';
         
-        quantityInput.value = item.menge;
+        // If this is an "other" material, make sure to also populate the other_material field
+        if (item.material === 'other' && item.materialText) {
+            document.getElementById('{{ form.other_material.id }}').value = item.materialText;
+        }
     });
+    
+    // Make sure to update the other material field visibility
+    checkForOtherMaterial();
 }
 
 // Vor dem Absenden des Formulars ausführen
@@ -706,29 +712,35 @@ document.getElementById('timesheet-form').addEventListener('submit', function() 
         });
         
         // Material-Daten sammeln
-            const materialData = [];
-            document.querySelectorAll('#material-table tbody tr').forEach(row => {
-                const materialSelect = row.querySelector('.material-name');
-                const quantity = row.querySelector('.material-quantity').value.trim();
-                
-                let materialText = "";
-                if (materialSelect.value === 'other') {
-                    // Wenn "Andere Materialien" ausgewählt ist, den Wert aus dem anderen Feld nehmen
-                    materialText = document.getElementById('{{ form.other_material.id }}').value.trim();
-                } else {
-                    // Ansonsten den ausgewählten Text nehmen
-                    const selectedOption = materialSelect.options[materialSelect.selectedIndex];
-                    materialText = selectedOption ? selectedOption.text : "";
-                }
-                
-                if ((materialText && materialText !== "Bitte auswählen") || quantity) {
-                    materialData.push({
-                        material: materialText,
-                        menge: quantity
-                    });
-                }
+    const materialData = [];
+    document.querySelectorAll('#material-table tbody tr').forEach(row => {
+        const materialSelect = row.querySelector('.material-name');
+        const quantity = row.querySelector('.material-quantity').value.trim();
+        
+        // Skip empty selections
+        if (materialSelect.value === "") {
+            return;
+        }
+        
+        let materialText;
+        if (materialSelect.value === 'other') {
+            // Wenn "Andere Materialien" ausgewählt ist, den Wert aus dem anderen Feld nehmen
+            materialText = document.getElementById('{{ form.other_material.id }}').value.trim() || "Andere Materialien";
+        } else {
+            // Ansonsten den ausgewählten Text nehmen
+            const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+            materialText = selectedOption ? selectedOption.text : "";
+        }
+        
+        if ((materialText && materialText !== "Bitte auswählen") || quantity) {
+            materialData.push({
+                material: materialSelect.value,
+                materialText: materialText,
+                menge: quantity
             });
-        document.getElementById('material_data').value = JSON.stringify(materialData);
+        }
+    });
+        
 
         // JSON-Daten in die versteckten Felder eintragen
         document.getElementById('arbeitseinsatz_data').value = JSON.stringify(arbeitseinsatzData);
@@ -808,37 +820,30 @@ function updatePreview() {
     // Material
     const materialPreview = document.getElementById('preview-material');
     materialPreview.innerHTML = '';
-    const validMaterialEntries = [];
-    document.querySelectorAll('#material-table tbody tr').forEach(row => {
-        const materialSelect = row.querySelector('.material-name');
-        const quantity = row.querySelector('.material-quantity').value.trim();
-        let materialText = "";
-        if (materialSelect.tagName === 'SELECT') {
-            const selectedOption = materialSelect.options[materialSelect.selectedIndex];
-            materialText = selectedOption ? selectedOption.text : "";
-        } else {
-            materialText = materialSelect.value.trim();
-        }
-        // Nur gültige Einträge hinzufügen
-        if ((materialText && materialText !== "Bitte auswählen") || quantity) {
-            validMaterialEntries.push({
-                material: materialText,
-                quantity: quantity
-            });
-        }
-    });
-    // Wenn gültige Materialien vorhanden sind, anzeigen
-    if (validMaterialEntries.length > 0) {
-        validMaterialEntries.forEach(entry => {
+    
+    // Get material data from JSON
+    let materialData = [];
+    try {
+        materialData = JSON.parse(document.getElementById('material_data').value || '[]');
+    } catch (e) {
+        console.error('Fehler beim Parsen der Material-Daten:', e);
+    }
+    
+    // If we have material data, display it
+    if (materialData.length > 0) {
+        materialData.forEach(item => {
+            const materialText = item.materialText;
+            const quantity = item.menge;
+            
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>${entry.material}</td>
-                <td>${entry.quantity}</td>
+                <td>${materialText}</td>
+                <td>${quantity}</td>
             `;
             materialPreview.appendChild(newRow);
         });
     } else {
-        // Keine Materialien eingetragen
+        // No materials entered
         const emptyRow = document.createElement('tr');
         emptyRow.innerHTML = `
             <td colspan="2" class="text-center text-muted">Keine Materialien eingetragen</td>
@@ -960,6 +965,18 @@ function updatePreview() {
                     event.preventDefault();
                     otherActivityInput.classList.add('is-invalid');
                     otherActivityInput.focus();
+                    return;
+                }
+            }
+
+             // Validiere 'Andere Materialien', falls ausgewählt
+            const hasOtherMaterial = Array.from(document.querySelectorAll('.material-name')).some(select => select.value === 'other');
+            if (hasOtherMaterial) {
+                const otherMaterialInput = document.getElementById('{{ form.other_material.id }}');
+                if (!otherMaterialInput.value.trim()) {
+                    event.preventDefault();
+                    otherMaterialInput.classList.add('is-invalid');
+                    otherMaterialInput.focus();
                     return;
                 }
             }
@@ -1217,27 +1234,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
     // Funktion um zu prüfen, ob "Andere Materialien" ausgewählt wurde
-    function checkForOtherMaterial() {
-        const materialSelects = document.querySelectorAll('.material-name');
-        const otherMaterialDiv = document.getElementById('other-material-div');
-        
-        // Prüfen, ob irgendeine der Material-Selects "Andere Materialien" enthält
-        let hasOtherMaterial = false;
-        materialSelects.forEach(select => {
-            if (select.value === 'other') {
-                hasOtherMaterial = true;
-            }
-        });
-        
-        // Ein-/Ausblenden des "Andere Materialien"-Felds
-        otherMaterialDiv.style.display = hasOtherMaterial ? 'block' : 'none';
-        
-        // Wenn keine "Andere Materialien" ausgewählt sind, das Feld leeren
-        if (!hasOtherMaterial) {
-            document.getElementById('{{ form.other_material.id }}').value = '';
+// Funktion um zu prüfen, ob "Andere Materialien" ausgewählt wurde
+function checkForOtherMaterial() {
+    let hasOtherMaterial = false;
+    document.querySelectorAll('.material-name').forEach(select => {
+        if (select.value === 'other') {
+            hasOtherMaterial = true;
         }
-    }
+    });
     
+    const otherMaterialDiv = document.getElementById('other-material-div');
+    if (hasOtherMaterial) {
+        otherMaterialDiv.style.display = 'block';
+        
+        // Add event listener to update JSON data when the other material field changes
+        const otherMaterialInput = document.getElementById('{{ form.other_material.id }}');
+        otherMaterialInput.addEventListener('input', updateJsonData);
+    } else {
+        otherMaterialDiv.style.display = 'none';
+    }
+}
     // Event-Listener nach dem Laden der Seite hinzufügen
     document.addEventListener('DOMContentLoaded', function() {
         // Initial-Check durchführen

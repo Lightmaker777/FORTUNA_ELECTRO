@@ -301,9 +301,9 @@
                                 <i class="fas fa-file-powerpoint fa-4x text-warning"></i>
                             {% elif file.original_filename.endswith(('.pdf',)) %}
                                 <i class="fas fa-file-pdf fa-4x text-danger"></i>
-                            {% elif file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp')) %}
+                            {% elif file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.tiff')) %}
                                 <i class="fas fa-file-image fa-4x text-info"></i>
-                            {% elif file.original_filename.endswith(('.mp4', '.mov', '.wmv', '.avi', '.mkv', '.webm')) %}
+                            {% elif file.original_filename.endswith(('.mp4', '.avi', '.mov', '.wmv', '.mkv', '.webm', '.flv')) %}
                                 <i class="fas fa-file-video fa-4x text-dark"></i>
                             {% elif file.original_filename.endswith(('.mp3', '.wav', '.ogg', '.flac')) %}
                                 <i class="fas fa-file-audio fa-4x text-warning"></i>
@@ -319,6 +319,7 @@
                                 <i class="fas fa-file fa-4x text-info"></i>
                             {% endif %}
                         </div>
+
                         
                     {% endif %}
                 </a>

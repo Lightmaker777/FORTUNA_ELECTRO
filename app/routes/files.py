@@ -40,9 +40,12 @@ ALLOWED_EXTENSIONS = {
         # Archivformate
         'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'iso',
         # Sonstige gebräuchliche Dateitypen
-        'sql', 'db', 'sqlite', 'psd', 'ai', 'eps', 'sketch', 'xd'
-    }
+        'sql', 'db', 'sqlite', 'psd', 'ai', 'eps', 'sketch', 'xd',
+        'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp', 'svg',
+        'mp4', 'avi', 'mov', 'wmv', 'mkv', 'webm', 'flv',
+    },
 }
+
 
 
 def allowed_file(filename, file_type):
