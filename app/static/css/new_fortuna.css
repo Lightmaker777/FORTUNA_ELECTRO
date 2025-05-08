@@ -1,0 +1,19 @@
+    /* Dropdown-Pfeile weiß machen */
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    }
+    
+    /* Zeit-Auswahlpfeile weiß machen */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+    
+    /* Optional: Hellerer Hintergrund für besseren Kontrast */
+    .form-select, input.form-control {
+        background-color: #1a3d5c !important;
+    }
+    /* Datumsauswahl-Icon weiß machen */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1); /* Macht das Kalendersymbol weiß */
+        opacity: 0.8; /* Etwas transparenter für bessere Sichtbarkeit */
+    }

@@ -1,0 +1,898 @@
+/* app/static/css/index_style.css */
+ 
+:root {
+    /* Dark color palette with bright accents inspired by the image */
+    --primary: #0B0C10;         /* Dark background */
+    --primary-light: #1F2833;   /* Slightly lighter dark background */
+    --primary-dark: #000000;    /* Black */
+    --accent: #66FCF1;          /* Bright turquoise accent */
+    --accent-light: #45A29E;    /* Muted turquoise */
+    --success: #45A29E;         /* Success using muted turquoise */
+    --success-light: #66FCF1;   /* Success light using bright turquoise */
+    --secondary: #C5C6C7;       /* Light gray */
+    --secondary-dark: #1F2833;  /* Dark gray */
+    --archived: #3f7c4c;        /* Archived using muted turquoise */
+    --archived-light: #66FCF1;  /* Archived light using bright turquoise */
+    --total: #757978;           /* Total using bright turquoise */
+    --danger: #FF3B3B;          /* Bright red for danger */
+    --light-bg: #1F2833;        /* Light background (still dark) */
+    --card-bg: #0B0C10;         /* Card background */
+    --text-dark: #FFFFFF;       /* Text dark (actually white for contrast) */
+    --text-muted: #C5C6C7;      /* Text muted (light gray) */
+    --dark-bg: #1e1e2f; /* Dunkler Hintergrund */
+    --dark-bg-lighter: #2a2a3d; /* Etwas hellerer Hintergrund */
+    --light-text: #ffffff; /* Helle Schriftfarbe */
+    --accent: #00bcd4; /* Akzentfarbe (blau-grün) */
+    --border-color: #3a3a4d; /* Subtile Rahmenfarbe */
+    --hover-bg: #33334d; /* Hover-Hintergrund */
+    --border-radius-sm: 4px;    /* Small border radius */
+    --border-radius-md: 8px;    /* Medium border radius */
+    --border-radius-lg: 12px;   /* Large border radius */
+}
+
+/* Dark background for dashboard */
+body {
+    background: var(--primary);
+    color: var(--accent);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Remove the subtle pattern in background */
+body::before {
+    display: none;
+}
+
+
+/* Dashboard Header with simpler styling */
+.dashboard-heading-decoration {
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    top: -10px;
+    left: 0;
+}
+
+h1.display-5 {
+    color: var(--accent);
+    font-weight: 700 !important;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+}
+
+/* Curved Button Design */
+.btn-gradient {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.btn-gradient:hover, .btn-gradient:focus {
+    background: var(--accent-light);
+    color: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-refresh {
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    padding: 10px 12px;
+    color: var(--accent);
+    transition: all 0.4s ease;
+}
+
+.btn-refresh:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    transform: none;
+}
+
+/* Curved Stat Cards */
+.custom-stat-card {
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+    overflow: hidden;
+    box-shadow: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+}
+
+.custom-stat-card:hover {
+    transform: none;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+}
+
+/* Stat Card Content Styling */
+.stat-card-content {
+    display: flex;
+    align-items: center;
+    padding: 1.75rem;
+    z-index: 10;
+    position: relative;
+    background: var(--primary-light);
+}
+
+.stat-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%; /* Circular icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    box-shadow: none;
+    background: var(--accent);
+}
+
+.stat-icon-wrapper i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+/* Simple backgrounds for status icons */
+.bg-progress-gradient {
+    background: var(--accent);
+}
+
+.bg-completed-gradient {
+    background: var(--success);
+}
+
+.bg-archived-gradient {
+    background: var(--archived);
+}
+
+.bg-total-gradient {
+    background: var(--total);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    color: var(--accent);
+    -webkit-text-fill-color: var(--accent);
+    letter-spacing: -1px;
+}
+
+/* Remove wave backgrounds */
+.stat-card-wave {
+    display: none;
+}
+
+/* Curved Project Cards */
+.project-card {
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent) !important;
+}
+
+.project-card:hover {
+    transform: none;
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2) !important;
+}
+
+.project-card .card-header {
+    padding: 1.25rem;
+    background: var(--primary-light);
+    border-bottom: 1px solid var(--accent);
+    border-top-left-radius: var(--border-radius-lg); /* Match card border radius */
+    border-top-right-radius: var(--border-radius-lg); /* Match card border radius */
+}
+
+.shadow-hover {
+    box-shadow: none;
+}
+
+/* Simple card headers with colored borders */
+.project-card-progress {
+    border-left: 3px solid var(--accent) !important;
+    border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
+}
+
+.project-card-completed {
+    border-left: 3px solid var(--success) !important;
+    border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
+}
+
+.project-card-archived {
+    border-left: 3px solid var(--secondary) !important;
+    border-bottom: none !important;
+    border-radius: var(--border-radius-md); /* Rounded border */
+}
+
+/* Curved Badges */
+.badge {
+    padding: 0.45em 0.8em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+.bg-primary-custom {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+.bg-success-custom {
+    background-color: var(--success);
+    color: var(--primary);
+}
+
+.bg-secondary-custom {
+    background-color: var(--secondary);
+    color: var(--primary);
+}
+
+/* Curved Button Designs */
+.btn-project-progress {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: var(--border-radius-md); /* Rounded corners */
+}
+
+.btn-project-progress:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.btn-project-completed {
+    color: var(--success);
+    border: 1px solid var(--success);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: var(--border-radius-md); /* Rounded corners */
+}
+
+.btn-project-completed:hover {
+    background-color: var(--success);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.btn-project-archived {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: var(--border-radius-md); /* Rounded corners */
+}
+
+.btn-project-archived:hover {
+    background-color: var(--secondary);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+/* Project Table Styling */
+.table {
+    --bs-table-hover-bg: rgba(102, 252, 241, 0.1);
+    color: var(--text-dark);
+}
+
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+}
+
+.project-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+}
+
+/* Curved Tabs & Navigation */
+.custom-nav-pills {
+    gap: 0;
+}
+
+.custom-nav-pills .nav-link {
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: var(--text-dark);
+    border: none;
+    border-bottom: 3px solid transparent;
+    background-color: transparent;
+    margin-right: 5px;
+}
+
+.custom-nav-pills .nav-link:hover:not(.active) {
+    background-color: rgba(102, 252, 241, 0.1);
+    border-bottom: 3px solid var(--accent-light);
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; /* Rounded top corners */
+}
+
+.custom-nav-pills .nav-link.active {
+    background: transparent;
+    border-bottom: 3px solid var(--accent);
+    color: var(--accent);
+    transform: none;
+    box-shadow: none;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; /* Rounded top corners */
+}
+
+/* Curved Search Field */
+.search-group .form-control {
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    padding-left: 50px;
+    height: 48px;
+    font-size: 1rem;
+    box-shadow: none;
+    border: 1px solid var(--accent);
+    background: var(--primary-light);
+    color: var(--accent);
+}
+
+.search-group .form-control:focus {
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+    border-color: var(--accent);
+}
+
+.search-group .input-group-text {
+    position: absolute;
+    z-index: 10;
+    background: transparent;
+    border: none;
+    height: 100%;
+    color: var(--accent);
+}
+
+/* Curved Select Dropdown */
+.form-select {
+    height: 48px;
+    box-shadow: none;
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-md); /* Rounded corners */
+    padding-left: 1rem;
+    background-position: right 1rem center;
+    background-color: var(--primary-light);
+    color: var(--text-dark);
+}
+
+.form-select:focus {
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+    border-color: var(--accent);
+}
+
+/* Curved Modal Styling */
+.modal-content {
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 40px rgba(102, 252, 241, 0.2);
+    background: var(--primary);
+}
+
+.modal-header {
+    background: var(--primary-light);
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; /* Rounded top corners */
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.modal-header .btn-close {
+    background-color: var(--accent);
+    opacity: 1;
+    padding: 0.6rem;
+    margin: -0.6rem -0.6rem -0.6rem auto;
+    border-radius: 50%; /* Circular close button */
+}
+
+.modal-header .btn-close:hover {
+    background-color: var(--accent-light);
+}
+
+.modal-body {
+    padding: 2rem;
+    background-color: var(--primary);
+    color: var(--accent);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--accent);
+    padding: 1.5rem;
+    background-color: var(--primary);
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Rounded bottom corners */
+}
+
+/* Empty State Styling */
+.empty-state {
+    padding: 3rem;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #1f2937;
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+    border: 1px solid var(--accent);
+}
+
+.empty-state i {
+    opacity: 0.8;
+    color: var(--accent);
+}
+
+.empty-state h5 {
+    font-weight: 600;
+    margin: 1rem 0;
+    color: var(--accent);
+}
+
+/* Project Description Display */
+.project-description {
+    min-height: 60px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--accent);
+    line-height: 1.6;
+}
+
+/* Card Styling */
+.card {
+    transition: all 0.3s ease;
+    background-color: var(--primary-light);
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+    border: 1px solid var(--accent);
+}
+
+.card:hover {
+    transform: none;
+}
+
+.card:after {
+    display: none;
+}
+
+/* Container Styling */
+.container-fluid {
+    padding: 2rem 3rem;
+}
+
+/* Remove Button Animation */
+.btn-gradient::after {
+    display: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary);
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding: 1.5rem;
+    }
+    
+    .tab-navigation {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: var(--primary);
+        padding-top: 0.5rem;
+        margin-top: -0.5rem;
+    }
+    
+    .stat-icon-wrapper {
+        width: 55px;
+        height: 55px;
+        margin-right: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+    }
+    
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+/* Small devices (phones, 576px and down) */
+@media (max-width: 576px) {
+    /* Mobile-specific styles */
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    /* Tablet-specific styles */
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    /* Desktop-specific styles */
+}
+
+/* Remove card glass effects */
+.card.shadow-hover::before {
+    display: none;
+}
+
+/* Dashboard Header with simpler styling */
+.d-flex.flex-column.flex-md-row {
+    position: relative;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.d-flex.flex-column.flex-md-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+}
+
+/* Remove background patterns */
+.card-header {
+    background-image: none;
+}
+
+/* Update text colors for readability */
+.card-title, .card-text {
+    color: var(--accent);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--accent);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Big, bold HELLO-like headers if needed */
+.hero-text {
+    font-size: 5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+}
+/* Kalender Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-radius: var(--border-radius-md); /* Rounded corners for calendar */
+    overflow: hidden;
+}
+
+.calendar-day {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.calendar-day.other-month {
+    background-color: #918c8c;
+}
+
+.calendar-day.today {
+    background-color: #4d9bc2;
+    font-weight: bold;
+}
+
+.calendar-day.has-vacation {
+    background-color: #ecaa54;
+}
+
+.calendar-day.has-holiday {
+    background-color: #58a763;
+}
+
+.list-group-item {
+    position: relative;
+    padding-right: 4rem;
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    margin-bottom: 2px;
+}
+
+.vacation-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.calendar-weekday {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
+}
+
+.d-flex.mb-2 {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.weekday-workday {
+    color: #00bcd4;
+}
+
+.weekday-weekend {
+    color: #FF3B3B;
+}
+
+/* Aktuelle Projekte Vorschau - Dark Mode Anpassung */
+.card.aktuelle-projekte {
+    background-color: var(--dark-bg); /* Dunkler Hintergrund */
+    border: none;
+    color: var(--accent); /* Hellere Schriftfarbe */
+    border-radius: var(--border-radius-lg); /* Rounded corners */
+}
+
+.card.aktuelle-projekte .card-header {
+    background-color: var(--dark-bg-lighter); /* Etwas heller als der Haupt-Hintergrund */
+    border-bottom: 1px solid var(--border-color); /* Subtile Trennlinie */
+    color: var(--light-text);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; /* Rounded top corners */
+}
+
+.card.aktuelle-projekte .card-body {
+    background-color: var(--dark-bg); /* Dunkler Hintergrund für den Inhalt */
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Rounded bottom corners */
+}
+
+.card.aktuelle-projekte .table {
+    color: var(--light-text); /* Hellere Schriftfarbe für die Tabelle */
+}
+
+.card.aktuelle-projekte .table thead {
+    background-color: var(--dark-bg-lighter); /* Hintergrund für Tabellenkopf */
+    color: var(--accent); /* Akzentfarbe für Kopfzeile */
+}
+
+.card.aktuelle-projekte .table tbody tr:hover {
+    background-color: var(--hover-bg); /* Hover-Effekt für Tabellenzeilen */
+}
+
+.card.aktuelle-projekte .empty-state {
+    color: var(--light-text); /* Hellere Schriftfarbe für leeren Zustand */
+}
+
+.card.aktuelle-projekte .btn-outline-primary {
+    color: var(--accent); /* Akzentfarbe für Buttons */
+    border-color: var(--accent);
+    border-radius: var(--border-radius-md); /* Rounded corners */
+}
+
+.card.aktuelle-projekte .btn-outline-primary:hover {
+    background-color: var(--accent); /* Hover-Effekt für Buttons */
+    color: var(--light-text);
+}
+
+.card.aktuelle-projekte .progress {
+    background-color: var(--dark-bg-lighter); /* Hintergrund für Fortschrittsbalken */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+.card.aktuelle-projekte .progress-bar {
+    background-color: var(--accent); /* Akzentfarbe für Fortschrittsbalken */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+/* Statistik-Karte - Horizontaler Layout */
+.stat-card-content {
+    display: flex;
+    align-items: center; /* Vertikale Ausrichtung zentrieren */
+    padding: 1.75rem; /* Platz für Inhalte */
+}
+
+.stat-icon-wrapper {
+    width: 65px;
+    height: 65px;
+    margin-right: 1.5rem; /* Abstand zwischen Icon und Text */
+}
+
+.stat-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Horizontale Ausrichtung zentrieren */
+    font-size: 3rem; /* statt normal 0.75-1rem */
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    color: var(--accent);
+    -webkit-text-fill-color: var(--accent);
+    letter-spacing: -1px;
+}
+
+/* Stile für Urlaubstypen */
+.vacation-type-urlaub {
+    background-color: rgba(50, 228, 18, 0.1); /* Helles/durchsichtiges Grün */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+.vacation-type-krankheit {
+    background-color: rgba(206, 19, 38, 0.1); /* Helles/durchsichtiges Rot */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+
+.vacation-type-sonstiges {
+    background-color: rgba(10, 84, 196, 0.1); /* Helles/durchsichtiges Blau */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+}
+#vacationList li {
+    color: white; /* Weiße Schrift für besseren Kontrast */
+    font-size: 14px; /* Angemessene Schriftgröße */
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    margin-bottom: 4px;
+}
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-left: 5px;
+    margin-right: 15px;
+}
+.navbar {
+    background-color: var(--primary-dark) !important;
+    border-bottom: 1px solid var(--accent);
+    padding: 0.8rem 1rem;
+    width: 100%;
+}
+
+/* Stellen Sie sicher, dass Karten/Boxen nicht überlaufen */
+.card, .box {
+    max-width: 100%;
+}
+
+/* Für responsive Tabellen */
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+}
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--accent);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* CSS Fixes for Timeline View Spacing */
+/* Add spacing between dates and time indicators */
+.progress-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .date-time-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 4px;
+  }
+  
+  .start-date {
+    margin-right: 12px; /* Space between start date and progress bar */
+    white-space: nowrap;
+  }
+  
+  .end-date {
+    margin-left: 12px; /* Space between end date and progress bar */
+    white-space: nowrap;
+  }
+  
+  .countdown-badge {
+    display: flex;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    margin: 0 10px; /* Add spacing on both sides of the badge */
+    white-space: nowrap;
+  }
+  
+  /* Improve progress bar positioning */
+  .progress-wrapper {
+    flex-grow: 1;
+    position: relative;
+  }
+  
+  .progress {
+    width: 100%;
+  }
+  
+  /* Optional: Make the dates a bit smaller to fit better */
+  .date-text {
+    font-size: 0.85rem;
+  } 
+
+/* Make dropdown arrows visible against dark backgrounds */
+    
+.form-select {
+    /* Change the color of the dropdown indicator */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300ccff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Alternatively, you can add a custom class to your select elements */
+.select-visible-indicator {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2300ccff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* If you want to change text color for better visibility */
+.form-select {
+    color: #00ccff; /* Matching your existing teal text color */
+}
+
+/* Ensure dropdown options are visible when opened */
+.form-select option {
+    color: #212529; /* Dark text for options */
+    background-color: #fff; /* Light background for the dropdown menu */
+}
+

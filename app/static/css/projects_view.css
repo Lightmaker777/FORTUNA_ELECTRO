@@ -1,0 +1,164 @@
+.nav-tabs .nav-link {
+    color: #fff;
+    background-color: #1e4a73; /* Darker blue for inactive tabs */
+    margin-right: 2px;
+    border: none;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #255a8a;
+    border: none;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #14304d; /* The blue color you specified */
+    color: var(--accent);
+    border: none;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #14304d;
+}
+
+/* Optional: styling for the tab content area */
+.tab-content {
+    background-color: #0e2135;
+    color: #fff;
+    padding: 15px;
+    border-radius: 0 0 5px 5px;
+}
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.card-header {
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.card-img-container {
+    border-top: none;
+    position: relative;
+}
+
+/* Spezielle Stile für Bild- und Videovorschauen */
+.card-img-container img[style*="object-fit: cover"],
+.card-img-container video[style*="object-fit: cover"] {
+    transition: transform 0.5s;
+}
+
+.card:hover .card-img-container img[style*="object-fit: cover"],
+.card:hover .card-img-container video[style*="object-fit: cover"] {
+    transform: scale(1.05);
+}
+
+.btn-primary {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-primary:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.text-muted {
+    color: #adb5bd !important;
+}
+.card-body, .card-body p, .card-body label, .card-body .form-text, .card-body small,.form-select {
+    color: #66d9ff !important; /* schönes helles Blau */
+}
+.form-select {
+
+color: #66d9ff !important;
+
+
+/* Weißer Dropdown-Pfeil */
+background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+.form-control, .input-group-text {
+    color: #ffffff !important;
+}
+
+/* Ensure calendar icon is white in the date input group */
+.input-group-text .fas.fa-calendar,
+.input-group-text .fas.fa-plus-circle {
+    color: #00BCD4 !important; /* Match your accent color */
+}
+
+/* Style for calendar+plus stack icon */
+.fa-stack {
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    vertical-align: middle;
+}
+
+.fa-stack .fas.fa-calendar {
+    color: #00BCD4;
+}
+
+.fa-stack .fas.fa-plus {
+    color: #ffffff;
+    background-color: #00BCD4;
+    border-radius: 50%;
+    padding: 1px;
+}
+
+/* Custom styling for date input to ensure consistent appearance across browsers */
+input[type="date"] {
+    position: relative;
+}
+
+
+
+/* Ensure the date picker is usable on dark backgrounds */
+input[type="date"]::-webkit-datetime-edit {
+    color: #ffffff;
+}
+/* Einheitlicher Button-Stil für Aktions- und Status-Buttons */
+.btn-status-change {
+    background-color: #00BCD4;
+    border-color: #00BCD4;
+    color: #000;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 6px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.btn-status-change:hover {
+    background-color: #00acc1;
+    border-color: #00acc1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Anpassungen für die Aktionsbuttons im Header */
+.btn-status-change i {
+    color: inherit;
+}
+
+/* Optionales Styling für verschiedene Hintergrundfarben bei Bedarf */
+.btn-upload {
+    background-color: #28a745; /* Grün für Upload */
+    border-color: #28a745;
+}
+
+.btn-timesheet {
+    background-color: #0d6efd; /* Blau für Stundenberichte */
+    border-color: #0d6efd;
+}
+
+.btn-download {
+    background-color: #00BCD4; /* Bleibt türkis für Downloads */
+    border-color: #00BCD4;
+}
