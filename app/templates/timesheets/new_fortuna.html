@@ -145,44 +145,45 @@
                         </div>
                         
                         <!-- Material-Tabelle -->
-                        <h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered" id="material-table">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 70%">Material</th>
-                                        <th>Menge</th>
-                                        <th style="width: 40px "></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr >
-                                        <td  style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <select class="form-select material-name">
-                                                <option value="">Bitte auswählen</option>
-                                                {% for value, label in material_choices %}
-                                                <option value="{{ value }}">{{ label }}</option>
-                                                
-                                                {% endfor %}
-                                            </select>
-                                        </td>
-                                        <td  style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m ">
-                                        </td>
-                                        <td class="text-center"  style="background-color: #14304d !important; color: var(--accent) !important;">
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="text-end">
-                                <button type="button" class="btn btn-sm btn-primary" id="add-material-btn">
-                                    <i class="fas fa-plus me-1"></i>Material hinzufügen
-                                </button>
-                            </div>
-                        </div>
+                        <!-- Material-Tabelle -->
+<h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
+<div class="table-responsive mb-4">
+    <table class="table table-bordered" id="material-table">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 70%">Material</th>
+                <th>Menge</th>
+                <th style="width: 40px "></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                    <select class="form-select material-name" style="background-color: #14304d !important; color: var(--accent) !important;">
+                        <option value="">Bitte auswählen</option>
+                        {% for value, label in material_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                        <option value="other">Andere Materialien</option>
+                    </select>
+                </td>
+                <td style="background-color: #14304d !important; color: var(--accent) !important;">
+                    <input type="text" class="form-control material-quantity" placeholder="z.B. 25m" style="background-color: #14304d !important; color: var(--accent) !important;">
+                </td>
+                <td class="text-center" style="background-color: #14304d !important; color: var(--accent) !important;">
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-end">
+        <button type="button" class="btn btn-sm btn-primary" id="add-material-btn">
+            <i class="fas fa-plus me-1"></i>Material hinzufügen
+        </button>
+    </div>
+</div>
                         <!-- Andere Materialien Box (erscheint wenn 'Andere Materialien' ausgewählt) -->
                         <div id="other-material-div" style="display:none;" class="mb-4 animate__animated animate__fadeIn">
                             <label for="{{ form.other_material.id }}" class="form-label fw-bold">
@@ -314,19 +315,19 @@
                     </table>
                    
                     <!-- Material-Tabelle modal pdf vorschau -->
-<!-- Material -->
-<h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
-<table class="table table-bordered mb-4">
-    <thead class="table-light">
-        <tr>
-            <th style="width: 70%">Material</th>
-            <th>Menge</th>
-        </tr>
-    </thead>
-    <tbody id="preview-material">
-        <!-- Wird per JavaScript befüllt -->
-    </tbody>
-</table>
+                        <!-- Material -->
+                        <h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
+                        <table class="table table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 70%">Material</th>
+                                    <th>Menge</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-material">
+                                <!-- Wird per JavaScript befüllt -->
+                            </tbody>
+                        </table>
                     
                     <!-- Notizen -->
                     <div id="preview-notes-section" style="display:none;">
@@ -456,6 +457,8 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         tbody.appendChild(newRow);
+
+        
         
         // Event-Listener hinzufügen
         const timeFromInput = newRow.querySelector('.time-from');
@@ -494,10 +497,8 @@ function addMaterialRow() {
     const tbody = document.querySelector('#material-table tbody');
     const newRow = document.createElement('tr');
     
-    // Important fix: Get all material options from the server-provided choices
-    // without manually adding "Andere Materialien" since it's already in the choices
     newRow.innerHTML = `
-        <td>
+        <td style="background-color: #14304d !important; color: var(--accent) !important;">
             <select class="form-select material-name" style="background-color: #14304d !important; color: var(--accent) !important;">
                 <option value="">Bitte auswählen</option>
                 {% for value, label in material_choices %}
@@ -506,10 +507,10 @@ function addMaterialRow() {
                 <option value="other">Andere Materialien</option>
             </select>
         </td>
-        <td>
+        <td style="background-color: #14304d !important; color: var(--accent) !important;">
             <input type="text" class="form-control material-quantity" placeholder="z.B. 25m" style="background-color: #14304d !important; color: var(--accent) !important;">
         </td>
-        <td class="text-center">
+        <td class="text-center" style="background-color: #14304d !important; color: var(--accent) !important;">
             <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
                 <i class="fas fa-times"></i>
             </button>
@@ -535,32 +536,26 @@ function addMaterialRow() {
     // Event-Listener hinzufügen
     const removeBtn = newRow.querySelector('.remove-material-btn');
     removeBtn.addEventListener('click', function() {
-        // Prüfen, ob es die letzte Zeile ist
         if (tbody.children.length > 1) {
             tbody.removeChild(newRow);
         } else {
-            // Bei der letzten Zeile nur die Felder leeren
             newRow.querySelector('.material-name').value = "";
             newRow.querySelector('.material-quantity').value = "";
         }
-        updateMaterialRemoveButtons();
+        checkForOtherMaterial();
         updateJsonData();
     });
     
-    const materialInputs = newRow.querySelectorAll('input');
-    materialInputs.forEach(input => {
-        input.addEventListener('input', updateJsonData);
-    });
-    
-    // Event-Listener für die Select-Elemente hinzufügen
     const materialSelect = newRow.querySelector('.material-name');
     materialSelect.addEventListener('change', function() {
+        checkForOtherMaterial();
         updateJsonData();
-        checkForOtherMaterial(); // Make sure to call this when material selection changes
     });
     
-    updateMaterialRemoveButtons();
-}   
+    newRow.querySelector('.material-quantity').addEventListener('input', updateJsonData);
+    
+    checkForOtherMaterial();
+} 
 
 
 function updateMaterialRemoveButtons() {
@@ -686,8 +681,17 @@ document.getElementById('timesheet-form').addEventListener('submit', function() 
         // Arbeitseinsatz-Daten sammeln
         const arbeitseinsatzData = [];
         document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
-            const activity = row.querySelector('.activity-select').value;
-            const activityText = row.querySelector('.activity-select option:checked').text;
+            const activitySelect = row.querySelector('.activity-select');
+            const activity = activitySelect.value;
+            
+            // Get the correct activity text - handle "andere" specially
+            let activityText;
+            if (activity === 'andere') {
+                activityText = document.getElementById('{{ form.other_activity.id }}').value.trim() || "Andere Tätigkeit";
+            } else {
+                activityText = activitySelect.options[activitySelect.selectedIndex].text;
+            }
+            
             const von = row.querySelector('.time-from').value;
             const bis = row.querySelector('.time-to').value;
             const std = row.querySelector('.time-hours').value;
@@ -702,19 +706,30 @@ document.getElementById('timesheet-form').addEventListener('submit', function() 
         });
         
         // Material-Daten sammeln
-        const materialData = [];
-        document.querySelectorAll('#material-table tbody tr').forEach(row => {
-            const name = row.querySelector('.material-name').value;
-            const quantity = row.querySelector('.material-quantity').value;
-            
-            if (name || quantity) {
-                materialData.push({
-                    material: name,
-                    menge: quantity
-                });
-            }
-        });
-        
+            const materialData = [];
+            document.querySelectorAll('#material-table tbody tr').forEach(row => {
+                const materialSelect = row.querySelector('.material-name');
+                const quantity = row.querySelector('.material-quantity').value.trim();
+                
+                let materialText = "";
+                if (materialSelect.value === 'other') {
+                    // Wenn "Andere Materialien" ausgewählt ist, den Wert aus dem anderen Feld nehmen
+                    materialText = document.getElementById('{{ form.other_material.id }}').value.trim();
+                } else {
+                    // Ansonsten den ausgewählten Text nehmen
+                    const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+                    materialText = selectedOption ? selectedOption.text : "";
+                }
+                
+                if ((materialText && materialText !== "Bitte auswählen") || quantity) {
+                    materialData.push({
+                        material: materialText,
+                        menge: quantity
+                    });
+                }
+            });
+        document.getElementById('material_data').value = JSON.stringify(materialData);
+
         // JSON-Daten in die versteckten Felder eintragen
         document.getElementById('arbeitseinsatz_data').value = JSON.stringify(arbeitseinsatzData);
         document.getElementById('material_data').value = JSON.stringify(materialData);
@@ -729,22 +744,26 @@ document.getElementById('timesheet-form').addEventListener('submit', function() 
     }
     
     // Aktivität "Andere" Logik
-    function checkForOtherActivity() {
-        let hasOtherActivity = false;
-        document.querySelectorAll('.activity-select').forEach(select => {
-            if (select.value === 'andere') {
-                hasOtherActivity = true;
-            }
-        });
-        
-        if (hasOtherActivity) {
-            document.getElementById('other-activity-div').style.display = 'block';
-        } else {
-            document.getElementById('other-activity-div').style.display = 'none';
+    // Update the checkForOtherActivity function to handle input changes
+function checkForOtherActivity() {
+    let hasOtherActivity = false;
+    document.querySelectorAll('.activity-select').forEach(select => {
+        if (select.value === 'andere') {
+            hasOtherActivity = true;
         }
-    }
+    });
     
-    // Vorschau-Funktionalität
+    const otherActivityDiv = document.getElementById('other-activity-div');
+    if (hasOtherActivity) {
+        otherActivityDiv.style.display = 'block';
+        
+        // Add event listener to update JSON data when the other activity field changes
+        const otherActivityInput = document.getElementById('{{ form.other_activity.id }}');
+        otherActivityInput.addEventListener('input', updateJsonData);
+    } else {
+        otherActivityDiv.style.display = 'none';
+    }
+}
    
 // Modify the updatePreview function to handle empty material rows better
 function updatePreview() {
@@ -758,21 +777,32 @@ function updatePreview() {
     const arbeitseinsatzPreview = document.getElementById('preview-arbeitseinsatz');
     arbeitseinsatzPreview.innerHTML = '';
     let totalHours = 0;
-    document.querySelectorAll('#arbeitseinsatz-table tbody tr').forEach(row => {
-        const activity = row.querySelector('.activity-select option:checked').text;
-        const von = row.querySelector('.time-from').value;
-        const bis = row.querySelector('.time-to').value;
-        const std = parseFloat(row.querySelector('.time-hours').value) || 0;
+    
+    // Parse the JSON data to ensure we're using the correct activity text
+    let arbeitseinsatzData = [];
+    try {
+        arbeitseinsatzData = JSON.parse(document.getElementById('arbeitseinsatz_data').value || '[]');
+    } catch (e) {
+        console.error('Fehler beim Parsen der Arbeitseinsatz-Daten:', e);
+    }
+    
+    arbeitseinsatzData.forEach(item => {
+        const activityText = item.activityText;
+        const von = item.von;
+        const bis = item.bis;
+        const std = parseFloat(item.std) || 0;
         totalHours += std;
+        
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
-            <td>${activity}</td>
+            <td>${activityText}</td>
             <td>${von}</td>
             <td>${bis}</td>
             <td>${std.toFixed(1)}</td>
         `;
         arbeitseinsatzPreview.appendChild(newRow);
     });
+    
     document.getElementById('preview-stunden-summe').textContent = totalHours.toFixed(1);
 
     // Material
@@ -851,6 +881,7 @@ function updatePreview() {
         materialInputs.forEach(input => {
             input.addEventListener('input', updateJsonData);
         });
+        
     }
     
     // Zeichenzähler für Notizen
@@ -1084,6 +1115,7 @@ function updatePreview() {
                 // Interface aktualisieren
                 updateAllHours();
                 checkForOtherActivity();
+                checkForOtherMaterial();
                 
                 // Autosave-Info anzeigen
                 const autosaveInfo = document.createElement('div');
@@ -1147,6 +1179,7 @@ function updatePreview() {
     updateRemoveButtons();
     updateMaterialRemoveButtons();
     checkForOtherActivity();
+    checkForOtherMaterial()
     
     // Modal-Events für die Vorschau
     const previewModal = document.getElementById('previewModal');
@@ -1210,15 +1243,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initial-Check durchführen
         checkForOtherMaterial();
         
-        // Event-Listener für Material-Selects
-        const materialTable = document.getElementById('material-table');
-        
-        // Event-Delegation verwenden
-        materialTable.addEventListener('change', function(event) {
-            if (event.target.classList.contains('material-name')) {
-                checkForOtherMaterial();
-            }
-        });
+        // Event-Delegation für Material-Selects
+    document.getElementById('material-table').addEventListener('change', function(event) {
+        if (event.target.classList.contains('material-name')) {
+            checkForOtherMaterial();
+        }
+    });
         
         // Event-Listener für "Material hinzufügen"-Button
         document.getElementById('add-material-btn').addEventListener('click', function() {
