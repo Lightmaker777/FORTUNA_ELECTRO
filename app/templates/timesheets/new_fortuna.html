@@ -162,7 +162,7 @@
                                                 <option value="">Bitte auswählen</option>
                                                 {% for value, label in material_choices %}
                                                 <option value="{{ value }}">{{ label }}</option>
-                                                <option value="other">Andere Materialien</option>
+                                                
                                                 {% endfor %}
                                             </select>
                                         </td>
@@ -340,6 +340,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <style>
@@ -488,23 +489,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     
-    // Funktionen für die Material-Tabelle
-// Funktionen für die Material-Tabelle
+// Modify the addMaterialRow function to avoid duplicating "Andere Materialien"
 function addMaterialRow() {
     const tbody = document.querySelector('#material-table tbody');
     const newRow = document.createElement('tr');
     
+    // Important fix: Get all material options from the server-provided choices
+    // without manually adding "Andere Materialien" since it's already in the choices
     newRow.innerHTML = `
         <td>
-            <select class="form-select material-name">
+            <select class="form-select material-name" style="background-color: #14304d !important; color: var(--accent) !important;">
                 <option value="">Bitte auswählen</option>
                 {% for value, label in material_choices %}
                 <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
+                <option value="other">Andere Materialien</option>
             </select>
         </td>
         <td>
-            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m">
+            <input type="text" class="form-control material-quantity" placeholder="z.B. 25m" style="background-color: #14304d !important; color: var(--accent) !important;">
         </td>
         <td class="text-center">
             <button type="button" class="btn btn-sm btn-outline-danger remove-material-btn">
@@ -514,6 +517,20 @@ function addMaterialRow() {
     `;
     
     tbody.appendChild(newRow);
+    
+    // Apply the dark styles to the new row
+    const newSelects = newRow.querySelectorAll('.form-select');
+    const newInputs = newRow.querySelectorAll('.form-control');
+    
+    newSelects.forEach(select => {
+        select.style.setProperty('background-color', '#14304d', 'important');
+        select.style.setProperty('color', 'var(--accent)', 'important');
+    });
+    
+    newInputs.forEach(input => {
+        input.style.setProperty('background-color', '#14304d', 'important');
+        input.style.setProperty('color', 'var(--accent)', 'important');
+    });
     
     // Event-Listener hinzufügen
     const removeBtn = newRow.querySelector('.remove-material-btn');
@@ -536,11 +553,16 @@ function addMaterialRow() {
     });
     
     // Event-Listener für die Select-Elemente hinzufügen
-    const materialSelects = newRow.querySelector('.material-name');
-    materialSelects.addEventListener('change', updateJsonData);
+    const materialSelect = newRow.querySelector('.material-name');
+    materialSelect.addEventListener('change', function() {
+        updateJsonData();
+        checkForOtherMaterial(); // Make sure to call this when material selection changes
+    });
     
     updateMaterialRemoveButtons();
-}
+}   
+
+
 function updateMaterialRemoveButtons() {
     const rows = document.querySelectorAll('#material-table tbody tr');
     rows.forEach((row, index) => {
