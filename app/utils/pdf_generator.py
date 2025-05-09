@@ -271,8 +271,8 @@ def generate_fortuna_timesheet(output_path,
     elements.append(Spacer(1, 0.5*cm))
     
     # Material table with adjusted column widths
-    material_col_width = 15*cm
-    amount_col_width = 2.5*cm
+    material_col_width = 12.5*cm
+    amount_col_width = 5*cm
     
     # Material Tabellenüberschrift
     material_header = [['Material', 'Menge']]
