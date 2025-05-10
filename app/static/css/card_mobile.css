@@ -1,0 +1,187 @@
+/* Responsive styling for Aktuelle Projekte */
+
+/* Base improvements for the project table */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius-md);
+}
+
+/* Project card design for mobile - alternative to table */
+.project-card-mobile {
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    display: none; /* Hidden by default */
+}
+
+/* Project header (name and icon) */
+.project-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.project-card-body {
+    padding-left: 3rem; /* Align with the icon */
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.project-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+/* Make progress bars more compact for mobile */
+.mobile-progress-container {
+    margin: 0.5rem 0;
+}
+
+.mobile-progress-container .progress {
+    height: 6px;
+    margin-bottom: 0.25rem;
+}
+
+.mobile-countdown {
+    font-size: 0.85rem;
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+}
+
+/* Common improvements */
+.aktuelle-projekte .table td {
+    padding: 0.75rem; /* Slightly reduce padding */
+    vertical-align: middle;
+}
+
+/* Fix table stripe colors */
+.aktuelle-projekte .table tbody tr:nth-child(odd) td {
+    background-color: var(--primary);
+}
+
+.aktuelle-projekte .table tbody tr:nth-child(even) td {
+    background-color: var(--primary-light);
+}
+
+/* Better spacing for action buttons */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Compact view for small screens */
+@media (max-width: 767.98px) {
+    /* Hide regular table and show card layout */
+    .aktuelle-projekte .table-responsive {
+        display: none;
+    }
+    
+    .project-card-mobile {
+        display: block;
+    }
+    
+    /* Adjust header spacing */
+    .aktuelle-projekte .card-header {
+        padding: 0.75rem;
+    }
+    
+    /* Smaller, more compact buttons */
+    .btn-sm {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Make sure all icons have consistent size */
+    .project-icon {
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+    }
+    
+    /* Improve the 'Alle anzeigen' button */
+    .btn-outline-primary {
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* Medium screens: show more compact table */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .aktuelle-projekte .table th,
+    .aktuelle-projekte .table td {
+        padding: 0.5rem;
+    }
+    
+    /* More compact buttons */
+    .btn-sm {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+    
+    .project-icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Fix for scrollbar issue on some mobile browsers */
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* Timeline badges with better contrast and sizing */
+.verbleibende-zeit-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    text-align: center;
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+/* Small utility classes */
+.project-date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.remaining-time {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* Fix for project listings table pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.page-link {
+    background-color: var(--primary-light);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.page-link:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--primary);
+}

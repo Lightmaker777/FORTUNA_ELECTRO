@@ -1,0 +1,366 @@
+/* app/static/css/home.css */
+
+/* Main dashboard title styling */
+.display-5 {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard header with decoration line */
+.dashboard-heading-decoration {
+    position: absolute;
+    width: 60px;
+    height: 4px;
+    background: var(--accent);
+    bottom: -12px;
+    left: 0;
+    border-radius: 2px;
+}
+
+/* Statistics cards styling - like the ones marked in green in image 2 */
+.stat-card {
+    border-radius: var(--border-radius-lg);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: var(--primary-light);
+    border: 1px solid rgba(102, 252, 241, 0.1) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+    border: 1px solid var(--accent) !important;
+}
+
+.custom-stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.custom-stat-card:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Category icons in stat cards */
+.stat-card i {
+    color: var(--accent);
+}
+
+.stat-card .text-primary {
+    color: var(--accent) !important;
+}
+
+.stat-card .text-warning {
+    color: var(--warning) !important;
+}
+
+.stat-card .text-info {
+    color: var(--info) !important;
+}
+
+.stat-card .text-success {
+    color: var(--success) !important;
+}
+
+/* Current projects table styling - matching second image */
+.aktuelle-projekte {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.1) !important;
+}
+
+.aktuelle-projekte .card-header {
+    background-color: var(--primary-light);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aktuelle-projekte .card-header h5 {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Table styling to match second image */
+.aktuelle-projekte .table th {
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+}
+
+.aktuelle-projekte .table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.aktuelle-projekte .table tbody tr:hover {
+    background-color: rgba(102, 252, 241, 0.05);
+}
+
+/* Project progress bars - matching what's shown in the second image */
+.progress-container {
+    width: 100%;
+}
+
+.progress-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.progress {
+    height: 8px;
+    background-color: var(--primary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    background-color: var(--accent);
+    border-radius: 4px;
+}
+
+/* Remaining time tags styling */
+.date-time-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.countdown-badge {
+    background-color: var(--accent) !important;
+    color: var(--primary-dark) !important;
+    font-weight: 600;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.end-date {
+    font-size: 0.8rem;
+}
+
+/* Project folder icons */
+.project-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background-color: rgba(102, 252, 241, 0.1);
+}
+
+.project-icon i {
+    font-size: 1rem;
+}
+
+/* Button styling */
+.btn-gradient {
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border: none;
+    color: var(--primary-dark);
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(102, 252, 241, 0.3);
+    color: var(--primary-dark);
+}
+
+.btn-light {
+    background-color: var(--primary-light);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+}
+
+.btn-light:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.btn-refresh {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+    border-color: var(--accent);
+}
+
+/* Details button styling */
+.btn-outline-primary.details {
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--accent);
+}
+
+/* "NEUES PROJEKT" button styling */
+.btn-neues-projekt {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-neues-projekt:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(102, 252, 241, 0.3);
+}
+
+/* "Alle anzeigen" button with arrow */
+.btn-outline-primary i.fa-arrow-right {
+    transition: transform 0.3s ease;
+}
+
+.btn-outline-primary:hover i.fa-arrow-right {
+    transform: translateX(3px);
+}
+
+/* Adjust heading spacing */
+.d-flex.flex-column.flex-md-row {
+    margin-bottom: 2rem;
+}
+
+/* Tag badges for remaining days - e.g., "6 TAGE" */
+.badge {
+    background-color: var(--accent);
+    color: var(--primary-dark) !important;
+    font-weight: bold;
+    padding: 0.35em 0.65em;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* Action buttons in project table */
+.btn-primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-light);
+    border-color: var(--accent-light);
+    color: var(--primary-dark);
+}
+
+/* End date display */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+/* Kalender Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-radius: var(--border-radius-md); /* Rounded corners for calendar */
+    overflow: hidden;
+}
+
+.calendar-day {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.calendar-day.other-month {
+    background-color: #918c8c;
+}
+
+.calendar-day.today {
+    background-color: #4d9bc2;
+    font-weight: bold;
+}
+
+.calendar-day.has-vacation {
+    background-color: #ecaa54;
+}
+
+.calendar-day.has-holiday {
+    background-color: #58a763;
+}
+
+.list-group-item {
+    position: relative;
+    padding-right: 4rem;
+    border-radius: var(--border-radius-sm); /* Rounded corners */
+    margin-bottom: 2px;
+}
+
+.vacation-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.calendar-weekday {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
+}
+
+.d-flex.mb-2 {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.weekday-workday {
+    color: #00bcd4;
+}
+
+.weekday-weekend {
+    color: #FF3B3B;
+}

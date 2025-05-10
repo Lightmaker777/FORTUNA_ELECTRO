@@ -2,8 +2,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/projects_view.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
@@ -17,8 +18,8 @@
             <a href="{{ url_for('dashboard.index') }}" class="btn btn-light me-2 btn-refresh" aria-label="Aktualisieren">
                 <i class="fas fa-sync-alt"></i>
             </a>
-            <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient">
-                <i class="fas fa-plus me-1"></i> Neues Projekt
+            <a href="{{ url_for('projects.new_project') }}" class="btn btn-neues-projekt">
+                <i class="fas fa-plus me-1"></i> NEUES PROJEKT
             </a>
         </div>
     </div>
@@ -87,12 +88,13 @@
     <div class="col-12">
         <div class="card border-0 shadow-hover aktuelle-projekte">
             <div class="card-header border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center w-100">
                     <h5 class="mb-0">Aktuelle Projekte</h5>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectsModal">
                         Alle anzeigen <i class="fas fa-arrow-right ms-1"></i>
                     </button>
                 </div>
+                
             </div>
             <div class="card-body p-0">
                 {% if in_progress %}
@@ -159,7 +161,7 @@
                                         <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-download"></i>
                                         </a>
-                                        <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary details">
                                             Details
                                         </a>
                                     </td>
@@ -168,24 +170,39 @@
                         </tbody>
                     </table>
                 </div>
-                
-                <!-- Mobile Card View (only shown on small screens) -->
+                                <!-- Mobile Card View (only shown on small screens) -->
                 <div class="mobile-project-cards">
                     {% for project in in_progress[:5] %}
                         <div class="project-card-mobile">
+                            <!-- Project name with icon -->
                             <div class="project-card-header">
                                 <div class="project-icon me-3">
-                                    <i class="fas fa-folder" style="color: var(--accent);"></i>
+                                    <i class="fas fa-folder"></i>
                                 </div>
                                 <div>
                                     <h6 class="mb-0" style="color: white;">{{ project.name }}</h6>
                                 </div>
                             </div>
+                            
                             <div class="project-card-body">
+                                <!-- Start and End dates on opposite sides -->
                                 <div class="project-meta">
                                     <span class="project-date">
                                         <i class="fas fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                     </span>
+                                    <div class="d-flex justify-content-center">
+                                        <span class="badge mobile-countdown">
+                                            {% if project.is_overdue() %}
+                                                Überfällig
+                                            {% elif project.days_remaining() == 0 %}
+                                                Heute fällig
+                                            {% elif project.days_remaining() == 1 %}
+                                                Noch 1 Tag
+                                            {% else %}
+                                                Noch {{ project.days_remaining() }} Tage
+                                            {% endif %}
+                                        </span>
+                                    </div>
                                     {% if project.end_date %}
                                         <span class="project-date">
                                             <i class="fas fa-calendar-check me-1"></i> {{ project.end_date.strftime('%d.%m.%Y') }}
@@ -193,27 +210,16 @@
                                     {% endif %}
                                 </div>
                                 
+                                <!-- Progress bar with countdown badge centered -->
                                 {% if project.end_date %}
                                     <div class="mobile-progress-container">
                                         <div class="progress">
                                             <div class="progress-bar" role="progressbar" 
-                                                style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                                                style="width: {{ project.get_progress_percentage() }}%;"
                                                 aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100">
                                             </div>
                                         </div>
-                                        <div class="d-flex justify-content-center mt-1">
-                                            <span class="badge bg-info mobile-countdown" style="color: #000 !important; font-weight: bold;">
-                                                {% if project.is_overdue() %}
-                                                    Überfällig
-                                                {% elif project.days_remaining() == 0 %}
-                                                    Heute fällig
-                                                {% elif project.days_remaining() == 1 %}
-                                                    Noch 1 Tag
-                                                {% else %}
-                                                    Noch {{ project.days_remaining() }} Tage
-                                                {% endif %}
-                                            </span>
-                                        </div>
+                                        
                                     </div>
                                 {% else %}
                                     <div class="text-center my-2">
@@ -221,18 +227,21 @@
                                     </div>
                                 {% endif %}
                                 
-                                <div class="project-actions">
-                                    <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                <!-- Buttons placed in a row -->
+                                <div class="project-actions d-flex justify-content-between mt-3">
+                                    <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-primary w-48">
                                         <i class="fas fa-download"></i> Download
                                     </a>
-                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-outline-primary w-48">
                                         Details
                                     </a>
                                 </div>
+
                             </div>
                         </div>
                     {% endfor %}
                 </div>
+                            
                 {% else %}
                 <div class="empty-state text-center py-5">
                     <i class="fas fa-folder-open fa-3x mb-3"></i>
@@ -247,7 +256,6 @@
         </div>
     </div>
 </div>
-
 <!-- Verbessertes Projekte Modal -->
 <div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -284,7 +292,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Tabs -->
                 <div class="tab-navigation mb-3">
                     <select class="form-select form-select-lg d-md-none py-2" id="tabSelector">
@@ -316,7 +323,6 @@
                         </li>
                     </ul>
                 </div>
-
                 <div class="tab-content pt-2" id="projectTabContent">
                     <!-- Alle Projekte Tab -->
                     <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
@@ -324,7 +330,7 @@
                         {% if all_projects %}
                             <div class="row g-3 project-cards">
                                 {% for project in all_projects %}
-                                    <div class="col-xl-4 col-md-6 project-item" 
+                                    <div class="col-xl-4 col-md-6 project-item"
                                          data-status="{% if project in in_progress %}in_progress{% elif project in completed %}completed{% else %}archived{% endif %}"
                                          data-name="{{ project.name|lower }}"
                                          data-date="{{ project.start_date.strftime('%Y-%m-%d') }}">
@@ -339,18 +345,17 @@
                                                       {% elif project in completed %}bg-success-custom
                                                       {% else %}bg-secondary-custom{% endif %}">
                                                     {% if project in in_progress %}In Bearbeitung
-                                                   
+                                                    {% elif project in completed %}Abgeschlossen
                                                     {% else %}Archiviert{% endif %}
                                                 </span>
                                             </div>
-                                            <div class="card-body" style="background-color:  #1d1d30;">
+                                            <div class="card-body" style="background-color: #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
                                                     <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
                                                 {% endif %}
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <!-- In der Datei, die die Dashboard-Projektliste enthält, fügen Sie diesen Code für jede Projekt-Zeile hinzu: -->
                                                     <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="text-info" title="Projekt herunterladen">
                                                         <i class="fas fa-download"></i>
                                                     </a>
@@ -382,7 +387,6 @@
                             </div>
                         {% endif %}
                     </div>
-
                     <!-- In Bearbeitung Tab -->
                     <div class="tab-pane fade" id="in-progress" role="tabpanel" aria-labelledby="in-progress-tab">
                         {% if in_progress %}
@@ -394,17 +398,16 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-primary-custom rounded-pill ms-2">In Bearbeitung</span>
                                             </div>
-                                            <div class="card-body"  style="background-color:  #1d1d30;">
+                                            <div class="card-body" style="background-color: #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
                                                     <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
                                                 {% endif %}
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                                                                    <!-- In der Datei, die die Dashboard-Projektliste enthält, fügen Sie diesen Code für jede Projekt-Zeile hinzu: -->
-                                                <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="text-info" title="Projekt herunterladen">
-                                                    <i class="fas fa-download"></i>
-                                                </a>
+                                                    <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="text-info" title="Projekt herunterladen">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
                                                     <small class="text-muted">
                                                         <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                                     </small>
@@ -430,80 +433,74 @@
                             </div>
                         {% endif %}
                     </div>
-
                     <!-- Kalender Tab -->
-<div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
-    <!-- Kalender Navigation -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <button id="prevMonth" class="btn btn-outline-primary">< </button>
-        <h4 id="currentMonthYear" class="mb-0"></h4>
-        <button id="nextMonth" class="btn btn-outline-primary"> ></button>
-    </div>
-    
-    <!-- Kalender Grid -->
-    <div class="d-flex mb-2">
-        <div class="calendar-weekday weekday-workday">Mo</div>
-        <div class="calendar-weekday weekday-workday">Di</div>
-        <div class="calendar-weekday weekday-workday">Mi</div>
-        <div class="calendar-weekday weekday-workday">Do</div>
-        <div class="calendar-weekday weekday-workday">Fr</div>
-        <div class="calendar-weekday weekday-weekend">Sa</div>
-        <div class="calendar-weekday weekday-weekend">So</div>
-    </div>
-    <div id="calendarDays" class="calendar-grid row gx-1 gy-1 mb-4"></div>
-    
-    <!-- Urlaubsliste -->
-    <div>
-        <h4 class="mb-3">Urlaubsübersicht</h4>
-        <ul id="vacationList" class="list-group mb-2">
-            <!-- Dynamische Einträge kommen hier hin -->
-        </ul>       
-        
-    </div>
-    
-    <!-- Modal für neuen Urlaub -->
-    <div class="modal fade" id="newVacationModal" tabindex="-1" aria-labelledby="newVacationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newVacationModalLabel">Neuen Urlaub hinzufügen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="vacationForm">
-                        <div class="mb-3">
-                            <label for="vacationName" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="vacationName" required>
+                    <div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab" style="background-color: #090d13;">
+                        <!-- Kalender Navigation -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button id="prevMonth" class="btn btn-outline-primary"><</button>
+                            <h4 id="currentMonthYear" class="mb-0"></h4>
+                            <button id="nextMonth" class="btn btn-outline-primary">></button>
                         </div>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label for="startDate" class="form-label">Startdatum</label>
-                                <input type="date" class="form-control" id="startDate" required>
+                        <!-- Kalender Grid -->
+                        <div class="d-flex mb-2">
+                            <div class="calendar-weekday weekday-workday">Mo</div>
+                            <div class="calendar-weekday weekday-workday">Di</div>
+                            <div class="calendar-weekday weekday-workday">Mi</div>
+                            <div class="calendar-weekday weekday-workday">Do</div>
+                            <div class="calendar-weekday weekday-workday">Fr</div>
+                            <div class="calendar-weekday weekday-weekend">Sa</div>
+                            <div class="calendar-weekday weekday-weekend">So</div>
+                        </div>
+                        <div id="calendarDays" class="calendar-grid row gx-1 gy-1 mb-4"></div>
+                        <!-- Urlaubsliste -->
+                        <div>
+                            <h4 class="mb-3">Urlaubsübersicht</h4>
+                            <ul id="vacationList" class="list-group mb-2">
+                                <!-- Dynamische Einträge kommen hier hin -->
+                            </ul>
+                        </div>
+                        <!-- Modal für neuen Urlaub -->
+                        <div class="modal fade" id="newVacationModal" tabindex="-1" aria-labelledby="newVacationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="newVacationModalLabel">Neuen Urlaub hinzufügen</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="vacationForm">
+                                            <div class="mb-3">
+                                                <label for="vacationName" class="form-label">Name</label>
+                                                <input type="text" class="form-control" id="vacationName" required>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <label for="startDate" class="form-label">Startdatum</label>
+                                                    <input type="date" class="form-control" id="startDate" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="endDate" class="form-label">Enddatum</label>
+                                                    <input type="date" class="form-control" id="endDate" required>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <label for="vacationType" class="form-label">Art des Urlaubs</label>
+                                                <select class="form-select" id="vacationType">
+                                                    <option value="urlaub">Urlaub</option>
+                                                    <option value="krankheit">Krank</option>
+                                                    <option value="sonstiges">Sonstiges</option>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                        <button type="button" class="btn btn-primary" id="saveVacation">Speichern</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="endDate" class="form-label">Enddatum</label>
-                                <input type="date" class="form-control" id="endDate" required>
-                            </div>
                         </div>
-                        <div class="mt-3">
-                            <label for="vacationType" class="form-label">Art des Urlaubs</label>
-                            <select class="form-select" id="vacationType">
-                                <option value="urlaub">Urlaub</option>
-                                <option value="krankheit">Krank</option>
-                                <option value="sonstiges">Sonstiges</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="saveVacation">Speichern</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+                    </div>
                     <!-- Archivierte Projekte Tab -->
                     <div class="tab-pane fade" id="archived" role="tabpanel" aria-labelledby="archived-tab">
                         {% if archived %}
@@ -515,17 +512,16 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-secondary-custom rounded-pill ms-2">Archiviert</span>
                                             </div>
-                                            <div class="card-body" style="background-color:  #1d1d30;">
+                                            <div class="card-body" style="background-color: #1d1d30;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
                                                     <p class="text-muted mb-3"><i>Keine Beschreibung vorhanden</i></p>
                                                 {% endif %}
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <!-- In der Datei, die die Dashboard-Projektliste enthält, fügen Sie diesen Code für jede Projekt-Zeile hinzu: -->
-                                                <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="text-info" title="Projekt herunterladen">
-                                                    <i class="fas fa-download"></i>
-                                                </a>
+                                                    <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="text-info" title="Projekt herunterladen">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
                                                     <small class="text-muted">
                                                         <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                                     </small>
@@ -559,7 +555,9 @@
         </div>
     </div>
 </div>
+
 <style>
+
 /* Responsive styling for Aktuelle Projekte */
 
 /* Base improvements for the project table */
@@ -570,14 +568,11 @@
     border-radius: var(--border-radius-md);
 }
 
-/* Project card design for mobile - alternative to table */
 .project-card-mobile {
-    background-color: var(--primary-light);
-    border: 1px solid var(--accent);
-    border-radius: var(--border-radius-md);
-    margin-bottom: 0.75rem;
-    padding: 0.75rem;
-    display: none; /* Hidden by default */
+    padding: 1rem;
+    background-color: #101018;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 /* Project header (name and icon) */
@@ -605,20 +600,43 @@
     margin-top: 0.75rem;
 }
 
-/* Make progress bars more compact for mobile */
+/* Progress bar container */
+.project-card .progress-container {
+    position: relative;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Days remaining indicator */
+.project-card .progress-container .days-remaining {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
 .mobile-progress-container {
     margin: 0.5rem 0;
 }
-
-.mobile-progress-container .progress {
-    height: 6px;
-    margin-bottom: 0.25rem;
+.mobile-countdown {
+    margin-top: 0.25rem;
+    background-color:  #66FCF1;
+    color: black;
+}
+.project-actions .btn {
+    flex: 1;
+    margin: 0 0.25rem;
 }
 
-.mobile-countdown {
-    font-size: 0.85rem;
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
+.w-48 {
+    width: 50%;
+}
+/* Full-width progress bar */
+.project-card .progress-bar {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
 }
 
 /* Common improvements */
@@ -747,6 +765,23 @@
     border-color: var(--accent);
     color: var(--primary);
 }
+/* Project action buttons layout */
+.project-card .project-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* Make buttons equal width */
+.project-card .project-actions .btn,
+.project-card .project-actions a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
 </style>
 <script>
 // JavaScript to enhance project table responsiveness
