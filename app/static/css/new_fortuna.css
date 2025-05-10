@@ -1,19 +1,533 @@
-    /* Dropdown-Pfeile weiß machen */
-    .form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+/* Mobile Responsive Fixes for Timesheet Form */
+
+/* Improve dropdown visibility */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2366FCF1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    color: var(--accent) !important;
+    font-weight: 500;
+    padding-right: 2rem !important; /* More space for the dropdown arrow */
+}
+
+/* Make icons more visible */
+.btn-icon, 
+.delete-btn {
+    color: var(--accent) !important;
+    font-size: 1.2rem;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-sm);
+}
+
+/* Fix calendar, time picker icons */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8) sepia(1) saturate(5) hue-rotate(155deg); /* Makes icon turquoise */
+    opacity: 0.9;
+    margin-left: 0.5rem;
+    padding: 0.25rem;
+    background-color: rgba(102, 252, 241, 0.1);
+    border-radius: 4px;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+    /* Larger form controls for better touch */
+    .form-control, 
+    .form-select,
+    .btn {
+        min-height: 44px; /* Minimum touch target size */
+        font-size: 16px !important; /* Prevent iOS zoom on input */
     }
     
-    /* Zeit-Auswahlpfeile weiß machen */
-    input[type="time"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
+    /* Table adjustments for mobile */
+    .table th, 
+    .table td {
+        padding: 0.5rem 0.3rem !important;
+        font-size: 0.85rem !important;
     }
     
-    /* Optional: Hellerer Hintergrund für besseren Kontrast */
-    .form-select, input.form-control {
-        background-color: #1a3d5c !important;
+    /* Activity and material dropdowns */
+    .activity-select, 
+    .material-select {
+        min-width: 100px !important;
+        max-width: 100% !important;
     }
-    /* Datumsauswahl-Icon weiß machen */
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1); /* Macht das Kalendersymbol weiß */
-        opacity: 0.8; /* Etwas transparenter für bessere Sichtbarkeit */
+    
+    /* Fix row buttons to be more visible */
+    #add-row-btn, 
+    #add-material-btn {
+        width: 100%;
+        margin: 0.5rem 0;
+        padding: 0.75rem;
+        font-size: 1rem !important;
+        background-color: rgba(102, 252, 241, 0.15);
     }
+    
+    /* Fix time inputs */
+    .time-from, 
+    .time-to, 
+    .time-hours {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        text-align: center;
+    }
+    
+    /* Improve header clarity */
+    .section-header {
+        font-weight: 600 !important;
+        font-size: 1.2rem !important;
+        margin-bottom: 1rem !important;
+        text-shadow: 0 0 5px rgba(102, 252, 241, 0.5);
+    }
+    
+    /* Improve column visibility */
+    .col-3, 
+    .col-4 {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+}
+
+/* Modal adjustments */
+@media (max-width: 767px) {
+    /* Smaller modal for mobile */
+    #previewModal .modal-dialog {
+        margin: 0.5rem;
+        max-width: 100%;
+    }
+    
+    #previewModal .modal-content {
+        border-radius: var(--border-radius-md);
+    }
+    
+    /* Modal header */
+    #previewModal .modal-header {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    #previewModal .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    /* Modal body content */
+    #previewModal .modal-body {
+        padding: 0.5rem;
+    }
+    
+    /* Adjust tables in preview */
+    #previewModal table {
+        font-size: 0.8rem !important;
+    }
+    
+    #previewModal .preview-content {
+        padding: 0.5rem !important;
+    }
+    
+    /* Company logo in preview */
+    #previewModal img.img-fluid {
+        max-height: 35px !important;
+    }
+    
+    /* Header info */
+    #previewModal .row.mb-5 {
+        margin-bottom: 1rem !important;
+        font-size: 0.85rem;
+    }
+    
+    /* Main heading */
+    #previewModal h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    /* Section headings */
+    #previewModal h5 {
+        font-size: 1rem;
+    }
+    
+    /* Make column sizes more appropriate */
+    #previewModal .col-7,
+    #previewModal .col-5 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    
+    /* Company address in preview */
+    #previewModal .text-end p {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem !important;
+    }
+}
+
+/* Arbeitseinsatz and Material sections */
+.arbeitseinsatz-section,
+.material-section {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Section icons */
+.section-icon {
+    margin-right: 0.5rem;
+    vertical-align: text-bottom;
+}
+
+/* Notes section */
+.notes-section textarea {
+    border: 1px solid var(--accent-light);
+    background-color: rgba(31, 40, 51, 0.8);
+    padding: 0.75rem;
+    min-height: 100px;
+}
+
+/* Improve character counter */
+#char-count-container {
+    font-size: 0.8rem;
+    text-align: right;
+    margin-top: 0.25rem;
+    color: var(--accent-light);
+}
+
+/* Make the placeholders more visible */
+::placeholder {
+    color: var(--accent-light) !important;
+    opacity: 0.7 !important;
+}
+
+/* Improve the add row buttons */
+.add-row-container {
+    text-align: center;
+    margin: 1rem 0;
+}
+/* Modal-specific styles for mobile */
+@media (max-width: 767px) {
+    .modal-body-scrollable {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .preview-content {
+        font-size: 0.9rem;
+    }
+    
+    .preview-content h4 {
+        font-size: 1.2rem;
+    }
+    
+    .preview-content h5 {
+        font-size: 1rem;
+    }
+    
+    .company-details {
+        font-size: 0.75rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    #preview-notes {
+        font-size: 0.85rem;
+    }
+}
+/* Fix the STD column and input field that was circled in red */
+@media (max-width: 767px) {
+    /* Make the STD column and input more visible */
+    th:nth-child(4), 
+    td:nth-child(4) {
+        min-width: 60px !important;
+        width: auto !important;
+        background-color: rgba(102, 252, 241, 0.05) !important;  /* Subtle highlight */
+    }
+    
+    /* Increase size of hours input field */
+    .time-hours {
+        font-size: 16px !important;
+        height: 44px !important;
+        min-width: 60px !important;
+        text-align: center !important;
+        font-weight: 500 !important;
+        color: var(--accent) !important;
+        background-color: rgba(31, 40, 51, 0.9) !important;
+        border: 1px solid var(--accent) !important;
+    }
+    
+    /* Improve the total hours display */
+    .gesamtstunden-container {
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        margin-top: 10px !important;
+        margin-bottom: 15px !important;
+        padding: 5px 10px !important;
+        background-color: rgba(102, 252, 241, 0.1) !important;
+        border-radius: var(--border-radius-sm) !important;
+    }
+    
+    /* Make "Gesamtstunden" label and value more visible */
+    #gesamtstunden-label {
+        font-weight: 500 !important;
+        margin-right: 10px !important;
+        color: var(--accent) !important;
+    }
+    
+    #gesamtstunden-value {
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+        color: var(--accent) !important;
+        min-width: 35px !important;
+        text-align: center !important;
+    }
+    
+    /* Improve "Zeile hinzufügen" button visibility */
+    #add-row-btn, 
+    #add-material-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 50px !important;
+        margin-top: 15px !important;
+        margin-bottom: 20px !important;
+        font-weight: 500 !important;
+        background-color: rgba(102, 252, 241, 0.15) !important;
+        border: 1px dashed var(--accent) !important;
+    }
+    
+    /* Add icon for better visibility */
+    #add-row-btn::before,
+    #add-material-btn::before {
+        content: "+" !important;
+        font-size: 20px !important;
+        margin-right: 8px !important;
+        font-weight: bold !important;
+    }
+    
+    /* Improve table layouts */
+    .table thead th {
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 0.5px !important;
+        padding: 10px 5px !important;
+        background-color: rgba(102, 252, 241, 0.1) !important;
+    }
+    
+    /* Fix dropdown spacing */
+    .activity-select, 
+    .material-select {
+        padding-right: 30px !important; /* More space for dropdown arrow */
+    }
+    
+    /* Improve form row spacing */
+    #arbeitseinsatz-table tbody tr,
+    #material-table tbody tr {
+        margin-bottom: 10px !important;
+        border-bottom: 1px solid rgba(102, 252, 241, 0.2) !important;
+    }
+    
+    /* Add section divider for better visual separation */
+    .material-section {
+        margin-top: 30px !important;
+        padding-top: 20px !important;
+        border-top: 1px solid rgba(102, 252, 241, 0.3) !important;
+    }
+
+    /* Time input improvements */
+    .time-from, 
+    .time-to {
+        text-align: center !important;
+        font-weight: 500 !important;
+    }
+}
+
+/* COLOR CONSISTENCY FIXES - Added to fix the color inconsistencies */
+/* Global color variables to ensure consistency */
+:root {
+    --main-bg-color: #1f2833;
+    --accent-color: #66FCF1;
+    --accent-hover: #45A29E;
+    --accent-light: rgba(102, 252, 241, 0.7);
+    --text-color: #C5C6C7;
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+}
+
+/* Make sure all table headers use the same color scheme */
+.table thead th,
+th.tätigkeit,
+th.von,
+th.bis,
+th.std,
+th.material,
+th.menge {
+    background-color: var(--main-bg-color) !important;
+    color: var(--accent-color) !important;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-color) !important;
+}
+
+/* Consistent button styling */
+.btn-primary,
+#add-row-btn, 
+#add-material-btn,
+button[type="submit"],
+.pdf-btn {
+    background-color: var(--main-bg-color) !important;
+    color: var(--accent-color) !important;
+    border: 1px solid var(--accent-color) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+#add-row-btn:hover, 
+#add-material-btn:hover,
+button[type="submit"]:hover,
+.pdf-btn:hover {
+    background-color: var(--accent-color) !important;
+    color: var(--main-bg-color) !important;
+}
+
+/* "ZEILE HINZUFÜGEN" and "MATERIAL HINZUFÜGEN" buttons */
+.add-row-container .btn,
+.add-material-container .btn {
+    background-color: var(--main-bg-color) !important;
+    border: 1px dashed var(--accent-color) !important;
+    color: var(--accent-color) !important;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.add-row-container .btn:hover,
+.add-material-container .btn:hover {
+    background-color: rgba(102, 252, 241, 0.1) !important;
+}
+
+/* Form controls */
+.form-control,
+.form-select,
+.time-from,
+.time-to,
+.time-hours {
+    background-color: var(--main-bg-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--accent-light) !important;
+}
+
+/* Dropdown and select controls */
+.activity-select, 
+.material-select {
+    color: var(--text-color) !important;
+    background-color: var(--main-bg-color) !important;
+    border: 1px solid var(--accent-light) !important;
+}
+
+/* Section headers consistent styling */
+.section-header,
+.arbeitseinsatz-section h4,
+.material-section h4 {
+    color: var(--accent-color) !important;
+    border-bottom: 1px solid var(--accent-light);
+    padding-bottom: 0.5rem;
+}
+
+/* Fix modal colors */
+#previewModal .modal-content {
+    background-color: var(--main-bg-color) !important;
+    color: var(--text-color) !important;
+}
+
+#previewModal .modal-header {
+    border-bottom: 1px solid var(--accent-light) !important;
+}
+
+#previewModal .modal-footer {
+    border-top: 1px solid var(--accent-light) !important;
+}
+
+/* Override mobile-specific colors for consistency */
+@media (max-width: 767px) {
+    /* Ensure table headers maintain consistent color */
+    .table th {
+        background-color: var(--main-bg-color) !important;
+        color: var(--accent-color) !important;
+    }
+    
+    /* Make STD column consistent */
+    th:nth-child(4), 
+    td:nth-child(4) {
+        background-color: var(--main-bg-color) !important;
+    }
+    
+    /* Ensure buttons stay consistent */
+    #add-row-btn, 
+    #add-material-btn {
+        background-color: var(--main-bg-color) !important;
+        color: var(--accent-color) !important;
+        border: 1px dashed var(--accent-color) !important;
+    }
+    
+    /* Fix Gesamtstunden container */
+    .gesamtstunden-container {
+        background-color: var(--main-bg-color) !important;
+        border: 1px solid var(--accent-light) !important;
+    }
+    
+    #gesamtstunden-label,
+    #gesamtstunden-value {
+        color: var(--accent-color) !important;
+    }
+    
+    /* Fix section divider */
+    .material-section {
+        border-top: 1px solid var(--accent-light) !important;
+    }
+    
+    /* Fix table header styling override */
+    .table thead th {
+        background-color: var(--main-bg-color) !important;
+        border-bottom: 2px solid var(--accent-color) !important;
+    }
+    
+    /* Keep "+" button as is but with consistent colors */
+    #add-row-btn::before,
+    #add-material-btn::before {
+        color: var(--accent-color) !important;
+    }
+}
+
+/* Fix delete buttons */
+.delete-btn,
+.btn-icon {
+    color: var(--accent-color) !important;
+    background-color: transparent !important;
+    border: 1px solid var(--accent-color) !important;
+}
+
+.delete-btn:hover,
+.btn-icon:hover {
+    background-color: rgba(102, 252, 241, 0.1) !important;
+}
+
+/* PDF buttons */
+.btn-primary.vorschau,
+button.schliessen {
+    background-color: var(--main-bg-color) !important;
+    color: var(--accent-color) !important;
+    border: 1px solid var(--accent-color) !important;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* Ensure all the "add" buttons match */
+button.add-row,
+button.add-material {
+    background-color: var(--main-bg-color) !important;
+    color: var(--accent-color) !important;
+    border: 1px dashed var(--accent-color) !important;
+}

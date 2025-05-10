@@ -258,91 +258,143 @@
     </div>
 </div>
 
-<!-- Vorschau Modal -->
+<!-- Improved Mobile-Responsive Preview Modal -->
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="previewModalLabel">PDF Vorschau</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-            </div>
-            <div class="modal-body">
-                <div class="preview-content p-4">
-                    <!-- Header -->
-                    <div class="row mb-5">
-                        <div class="col-7">
-                            <div class="mb-2"><strong>Datum:</strong> <span id="preview-datum"></span></div>
-                            <div class="mb-2"><strong>BV:</strong> <span id="preview-bv"></span></div>
-                            <div class="mb-2"><strong>Arbeitskraft:</strong> <span id="preview-arbeitskraft"></span></div>
-                            <div><strong>An-u. Abreise:</strong> <span id="preview-an-abreise"></span></div>
-                        </div>
-                        <div class="col-5">
-                            <div class="text-end">
-                                <div class="text-center mb-3">
-                                    <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 50px;">
-                                </div>
-                                <p class="mb-1"><strong>Fortuna Elektro GmbH</strong></p>
-                                <p class="mb-1">Lothar-Bucher-Straße 5</p>
-                                <p class="mb-1">12157 Berlin</p>
-                                <p class="mb-1">+49 (030) 499 657 15</p>
-                                <p class="mb-0">info@fortuna-elektro.com</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <h4 class="text-center mb-4">Bau-Tagesbericht und Stundennachweis</h4>
-                    
-                    <!-- Arbeitseinsatz -->
-                    <h5 class="mb-3">Arbeitseinsatz</h5>
-                    <table class="table table-bordered mb-4">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tätigkeit</th>
-                                <th>von</th>
-                                <th>bis</th>
-                                <th>Std</th>
-                            </tr>
-                        </thead>
-                        <tbody id="preview-arbeitseinsatz">
-                            <!-- Wird per JavaScript befüllt -->
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="3" class="text-end"><strong>Gesamtstunden:</strong></td>
-                                <td id="preview-stunden-summe"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                   
-                    <!-- Material-Tabelle modal pdf vorschau -->
-                    <!-- Material -->
-                    <h5 class="mb-3"><i class="fas fa-tools me-2"></i>Material</h5>
-                    <table class="table table-bordered mb-4">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 70%">Material</th>
-                                <th>Menge</th>
-                            </tr>
-                        </thead>
-                        <tbody id="preview-material">
-                            <!-- Wird per JavaScript befüllt -->
-                        </tbody>
-                    </table>
-                    
-                    <!-- Notizen -->
-                    <div id="preview-notes-section" style="display:none;">
-                        <h5 class="mb-3">Notizen</h5>
-                        <div class="p-3 bg-light rounded" id="preview-notes"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-            </div>
-        </div>
-    </div>
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="previewModalLabel">PDF Vorschau</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+          </div>
+          <div class="modal-body modal-body-scrollable">
+              <div class="preview-content p-3">
+                  <!-- Header -->
+                  <div class="row mb-3">
+                      <div class="col-7">
+                          <div class="mb-1"><strong>Datum:</strong> <span id="preview-datum"></span></div>
+                          <div class="mb-1"><strong>BV:</strong> <span id="preview-bv"></span></div>
+                          <div class="mb-1"><strong>Arbeitskraft:</strong> <span id="preview-arbeitskraft"></span></div>
+                          <div><strong>An-u. Abreise:</strong> <span id="preview-an-abreise"></span></div>
+                      </div>
+                      <div class="col-5">
+                          <div class="text-end">
+                              <div class="text-center mb-2">
+                                  <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 40px;">
+                              </div>
+                              <p class="mb-0"><strong>Fortuna Elektro GmbH</strong></p>
+                              <p class="mb-0 company-details">Lothar-Bucher-Straße 5</p>
+                              <p class="mb-0 company-details">12157 Berlin</p>
+                              <p class="mb-0 company-details">+49 (030) 499 657 15</p>
+                              <p class="mb-0 company-details">info@fortuna-elektro.com</p>
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <h4 class="text-center mb-3">Bau-Tagesbericht und Stundennachweis</h4>
+                  
+                  <!-- Arbeitseinsatz -->
+                  <h5 class="mb-2"><i class="far fa-clock me-1"></i>Arbeitseinsatz</h5>
+                  <div class="table-responsive">
+                      <table class="table table-bordered mb-3">
+                          <thead class="table-light">
+                              <tr>
+                                  <th>Tätigkeit</th>
+                                  <th>von</th>
+                                  <th>bis</th>
+                                  <th>Std</th>
+                              </tr>
+                          </thead>
+                          <tbody id="preview-arbeitseinsatz">
+                              <!-- Wird per JavaScript befüllt -->
+                          </tbody>
+                          <tfoot>
+                              <tr>
+                                  <td colspan="3" class="text-end"><strong>Gesamtstunden:</strong></td>
+                                  <td id="preview-stunden-summe"></td>
+                              </tr>
+                          </tfoot>
+                      </table>
+                  </div>
+                 
+                  <!-- Material -->
+                  <h5 class="mb-2"><i class="fas fa-tools me-1"></i>Material</h5>
+                  <div class="table-responsive">
+                      <table class="table table-bordered mb-3">
+                          <thead class="table-light">
+                              <tr>
+                                  <th style="width: 70%">Material</th>
+                                  <th>Menge</th>
+                              </tr>
+                          </thead>
+                          <tbody id="preview-material">
+                              <!-- Wird per JavaScript befüllt -->
+                          </tbody>
+                      </table>
+                  </div>
+                  
+                  <!-- Notizen -->
+                  <div id="preview-notes-section" style="display:none;">
+                      <h5 class="mb-2"><i class="far fa-sticky-note me-1"></i>Notizen</h5>
+                      <div class="p-2 bg-light rounded" id="preview-notes"></div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+          </div>
+      </div>
+  </div>
 </div>
+<style>
+  
+</style>
+
 <script>
+  /* JavaScript to enhance the UI structure */
+document.addEventListener('DOMContentLoaded', function() {
+    // Wrap gesamtstunden in a container for better styling
+    const gesamtstundenText = document.querySelector('td:contains("Gesamtstunden:")');
+    if (gesamtstundenText) {
+        const parent = gesamtstundenText.parentNode;
+        const container = document.createElement('div');
+        container.className = 'gesamtstunden-container';
+        
+        const label = document.createElement('span');
+        label.id = 'gesamtstunden-label';
+        label.textContent = 'Gesamtstunden:';
+        
+        const value = document.createElement('span');
+        value.id = 'gesamtstunden-value';
+        value.textContent = document.getElementById('preview-stunden-summe').textContent || '0.0';
+        
+        container.appendChild(label);
+        container.appendChild(value);
+        
+        // Replace or append accordingly
+        if (parent) {
+            parent.innerHTML = '';
+            parent.appendChild(container);
+        } else {
+            // If parent not found, add after the table
+            const table = document.getElementById('arbeitseinsatz-table');
+            if (table) {
+                table.parentNode.insertBefore(container, table.nextSibling);
+            }
+        }
+    }
+    
+    // Make add buttons more visible
+    const addRowBtn = document.getElementById('add-row-btn');
+    if (addRowBtn && !addRowBtn.textContent.includes('+')) {
+        addRowBtn.innerHTML = '<span>+ ZEILE HINZUFÜGEN</span>';
+    }
+    
+    const addMaterialBtn = document.getElementById('add-material-btn');
+    if (addMaterialBtn && !addMaterialBtn.textContent.includes('+')) {
+        addMaterialBtn.innerHTML = '<span>+ MATERIAL HINZUFÜGEN</span>';
+    }
+});
+  
 document.addEventListener('DOMContentLoaded', function() {
   // Utility functions
   const $ = selector => document.querySelector(selector);
@@ -1037,6 +1089,165 @@ function setupFormValidation() {
       }
     });
   }
+  // Mobile Responsive JavaScript Fixes
+
+// Function to optimize display for mobile devices
+function optimizeMobileDisplay() {
+  const isMobile = window.innerWidth < 768;
+  
+  if (isMobile) {
+    // Enhance dropdown text visibility and display
+    document.querySelectorAll('.form-select').forEach(select => {
+      // Make sure first option is not empty or just spaces
+      if (select.options[0].text.trim() === '') {
+        select.options[0].text = 'Auswählen';
+      }
+      
+      // Add aria-label if not present
+      if (!select.getAttribute('aria-label')) {
+        const nearestLabel = select.closest('.form-group').querySelector('label');
+        if (nearestLabel) {
+          select.setAttribute('aria-label', nearestLabel.textContent.trim());
+        }
+      }
+    });
+    
+    // Make delete buttons more visible
+    document.querySelectorAll('.delete-row-btn, .delete-material-btn').forEach(btn => {
+      if (!btn.querySelector('i.fas')) {
+        // If using text, replace with icon
+        if (btn.textContent.trim().toLowerCase().includes('löschen')) {
+          btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        }
+      }
+      btn.classList.add('btn-danger');
+      btn.setAttribute('aria-label', 'Löschen');
+    });
+    
+    // Optimize preview modal for mobile view
+    const previewModal = document.getElementById('previewModal');
+    if (previewModal) {
+      // Simplify preview content if needed
+      adjustPreviewForMobile();
+    }
+    
+    // Make sure tables don't overflow
+    document.querySelectorAll('table').forEach(table => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-responsive';
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+  }
+}
+
+// Function to make the preview modal more mobile-friendly
+function adjustPreviewForMobile() {
+  // Add event listener to modal open
+  $('#previewModal').addEventListener('show.bs.modal', function() {
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+      // Scale down content
+      document.querySelector('.preview-content').style.transform = 'scale(0.9)';
+      document.querySelector('.preview-content').style.transformOrigin = 'top center';
+      
+      // Update preview header to be more compact
+      const header = document.querySelector('#previewModal .modal-header');
+      if (header) {
+        header.classList.add('py-2');
+      }
+      
+      // Add scrollable class to modal body if not present
+      const modalBody = document.querySelector('#previewModal .modal-body');
+      if (modalBody && !modalBody.classList.contains('modal-body-scrollable')) {
+        modalBody.classList.add('modal-body-scrollable');
+        modalBody.style.maxHeight = '70vh';
+        modalBody.style.overflowY = 'auto';
+      }
+    } else {
+      // Reset for desktop
+      document.querySelector('.preview-content').style.transform = '';
+      document.querySelector('.modal-body').style.maxHeight = '';
+    }
+  });
+}
+
+// Function to enhance form controls on mobile
+function enhanceFormControls() {
+  const isMobile = window.innerWidth < 768;
+  
+  if (isMobile) {
+    // Enhance form field visibility
+    document.querySelectorAll('.form-control, .form-select').forEach(field => {
+      field.classList.add('mobile-enhanced');
+      
+      // Show field labels on focus for better context
+      field.addEventListener('focus', function() {
+        const label = this.closest('.form-group').querySelector('label');
+        if (label) {
+          label.classList.add('label-active');
+        }
+      });
+      
+      field.addEventListener('blur', function() {
+        const label = this.closest('.form-group').querySelector('label');
+        if (label) {
+          label.classList.remove('label-active');
+        }
+      });
+    });
+    
+    // Make buttons more tappable
+    document.querySelectorAll('.btn').forEach(btn => {
+      if (!btn.classList.contains('btn-icon') && !btn.classList.contains('btn-close')) {
+        btn.classList.add('mobile-button');
+      }
+    });
+    
+    // Enhance visibility of time inputs
+    document.querySelectorAll('.time-from, .time-to').forEach(input => {
+      input.addEventListener('focus', function() {
+        this.closest('td').classList.add('active-cell');
+      });
+      
+      input.addEventListener('blur', function() {
+        this.closest('td').classList.remove('active-cell');
+      });
+    });
+  }
+}
+
+// Function to improve visibility of dropdown selection
+function improveDropdownVisibility() {
+  document.querySelectorAll('.form-select').forEach(select => {
+    select.addEventListener('change', function() {
+      if (this.value) {
+        this.classList.add('has-value');
+      } else {
+        this.classList.remove('has-value');
+      }
+    });
+    
+    // Initialize on load
+    if (select.value) {
+      select.classList.add('has-value');
+    }
+  });
+}
+
+// Add these functions to window.onload
+window.addEventListener('DOMContentLoaded', function() {
+  optimizeMobileDisplay();
+  enhanceFormControls();
+  improveDropdownVisibility();
+  
+  // Re-run on resize
+  window.addEventListener('resize', function() {
+    optimizeMobileDisplay();
+    enhanceFormControls();
+  });
+});
   
   // Initialize everything
   function init() {
