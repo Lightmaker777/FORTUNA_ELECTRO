@@ -82,7 +82,7 @@
 
 </div>
 <!-- app/templates/dashboard/index.html -->
-<!-- Aktuelle Projekte Vorschau -->
+<!-- Modified template for Aktuelle Projekte with responsive design -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card border-0 shadow-hover aktuelle-projekte">
@@ -96,6 +96,7 @@
             </div>
             <div class="card-body p-0">
                 {% if in_progress %}
+                <!-- Desktop and Tablet Table View -->
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
@@ -109,7 +110,7 @@
                         <tbody>
                             {% for project in in_progress[:5] %}
                                 <tr>
-                                    <td style="background-color: #1d1d30">
+                                    <td>
                                         <div class="d-flex align-items-center">
                                             <div class="project-icon me-3">
                                                 <i class="fas fa-folder" style="color: var(--accent);"></i>
@@ -120,132 +121,132 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="d-none d-md-table-cell text-light" style="background-color: #1d1d30">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
-                                    <!-- Replace the original timeline section with this improved structure -->
-<td class="d-none d-lg-table-cell" style="background-color: #27273d">
-    {% if project.end_date %}
-        <div class="progress-container">
-            <div class="progress-wrapper">
-                <div class="progress" style="height: 8px; background-color: var(--primary-light);">
-                    <div class="progress-bar" id="progress-bar-{{ project.id }}" role="progressbar" 
-                        style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
-                        aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                </div>
-                
-                <div class="date-time-container">
-                    
-                    
-                    <span id="countdown-timer" class="badge bg-info" style="color: #000 !important; font-weight: bold;">
-                        Wird geladen...
-                    </span>
-                    
-                    <span class="end-date date-text text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}
-                        <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern"></a>
-                    </span>
-                                                           
-                        
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="d-flex align-items-center">
-            <span class="badge bg-secondary">Kein Enddatum</span>
-            <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen">
-                <i class="fas fa-calendar-plus text-light"></i>
-            </a>
-        </div>
-    {% endif %}
-</td>
-                                    
-                                    <td class="text-end" style="background-color:#1d1d30">
+                                    <td class="d-none d-md-table-cell text-light">{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                    <td class="d-none d-lg-table-cell">
+                                        {% if project.end_date %}
+                                            <div class="progress-container">
+                                                <div class="progress-wrapper">
+                                                    <div class="progress" style="height: 8px; background-color: var(--primary-light);">
+                                                        <div class="progress-bar" role="progressbar" 
+                                                            style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                                                            aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="date-time-container">
+                                                        <span class="badge bg-info countdown-badge" style="color: #000 !important; font-weight: bold;">
+                                                            {% if project.is_overdue() %}
+                                                                Überfällig
+                                                            {% elif project.days_remaining() == 0 %}
+                                                                Heute fällig
+                                                            {% elif project.days_remaining() == 1 %}
+                                                                1 Tag
+                                                            {% else %}
+                                                                {{ project.days_remaining() }} Tage
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="end-date date-text text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-secondary">Kein Enddatum</span>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
                                         <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-download"></i> Download
+                                            <i class="fas fa-download"></i>
                                         </a>
                                         <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
                                             Details
                                         </a>
                                     </td>
                                 </tr>
-                                        <!-- Verbesserte Version des Modals mit korrekter Form-Action und weißem Kalendar-Icon -->
-<div class="modal fade" id="changeEndDateModal_{{ project.id }}" tabindex="-1" aria-labelledby="changeEndDateModalLabel_{{ project.id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background-color: #14304d; color: #ffffff; border: 1px solid #2f4052;">
-            <div class="modal-header" style="border-bottom: 1px solid #2f4052;">
-                <h5 class="modal-title" id="changeEndDateModalLabel_{{ project.id }}">Projekt-Enddatum ändern - {{ project.name }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
-            </div>
-            <!-- WICHTIG: Die korrekte Form-Action für diese Route -->
-            <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}" id="endDateForm_{{ project.id }}">
-                <div class="modal-body">
-                    {{ end_date_form.hidden_tag() if end_date_form }}
-                    <div class="mb-3">
-                        <label for="end_date_{{ project.id }}" class="form-label">Neues Enddatum</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control bg-dark text-light border-secondary" 
-                                id="end_date_{{ project.id }}" name="end_date" 
-                                value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
-                            <style>
-                                /* Make the calendar icon white */
-                                input[type="date"]::-webkit-calendar-picker-indicator {
-                                    filter: invert(1);
-                                }
-                            </style>
-                        </div>
-                    </div>
-                    <div class="quick-select mb-3">
-                        <label class="form-label">Schnellauswahl:</label>
-                        <div class="d-flex flex-wrap gap-2" role="group">
-                            <!-- Erweiterte Schnellauswahl-Optionen -->
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="hour">+1 Stunde</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="4" data-unit="hour">+4 Stunden</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="8" data-unit="hour">+8 Stunden</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="day">+1 Tag</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="3" data-unit="day">+3 Tage</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="7" data-unit="day">+1 Woche</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="14" data-unit="day">+2 Wochen</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="30" data-unit="day">+1 Monat</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="90" data-unit="day">+3 Monate</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer" style="border-top: 1px solid #2f4052;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <!-- Der wichtige Speichern-Button -->
-                    <button type="submit" class="btn btn-info" style="background-color: #00BCD4; border-color: #00BCD4;">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Korrigierte Form für die Schnellauswahl-Buttons -->
-<form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
-    <input type="hidden" name="value" id="adjustValue_{{ project.id }}" value="1">
-    <input type="hidden" name="unit" id="adjustUnit_{{ project.id }}" value="hour">
-</form>
-                                    
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="empty-state">
-                            <i class="fas fa-folder-open fa-3x mb-3" style="color: var(--accent);"></i>
-                            <h5>Keine laufenden Projekte</h5>
-                            <p class="text-muted">Erstellen Sie ein neues Projekt, um loszulegen</p>
-                            <a href="{{ url_for('projects.new_project') }}" class="btn btn-gradient mt-2">
-                                <i class="fas fa-plus me-2"></i>Neues Projekt erstellen
-                            </a>
+                
+                <!-- Mobile Card View (only shown on small screens) -->
+                <div class="mobile-project-cards">
+                    {% for project in in_progress[:5] %}
+                        <div class="project-card-mobile">
+                            <div class="project-card-header">
+                                <div class="project-icon me-3">
+                                    <i class="fas fa-folder" style="color: var(--accent);"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0" style="color: white;">{{ project.name }}</h6>
+                                </div>
+                            </div>
+                            <div class="project-card-body">
+                                <div class="project-meta">
+                                    <span class="project-date">
+                                        <i class="fas fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
+                                    </span>
+                                    {% if project.end_date %}
+                                        <span class="project-date">
+                                            <i class="fas fa-calendar-check me-1"></i> {{ project.end_date.strftime('%d.%m.%Y') }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if project.end_date %}
+                                    <div class="mobile-progress-container">
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                style="width: {{ project.get_progress_percentage() }}%; background-color: var(--accent);"
+                                                aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-center mt-1">
+                                            <span class="badge bg-info mobile-countdown" style="color: #000 !important; font-weight: bold;">
+                                                {% if project.is_overdue() %}
+                                                    Überfällig
+                                                {% elif project.days_remaining() == 0 %}
+                                                    Heute fällig
+                                                {% elif project.days_remaining() == 1 %}
+                                                    Noch 1 Tag
+                                                {% else %}
+                                                    Noch {{ project.days_remaining() }} Tage
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center my-2">
+                                        <span class="badge bg-secondary">Kein Enddatum</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="project-actions">
+                                    <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                    <h5>Keine Projekte in Bearbeitung</h5>
+                    <p class="text-muted">Erstellen Sie ein neues Projekt, um loszulegen.</p>
+                    <a href="{{ url_for('projects.new_project') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-plus me-2"></i> Neues Projekt
+                    </a>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
-
 
 <!-- Verbessertes Projekte Modal -->
 <div class="modal fade" id="projectsModal" tabindex="-1" aria-labelledby="projectsModalLabel" aria-hidden="true">
@@ -558,7 +559,298 @@
         </div>
     </div>
 </div>
+<style>
+/* Responsive styling for Aktuelle Projekte */
+
+/* Base improvements for the project table */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius-md);
+}
+
+/* Project card design for mobile - alternative to table */
+.project-card-mobile {
+    background-color: var(--primary-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    display: none; /* Hidden by default */
+}
+
+/* Project header (name and icon) */
+.project-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.project-card-body {
+    padding-left: 3rem; /* Align with the icon */
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.project-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+/* Make progress bars more compact for mobile */
+.mobile-progress-container {
+    margin: 0.5rem 0;
+}
+
+.mobile-progress-container .progress {
+    height: 6px;
+    margin-bottom: 0.25rem;
+}
+
+.mobile-countdown {
+    font-size: 0.85rem;
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+}
+
+/* Common improvements */
+.aktuelle-projekte .table td {
+    padding: 0.75rem; /* Slightly reduce padding */
+    vertical-align: middle;
+}
+
+/* Fix table stripe colors */
+.aktuelle-projekte .table tbody tr:nth-child(odd) td {
+    background-color: var(--primary);
+}
+
+.aktuelle-projekte .table tbody tr:nth-child(even) td {
+    background-color: var(--primary-light);
+}
+
+/* Better spacing for action buttons */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Compact view for small screens */
+@media (max-width: 767.98px) {
+    /* Hide regular table and show card layout */
+    .aktuelle-projekte .table-responsive {
+        display: none;
+    }
+    
+    .project-card-mobile {
+        display: block;
+    }
+    
+    /* Adjust header spacing */
+    .aktuelle-projekte .card-header {
+        padding: 0.75rem;
+    }
+    
+    /* Smaller, more compact buttons */
+    .btn-sm {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Make sure all icons have consistent size */
+    .project-icon {
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+    }
+    
+    /* Improve the 'Alle anzeigen' button */
+    .btn-outline-primary {
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* Medium screens: show more compact table */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .aktuelle-projekte .table th,
+    .aktuelle-projekte .table td {
+        padding: 0.5rem;
+    }
+    
+    /* More compact buttons */
+    .btn-sm {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+    
+    .project-icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Fix for scrollbar issue on some mobile browsers */
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* Timeline badges with better contrast and sizing */
+.verbleibende-zeit-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    text-align: center;
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+/* Small utility classes */
+.project-date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.remaining-time {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* Fix for project listings table pagination */
+.pagination {
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.page-link {
+    background-color: var(--primary-light);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.page-link:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--primary);
+}
+</style>
 <script>
+// JavaScript to enhance project table responsiveness
+document.addEventListener('DOMContentLoaded', function() {
+    // Check screen size and apply appropriate view
+    function checkScreenSize() {
+        const isMobile = window.innerWidth < 768;
+        const tableContainer = document.querySelector('.aktuelle-projekte .table-responsive');
+        const cardContainer = document.querySelector('.aktuelle-projekte .mobile-project-cards');
+        
+        if (tableContainer && cardContainer) {
+            if (isMobile) {
+                tableContainer.style.display = 'none';
+                cardContainer.style.display = 'block';
+            } else {
+                tableContainer.style.display = 'block';
+                cardContainer.style.display = 'none';
+            }
+        }
+    }
+    
+    // Run on page load and window resize
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    // Function to update countdown timers
+    function updateCountdownTimers() {
+        const countdownElements = document.querySelectorAll('[id^="countdown-timer"]');
+        
+        countdownElements.forEach(element => {
+            const projectId = element.id.split('-').pop();
+            const endDateString = element.getAttribute('data-end-date');
+            
+            if (endDateString) {
+                const endDate = new Date(endDateString);
+                const now = new Date();
+                
+                // Calculate days remaining
+                const diffTime = endDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Update the element text
+                if (diffTime < 0) {
+                    element.textContent = 'Überfällig';
+                    element.classList.remove('bg-info', 'bg-warning', 'bg-success');
+                    element.classList.add('bg-danger');
+                } else if (diffDays === 0) {
+                    element.textContent = 'Heute fällig';
+                    element.classList.remove('bg-info', 'bg-success', 'bg-danger');
+                    element.classList.add('bg-warning');
+                } else if (diffDays === 1) {
+                    element.textContent = '1 Tag';
+                    element.classList.remove('bg-success', 'bg-danger');
+                    element.classList.add('bg-warning');
+                } else if (diffDays <= 3) {
+                    element.textContent = diffDays + ' Tage';
+                    element.classList.remove('bg-success', 'bg-danger');
+                    element.classList.add('bg-warning');
+                } else {
+                    element.textContent = diffDays + ' Tage';
+                    element.classList.remove('bg-danger', 'bg-warning');
+                    element.classList.add('bg-info');
+                }
+            }
+        });
+    }
+    
+    // Update countdown timers on page load
+    updateCountdownTimers();
+    
+    // Update countdown timers every minute
+    setInterval(updateCountdownTimers, 60000);
+    
+    // Enhanced table row hover effects
+    const projectRows = document.querySelectorAll('.table tbody tr');
+    projectRows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+            row.style.backgroundColor = 'rgba(102, 252, 241, 0.1)';
+        });
+        
+        row.addEventListener('mouseleave', () => {
+            row.style.backgroundColor = '';
+        });
+    });
+    
+    // Make project cards clickable to view details
+    const projectCards = document.querySelectorAll('.project-card-mobile');
+    projectCards.forEach(card => {
+        const detailsLink = card.querySelector('a[href*="view_project"]');
+        if (detailsLink) {
+            const href = detailsLink.getAttribute('href');
+            card.addEventListener('click', (e) => {
+                // Don't navigate if clicking on a button or link
+                if (!e.target.closest('a') && !e.target.closest('button')) {
+                    window.location.href = href;
+                }
+            });
+            
+            // Add visual cue that card is clickable
+            card.style.cursor = 'pointer';
+        }
+    });
+});
+
     // Script für Kalenderfunktionen 
 document.addEventListener('DOMContentLoaded', function() {
     // Kalenderinitalisierung
