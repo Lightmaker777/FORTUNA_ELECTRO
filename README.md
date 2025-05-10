@@ -4,7 +4,6 @@
 
 <div align="center">
 
-![Fortuna Elektro Logo](app/static/img/fortuna-logo.png) 
 
 <img src="app/static/img/dashboard1.png" alt="Dashboard" width="80%">
 
@@ -201,5 +200,7 @@ For questions or support, please contact:
 ---
 
 <div align="center">
+
+![Fortuna Elektro Logo](app/static/img/fortuna-logo.png) 
   <p>© 2025 FORTUNA ELEKTRO GmbH. All rights reserved.</p>
 </div>

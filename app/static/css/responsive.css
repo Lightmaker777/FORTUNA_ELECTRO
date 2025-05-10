@@ -1,0 +1,398 @@
+/* responsive.css - Einheitlicher Stil für alle Seiten */
+
+/* Root Colors */
+:root {
+    --primary: #0B0C10;
+    --primary-light: #1F2833;
+    --accent: #66FCF1;
+    --accent-light: #45A29E;
+    --text-white: #FFFFFF;
+    --text-muted: #C5C6C7;
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  
+  /* Reset & Basisstil */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html, body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--primary);
+    color: var(--text-white);
+    scroll-behavior: smooth;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: var(--accent-light);
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Container */
+  .container,
+  .container-fluid {
+    width: 100%;
+    padding: 1rem;
+    margin: 0 auto;
+  }
+  
+  @media (min-width: 576px) {
+    .container {
+      max-width: 540px;
+    }
+  }
+  @media (min-width: 768px) {
+    .container {
+      max-width: 720px;
+    }
+  }
+  @media (min-width: 992px) {
+    .container {
+      max-width: 960px;
+    }
+  }
+  @media (min-width: 1200px) {
+    .container {
+      max-width: 1140px;
+    }
+  }
+  
+  /* Karten (Cards) */
+  .card {
+    background-color: var(--primary-light);
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: var(--text-white);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-header {
+    background-color: #14304d;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+  
+  .card-body {
+    color: #66d9ff !important;
+  }
+  
+  /* Formulare */
+  .form-control,
+  .form-select {
+    background-color: #14304d !important;
+    color: var(--accent) !important;
+    border: none;
+    border-radius: var(--border-radius-sm);
+  }
+  
+  .form-control::placeholder,
+  .form-select {
+    color: var(--accent-light) !important;
+  }
+  
+  /* Buttons */
+  .btn {
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: var(--accent);
+    color: var(--primary);
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--accent-light);
+    color: var(--primary);
+  }
+  
+  .btn-outline-secondary {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+  }
+  
+  .btn-outline-secondary:hover {
+    background-color: var(--text-muted);
+    color: var(--primary);
+  }
+  
+  /* Tabs */
+  .nav-tabs .nav-link {
+    color: var(--text-white);
+    background-color: #1e4a73;
+    border: none;
+  }
+  
+  .nav-tabs .nav-link.active {
+    background-color: #14304d;
+    color: var(--accent);
+  }
+  
+  .tab-content {
+    background-color: #0e2135;
+    color: var(--text-white);
+    padding: 1rem;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  }
+  
+  /* Modal */
+  .modal-content {
+    background-color: var(--primary-light);
+    color: var(--text-white);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--accent);
+  }
+  
+  .modal-header,
+  .modal-footer {
+    border-top: 1px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+  
+  .modal-title {
+    color: var(--accent);
+  }
+  
+  .modal-body input,
+  .modal-body select,
+  .modal-body textarea {
+    background-color: #14304d !important;
+    color: var(--accent) !important;
+  }
+  
+  /* Dropdown-Pfeil weiß */
+  .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+  }
+  
+  /* Responsive Anpassungen */
+  @media (max-width: 768px) {
+    h1.display-5 {
+      font-size: 1.5rem;
+    }
+  
+    .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  
+    .card-img-container img,
+    .card-img-container video {
+      object-fit: cover;
+      height: 200px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .form-select,
+    .form-control {
+      font-size: 0.9rem;
+    }
+  
+    .navbar-brand span {
+      font-size: 0.9rem;
+    }
+  
+    .dashboard-heading-decoration {
+      font-size: 1.2rem;
+    }
+  }
+  /* Optimierung für Stundenberichte auf Mobilgeräten */
+@media (max-width: 768px) {
+    .card-header h3 {
+      font-size: 1.25rem;
+    }
+  
+    /* Tabelle auf Mobil anpassen */
+    .table thead {
+      display: none; /* Kopfzeile ausblenden */
+    }
+  
+    .table tbody tr {
+      display: block;
+      margin-bottom: 1rem;
+      background-color: #1a3d5c;
+      border-radius: 8px;
+      padding: 10px;
+    }
+  
+    .table tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border: none !important;
+      font-size: 0.9rem;
+    }
+  
+    .table tbody td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      min-width: 100px;
+      color: var(--accent);
+    }
+  
+    /* Gesamtstunden-Zeile optimieren */
+    .table tfoot td {
+      display: block;
+      text-align: right;
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+  
+    /* Formulareingaben vergrößern */
+    .form-control,
+    .form-select {
+      font-size: 1rem;
+      padding: 0.5rem;
+    }
+  
+    /* Button-Reihe untereinander */
+    .d-flex.flex-column.flex-sm-row.gap-2.justify-content-start {
+      flex-direction: column;
+    }
+  
+    .btn-status-change {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+  
+    /* Unterschriftsbereich vereinfachen */
+    .signature-section {
+      text-align: center;
+    }
+  
+    .signature-line {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+  /* Optimierung für aktuelle Projekte im Dashboard auf Mobilgeräten */
+@media (max-width: 768px) {
+    .aktuelle-projekte .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .aktuelle-projekte .btn-outline-primary {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  
+    /* Tabelle in responsive Liste umwandeln */
+    .aktuelle-projekte .table-responsive {
+      overflow-x: visible;
+    }
+  
+    .aktuelle-projekte .table {
+      font-size: 0.85rem;
+    }
+  
+    .aktuelle-projekte .table thead {
+      display: none;
+    }
+  
+    .aktuelle-projekte .table tbody tr {
+      display: block;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 0;
+    }
+  
+    .aktuelle-projekte .table tbody td {
+      display: block;
+      padding: 0.3rem 0;
+      border: none;
+    }
+  
+    .aktuelle-projekte .table tbody td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      color: var(--accent);
+      display: inline-block;
+      min-width: 100px;
+    }
+  
+    /* Statistik-Karten auf Mobil anpassen */
+    .stat-card.custom-stat-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  
+    .stat-icon-wrapper {
+      margin-right: 0;
+      margin-bottom: 0.5rem;
+    }
+  
+    .stat-card .card-body {
+      padding: 1rem;
+    }
+  
+    /* Leere Zustände zentrieren */
+    .aktuelle-projekte .empty-state {
+      text-align: center;
+    }
+  
+    .aktuelle-projekte .empty-state i {
+      font-size: 3rem;
+    }
+  }
+  /* Base Layout für Sticky Footer */
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+  
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Main Content bekommt Flex-Grow, damit Footer nach unten geschoben wird */
+  .content-container {
+    flex: 1 0 auto;
+    min-height: calc(100vh - 150px); /* Passt zur Höhe des Footers */
+  }
+  
+  /* Footer Styling */
+  .footer {
+    flex-shrink: 0;
+    background-color: var(--primary-dark);
+    border-top: 1px solid var(--accent);
+    padding: 1rem 0;
+    color: var(--text-light);
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  @media (max-width: 768px) {
+    .footer {
+      position: relative;
+      width: 100%;
+    }
+  }
