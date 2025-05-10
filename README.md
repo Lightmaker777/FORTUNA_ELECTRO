@@ -99,7 +99,7 @@ six==1.17.0
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/fortuna-elektro-webapp.git
+   git clone https://github.com/Lightmaker777/FORTUNA_ELECTRO.git
    cd fortuna-elektro-webapp
    ```
 
