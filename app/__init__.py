@@ -1,11 +1,10 @@
-# app/__init__.py
+# app\__init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
 import os
 from flask_migrate import Migrate
-
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -19,6 +18,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+    
     # Ordner für Uploads erstellen, falls nicht vorhanden
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
@@ -38,10 +38,16 @@ def create_app(config_class=Config):
     from app.routes.timesheets import timesheets as timesheets_bp
     app.register_blueprint(timesheets_bp)
     
-    from app.routes.admin import admin
-    app.register_blueprint(admin)
+    # Only register custom admin routes if you need them alongside Flask-Admin
+    # If Flask-Admin handles all your admin functionality, you can remove this
+    from app.routes.admin import admin as admin_bp
+    app.register_blueprint(admin_bp, name='custom_admin', url_prefix='/custom-admin')
 
     from app.routes.api import api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
+    
+    # Initialize Flask-Admin - Make sure this is after registering all blueprints
+    from app.admin import init_admin
+    init_admin(app)
     
     return app

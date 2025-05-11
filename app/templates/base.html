@@ -36,13 +36,27 @@
                                 <i class="fas fa-home"></i> Home
                             </a>
                         </li>
-                        {% if current_user.is_admin() %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin.list_users') }}">
-                                    <i class="fas fa-users"></i> Mitarbeiter
+                        
+                        {% if current_user.is_authenticated and current_user.is_admin() %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-cog"></i> Administration
                                 </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('custom_admin.list_users') }}">
+                                            <i class="fas fa-users"></i> Mitarbeiter
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('admin.index') }}">
+                                            <i class="fas fa-tachometer-alt"></i> Extra Admin Panel
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         {% endif %}
+ 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ current_user.username }}

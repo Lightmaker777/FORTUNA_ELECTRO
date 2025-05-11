@@ -99,7 +99,7 @@
                 <h5 class="modal-title" id="addProjectModalLabel">Neues Projekt anlegen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.add_project') }}">
+            <form method="POST" action="{{ url_for('custom_admin.add_project') }}">
                 <div class="modal-body">
                     {{ add_project_form.hidden_tag() }}
                     <div class="mb-3">
@@ -142,7 +142,7 @@
                 <h5 class="modal-title" id="changeStatusModalLabel">Projektstatus ändern</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.change_project_status') }}">
+            <form method="POST" action="{{ url_for('custom_admin.change_project_status') }}">
                 <div class="modal-body">
                     {{ status_form.hidden_tag() }}
                     {{ status_form.project_id }}
@@ -169,7 +169,7 @@
                 <h5 class="modal-title" id="deleteProjectModalLabel">Projekt löschen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.delete_project') }}">
+            <form method="POST" action="{{ url_for('custom_admin.delete_project') }}">
                 <div class="modal-body">
                     {{ delete_form.hidden_tag() }}
                     {{ delete_form.project_id }}

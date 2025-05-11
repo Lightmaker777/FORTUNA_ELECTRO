@@ -1,3 +1,4 @@
+# app\routes\admin.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models.user import User
@@ -5,10 +6,19 @@ from app.forms.user_forms import AddUserForm, EditUserForm, ResetPasswordForm, D
 from app.utils.decorators import admin_required
 from app import db
 
-# Definieren Sie den Blueprint ohne Präfix, falls die App es bereits hinzufügt
-admin = Blueprint('admin', __name__)
+# Define the blueprint with a more specific name to avoid conflicts with Flask-Admin
+admin = Blueprint('custom_admin', __name__, url_prefix='/custom-admin')
 
-@admin.route('/admin/users', methods=['GET'])
+# Create blueprint with a name that doesn't conflict with Flask-Admin
+#admin = Blueprint('admin', __name__)  # This will be registered as 'custom_admin'
+
+@admin.before_request
+def check_admin():
+    if not current_user.is_authenticated or not current_user.is_admin():
+        flash('Sie benötigen Administratorrechte, um auf diese Seite zuzugreifen.', 'danger')
+        return redirect(url_for('auth.login'))
+
+@admin.route('/users', methods=['GET'])
 @login_required
 @admin_required
 def list_users():
@@ -28,7 +38,7 @@ def list_users():
                           delete_user_form=delete_user_form,
                           current_user=current_user)
 
-@admin.route('/admin/users/add', methods=['POST'])
+@admin.route('/users/add', methods=['POST'])
 @login_required
 @admin_required
 def add_user():
@@ -51,9 +61,9 @@ def add_user():
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f'{getattr(form, field).label.text}: {error}', 'danger')
-    return redirect(url_for('admin.list_users'))
+    return redirect(url_for('custom_admin.list_users'))
 
-@admin.route('/admin/users/edit', methods=['POST'])
+@admin.route('/users/edit', methods=['POST'])
 @login_required
 @admin_required
 def edit_user():
@@ -69,9 +79,9 @@ def edit_user():
         user.is_active = form.is_active.data
         db.session.commit()
         flash(f'Benutzer {user.username} wurde erfolgreich aktualisiert.', 'success')
-    return redirect(url_for('admin.list_users'))
+    return redirect(url_for('custom_admin.list_users'))
 
-@admin.route('/admin/users/reset-password', methods=['POST'])
+@admin.route('/users/reset-password', methods=['POST'])
 @login_required
 @admin_required
 def reset_password():
@@ -92,9 +102,9 @@ def reset_password():
             for error in errors:
                 flash(f'{getattr(form, field).label.text}: {error}', 'danger')
     
-    return redirect(url_for('admin.list_users'))
+    return redirect(url_for('custom_admin.list_users'))
 
-@admin.route('/admin/users/delete', methods=['POST'])
+@admin.route('/users/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_user():
@@ -124,12 +134,10 @@ def delete_user():
         print("user_id not found in form data!")
         flash('User ID nicht gefunden!', 'danger')
     
-    return redirect(url_for('admin.list_users'))
+    return redirect(url_for('custom_admin.list_users'))
 
-# If you still have issues with the form approach, you could use a direct URL approach:
-
-# In routes.py, add this alternative route:
-@admin.route('/admin/users/delete-direct/<int:user_id>', methods=['GET', 'POST'])
+# Alternative direct URL approach
+@admin.route('/users/delete-direct/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def delete_user_direct(user_id):
@@ -148,5 +156,4 @@ def delete_user_direct(user_id):
         print(f"Error deleting user: {str(e)}")
         flash(f'Fehler beim Löschen des Benutzers: {str(e)}', 'danger')
     
-    return redirect(url_for('admin.list_users'))
-
+    return redirect(url_for('custom_admin.list_users'))

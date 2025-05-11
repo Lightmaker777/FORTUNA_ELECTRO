@@ -1,0 +1,28 @@
+<!--app\templates\admin\master.html -->
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block brand %}
+<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+{% endblock %}
+
+{% block access_control %}
+{% if current_user.is_authenticated %}
+<ul class="nav navbar-nav ml-auto">
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+            {{ current_user.username }}
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="{{ url_for('dashboard.index') }}">Zurück zur App</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Abmelden</a>
+        </div>
+    </li>
+</ul>
+{% endif %}
+{% endblock %}

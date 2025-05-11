@@ -12,7 +12,7 @@
                     <h4 class="mb-0">Benutzer bearbeiten: {{ user.username }}</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('admin.edit_user', user_id=user.id) }}">
+                    <form method="POST" action="{{ url_for('custom_admin.edit_user', user_id=user.id) }}">
                         <div class="form-group">
                             <label for="username">Benutzername</label>
                             <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>

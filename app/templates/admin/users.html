@@ -130,7 +130,7 @@
                 <h5 class="modal-title" id="addUserModalLabel">Neuen Mitarbeiter anlegen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.add_user') }}">
+            <form method="POST" action="{{ url_for('custom_admin.add_user') }}">
                 <div class="modal-body">
                     {{ add_user_form.hidden_tag() }}
                     <div class="mb-3">
@@ -188,7 +188,7 @@
                 <h5 class="modal-title" id="editUserModalLabel">Mitarbeiter bearbeiten</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.edit_user') }}">
+            <form method="POST" action="{{ url_for('custom_admin.edit_user') }}">
                 <div class="modal-body">
                     {{ edit_user_form.hidden_tag() }}
                     {{ edit_user_form.user_id(id="user_id") }}
@@ -222,7 +222,7 @@
                 <h5 class="modal-title" id="resetPasswordModalLabel">Passwort zurücksetzen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.reset_password') }}">
+            <form method="POST" action="{{ url_for('custom_admin.reset_password') }}">
                 <div class="modal-body">
                     {{ reset_password_form.csrf_token }}
                     <input type="hidden" name="user_id" id="user_id-reset" value="">
@@ -253,7 +253,7 @@
                 <h5 class="modal-title" id="deleteUserModalLabel">Mitarbeiter löschen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin.delete_user') }}">
+            <form method="POST" action="{{ url_for('custom_admin.delete_user') }}">
                 <div class="modal-body">
                     {{ delete_user_form.csrf_token }}
                     <input type="hidden" name="user_id" id="user_id-delete" value="">
