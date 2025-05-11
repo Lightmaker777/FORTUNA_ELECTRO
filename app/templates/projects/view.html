@@ -7,36 +7,36 @@
 
 <!-- Container für alle Inhalte mit konsistenter Breite -->
 <div class="container-fluid py-3">
-  <!-- Aktualisierte Aktionsbuttons im gleichen Stil wie STATUS ÄNDERN -->
-  <div class="row align-items-center">
-    <div class="col-12 col-md-6 mb-3 mb-md-0">
-      <h1 style="color: var(--accent)">{{ project.name }}</h1>
+  <!-- Aktualisierte Aktionsbuttons mit mehr Abstand und besserer Größe -->
+    <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-6 mb-3 mb-md-0">
+        <h1 style="color: var(--accent)">{{ project.name }}</h1>
+        </div>
+        <div class="col-12 col-md-6">
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-start justify-content-md-end">
+            <!-- HOCHLADEN Button - kompaktere Größe -->
+            <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-status-change py-2">
+            <i class="fas fa-cloud-upload-alt me-2"></i>
+            HOCHLADEN
+            </a>
+            
+            <!-- STUNDENBERICHT Button - kompaktere Größe -->
+            <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-status-change py-2">
+            <i class="far fa-calendar-check me-2"></i>
+            STUNDENBERICHT
+            </a>
+            
+            <!-- HERUNTERLADEN Button - kompaktere Größe -->
+            <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-status-change py-2">
+            <i class="fas fa-download me-2"></i>
+            HERUNTERLADEN
+            </a>
+        </div>
+        </div>
     </div>
-    <div class="col-12 col-md-6">
-      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-start justify-content-md-end">
-        <!-- DATEI HOCHLADEN im türkisen Design -->
-        <a href="{{ url_for('files.upload_file', project_id=project.id) }}" class="btn btn-status-change">
-          <i class="fas fa-cloud-upload-alt me-2"></i>
-           HOCHLADEN
-        </a>
-        
-        <!-- STUNDENBERICHT im türkisen Design -->
-        <a href="{{ url_for('timesheets.new_timesheet', project_id=project.id) }}" class="btn btn-status-change">
-          <i class="far fa-calendar-check me-2"></i>
-          STUNDENBERICHT
-        </a>
-        
-        <!-- PROJEKT HERUNTERLADEN im türkisen Design -->
-        <a href="{{ url_for('files.download_project', project_id=project.id) }}" class="btn btn-status-change">
-          <i class="fas fa-download me-2"></i>
-           HERUNTERLADEN
-        </a>
-      </div>
-    </div>
-  </div>
 
   <!-- Projektdetails -->
-  <div class="card mb-4 shadow-sm">
+  <div class="card mb-4 mt-3 shadow-sm">
       <div class="card-header">
           <h5 class="mb-0">Projektdetails</h5>
       </div>
