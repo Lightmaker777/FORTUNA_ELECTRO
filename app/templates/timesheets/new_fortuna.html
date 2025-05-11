@@ -267,26 +267,27 @@
           </div>
           <div class="modal-body modal-body-scrollable">
               <div class="preview-content p-3">
-                  <!-- Header -->
-                  <div class="row mb-3">
-                      <div class="col-md-7 col-sm-12">
-                          <div class="mb-1"><strong>Datum:</strong> <span id="preview-datum"></span></div>
-                          <div class="mb-1"><strong>BV:</strong> <span id="preview-bv"></span></div>
-                          <div class="mb-1"><strong>Arbeitskraft:</strong> <span id="preview-arbeitskraft"></span></div>
-                          <div><strong>An-u. Abreise:</strong> <span id="preview-an-abreise"></span></div>
+                  <!-- Header im Flex-Layout für Desktop und Mobile -->
+                  <div class="preview-header">
+                    <!-- Kopfdaten links -->
+                    <div class="header-data">
+                      <div class="mb-1"><strong>Datum:</strong> <span id="preview-datum"></span></div>
+                      <div class="mb-1"><strong>BV:</strong> <span id="preview-bv"></span></div>
+                      <div class="mb-1"><strong>Arbeitskraft:</strong> <span id="preview-arbeitskraft"></span></div>
+                      <div class="mb-1"><strong>An-u. Abreise:</strong> <span id="preview-an-abreise"></span></div>
+                    </div>
+                    
+                    <!-- Firmenlogo rechts -->
+                    <div class="company-info">
+                      <div class="mb-2">
+                        <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 40px;">
                       </div>
-                      <div class="col-md-5 col-sm-12 mt-sm-3 mt-md-0">
-                          <div class="text-md-end text-sm-center">
-                              <div class="text-center mb-2">
-                                  <img src="/static/img/fortuna-logo.png" alt="Fortuna Elektro GmbH" class="img-fluid" style="max-height: 40px;">
-                              </div>
-                              <p class="mb-0"><strong>Fortuna Elektro GmbH</strong></p>
-                              <p class="mb-0 company-details">Lothar-Bucher-Straße 5</p>
-                              <p class="mb-0 company-details">12157 Berlin</p>
-                              <p class="mb-0 company-details">+49 (030) 499 657 15</p>
-                              <p class="mb-0 company-details">info@fortuna-elektro.com</p>
-                          </div>
-                      </div>
+                      <p class="mb-1"><strong>Fortuna Elektro GmbH</strong></p>
+                      <p class="company-details">Lothar-Bucher-Straße 5</p>
+                      <p class="company-details">12157 Berlin</p>
+                      <p class="company-details">+49 (030) 499 657 15</p>
+                      <p class="company-details">info@fortuna-elektro.com</p>
+                    </div>
                   </div>
                   
                   <h4 class="text-center mb-3">Bau-Tagesbericht und Stundennachweis</h4>
@@ -476,6 +477,101 @@
     .modal-body-scrollable {
       max-height: none !important;
       overflow: visible !important;
+    }
+  }
+</style>
+<style>
+  /* Gemeinsame Styles für Desktop und Mobile */
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+  }
+  
+  .header-data {
+    flex: 0 0 45%;
+    line-height: 1.8;
+  }
+  
+  .company-info {
+    flex: 0 0 45%;
+    text-align: right;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .company-details {
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+  }
+  
+  .preview-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+    clear: both;
+  }
+  
+  /* Mobile-spezifische Anpassungen */
+  @media (max-width: 767.98px) {
+    /* Modal-Anpassungen für Mobilgeräte */
+    .modal-dialog {
+      margin: 0.25rem;
+      max-width: 95%;
+    }
+    
+    .modal-content {
+      border-radius: 0.3rem;
+    }
+    
+    .modal-header {
+      padding: 0.5rem !important;
+    }
+    
+    .modal-body {
+      padding: 0 !important;
+    }
+    
+    .modal-footer {
+      padding: 0.5rem !important;
+    }
+    
+    /* Firmenlayout auch auf Mobile beibehalten, aber mit besseren Abständen */
+    .preview-header {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      padding: 0.4rem;
+    }
+    
+    .header-data {
+      flex: 0 0 45%;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      padding-left: 0.3rem;
+    }
+    
+    .company-info {
+      flex: 0 0 45%;
+      font-size: 0.7rem;
+      padding-right: 0.3rem;
+    }
+    
+    .company-info img {
+      max-height: 30px !important;
+      margin-bottom: 0.3rem;
+    }
+    
+    .company-details {
+      font-size: 0.6rem !important;
+      line-height: 1.1 !important;
+      margin-bottom: 0.2rem;
+    }
+    
+    .preview-title {
+      font-size: 0.9rem !important;
+      margin-top: 0.5rem;
     }
   }
   </style>
