@@ -2,9 +2,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/project-modal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/card_mobile.css') }}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
@@ -293,36 +294,36 @@
                     </div>
                 </div>
                 <!-- Tabs -->
-                <div class="tab-navigation mb-3">
-                    <select class="form-select form-select-lg d-md-none py-2" id="tabSelector">
-                        <option value="all">Alle Projekte</option>
-                        <option value="in-progress">In Bearbeitung</option>
-                        <option value="calendar">Kalender</option>
-                        <option value="archived">Archiviert</option>
-                    </select>
-                    <ul class="nav nav-pills nav-justified custom-nav-pills d-none d-md-flex" id="projectTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active btn-lg w-100" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
-                                <i class="fas fa-list me-1"></i> Alle
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link btn-lg w-100" id="in-progress-tab" data-bs-toggle="tab" data-bs-target="#in-progress" type="button" role="tab" aria-controls="in-progress" aria-selected="false">
-                                <i class="fas fa-hammer me-1"></i> In Bearbeitung
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link btn-lg w-100" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab" aria-controls="calendar" aria-selected="false">
-                                <i class="fas fa-calendar-alt me-1"></i> Kalender
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link btn-lg w-100" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived" type="button" role="tab" aria-controls="archived" aria-selected="false">
-                                <i class="fas fa-archive me-1"></i> Archiviert
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+<div class="tab-navigation mb-3">
+    <select class="form-select form-select-lg d-md-none py-2" id="tabSelector">
+        <option value="all">Alle Projekte</option>
+        <option value="in-progress">In Bearbeitung</option>
+        <option value="calendar">Kalender</option>
+        <option value="archived">Archiviert</option>
+    </select>
+    <ul class="nav nav-pills nav-justified custom-nav-pills d-none d-md-flex" id="projectTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active btn-lg w-100" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true" onclick="this.style.backgroundColor='#0B0C10'; this.style.color='#66FCF1'; this.style.border='1px solid #66FCF1'; document.getElementById('in-progress-tab').style.backgroundColor='#1F2833'; document.getElementById('in-progress-tab').style.color='#C5C6C7'; document.getElementById('in-progress-tab').style.border='1px solid #C5C6C7'; document.getElementById('calendar-tab').style.backgroundColor='#1F2833'; document.getElementById('calendar-tab').style.color='#C5C6C7'; document.getElementById('calendar-tab').style.border='1px solid #C5C6C7'; document.getElementById('archived-tab').style.backgroundColor='#1F2833'; document.getElementById('archived-tab').style.color='#C5C6C7'; document.getElementById('archived-tab').style.border='1px solid #C5C6C7';">
+                <i class="fas fa-list me-1"></i> Alle
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link btn-lg w-100" id="in-progress-tab" data-bs-toggle="tab" data-bs-target="#in-progress" type="button" role="tab" aria-controls="in-progress" aria-selected="false" onclick="this.style.backgroundColor='#0B0C10'; this.style.color='#66FCF1'; this.style.border='1px solid #66FCF1'; document.getElementById('all-tab').style.backgroundColor='#1F2833'; document.getElementById('all-tab').style.color='#C5C6C7'; document.getElementById('all-tab').style.border='1px solid #C5C6C7'; document.getElementById('calendar-tab').style.backgroundColor='#1F2833'; document.getElementById('calendar-tab').style.color='#C5C6C7'; document.getElementById('calendar-tab').style.border='1px solid #C5C6C7'; document.getElementById('archived-tab').style.backgroundColor='#1F2833'; document.getElementById('archived-tab').style.color='#C5C6C7'; document.getElementById('archived-tab').style.border='1px solid #C5C6C7';">
+                <i class="fas fa-hammer me-1"></i> In Bearbeitung
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link btn-lg w-100" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab" aria-controls="calendar" aria-selected="false" onclick="this.style.backgroundColor='#0B0C10'; this.style.color='#66FCF1'; this.style.border='1px solid #66FCF1'; document.getElementById('all-tab').style.backgroundColor='#1F2833'; document.getElementById('all-tab').style.color='#C5C6C7'; document.getElementById('all-tab').style.border='1px solid #C5C6C7'; document.getElementById('in-progress-tab').style.backgroundColor='#1F2833'; document.getElementById('in-progress-tab').style.color='#C5C6C7'; document.getElementById('in-progress-tab').style.border='1px solid #C5C6C7'; document.getElementById('archived-tab').style.backgroundColor='#1F2833'; document.getElementById('archived-tab').style.color='#C5C6C7'; document.getElementById('archived-tab').style.border='1px solid #C5C6C7';">
+                <i class="fas fa-calendar-alt me-1"></i> Kalender
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link btn-lg w-100" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived" type="button" role="tab" aria-controls="archived" aria-selected="false" onclick="this.style.backgroundColor='#0B0C10'; this.style.color='#66FCF1'; this.style.border='1px solid #66FCF1'; document.getElementById('all-tab').style.backgroundColor='#1F2833'; document.getElementById('all-tab').style.color='#C5C6C7'; document.getElementById('all-tab').style.border='1px solid #C5C6C7'; document.getElementById('in-progress-tab').style.backgroundColor='#1F2833'; document.getElementById('in-progress-tab').style.color='#C5C6C7'; document.getElementById('in-progress-tab').style.border='1px solid #C5C6C7'; document.getElementById('calendar-tab').style.backgroundColor='#1F2833'; document.getElementById('calendar-tab').style.color='#C5C6C7'; document.getElementById('calendar-tab').style.border='1px solid #C5C6C7';">
+                <i class="fas fa-archive me-1"></i> Archiviert
+            </button>
+        </li>
+    </ul>
+</div>
                 <div class="tab-content pt-2" id="projectTabContent">
                     <!-- Alle Projekte Tab -->
                     <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
@@ -349,7 +350,7 @@
                                                     {% else %}Archiviert{% endif %}
                                                 </span>
                                             </div>
-                                            <div class="card-body" style="background-color: #1d1d30;">
+                                            <div class="card-body"  style="background-color: #0B0C10;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -360,9 +361,9 @@
                                                         <i class="fas fa-download"></i>
                                                     </a>
                                                     <small class="text-muted">
-                                                        <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
+                                                        <i class="far fa-calendar-alt me-1" style="color: var(--accent);"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                                     </small>
-                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm 
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" style="background-color: var(--accent); color: var(--primary-dark); border: none; font-weight: 500; padding: 0.375rem 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease;"  class="btn btn-sm 
                                                               {% if project in in_progress %}btn-project-progress
                                                               {% elif project in completed %}btn-project-completed
                                                               {% else %}btn-project-archived{% endif %}">
@@ -398,7 +399,7 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-primary-custom rounded-pill ms-2">In Bearbeitung</span>
                                             </div>
-                                            <div class="card-body" style="background-color: #1d1d30;">
+                                            <div class="card-body" style="background-color: #0B0C10;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -411,7 +412,7 @@
                                                     <small class="text-muted">
                                                         <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                                     </small>
-                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-project-progress">
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}"  style="background-color: var(--accent); color: var(--primary-dark); border: none; font-weight: 500; padding: 0.375rem 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease;"   class="btn btn-sm btn-project-progress">
                                                         Details <i class="fas fa-arrow-right ms-1"></i>
                                                     </a>
                                                 </div>
@@ -454,7 +455,7 @@
                         <div id="calendarDays" class="calendar-grid row gx-1 gy-1 mb-4"></div>
                         <!-- Urlaubsliste -->
                         <div>
-                            <h4 class="mb-3">Urlaubsübersicht</h4>
+                            <h4 class="mb-3" style="text-align: center; color: var(--accent);">Urlaubsübersicht</h4>
                             <ul id="vacationList" class="list-group mb-2">
                                 <!-- Dynamische Einträge kommen hier hin -->
                             </ul>
@@ -512,7 +513,7 @@
                                                 <h6 class="mb-0 text-truncate">{{ project.name }}</h6>
                                                 <span class="badge bg-secondary-custom rounded-pill ms-2">Archiviert</span>
                                             </div>
-                                            <div class="card-body" style="background-color: #1d1d30;">
+                                            <div class="card-body" style="background-color: #0B0C10;">
                                                 {% if project.description %}
                                                     <p class="mb-3 project-description">{{ project.description|truncate(100) }}</p>
                                                 {% else %}
@@ -525,7 +526,7 @@
                                                     <small class="text-muted">
                                                         <i class="far fa-calendar-alt me-1"></i> {{ project.start_date.strftime('%d.%m.%Y') }}
                                                     </small>
-                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-project-archived">
+                                                    <a href="{{ url_for('projects.view_project', project_id=project.id) }}"  style="background-color: var(--accent); color: var(--primary-dark); border: none; font-weight: 500; padding: 0.375rem 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease;"   class="btn btn-sm btn-project-archived">
                                                         Details <i class="fas fa-arrow-right ms-1"></i>
                                                     </a>
                                                 </div>
@@ -557,212 +558,15 @@
 </div>
 
 <style>
-
-/* Improved Mobile Responsive Styling */
-
-/* Base improvements for the project table */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: var(--border-radius-md);
-}
-
-/* Project Cards for Mobile */
-.project-card-mobile {
-    padding: 0.875rem;
-    background-color: #101018;
-    border-radius: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-/* Project header (name and icon) */
-.project-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.project-card-header .project-icon {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    margin-right: 0.75rem;
-}
-
-.project-card-body {
-    padding-left: 2.5rem; /* Align with the icon */
-}
-
-/* Improved date display */
-.project-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.4rem;
-    font-size: 0.8rem;
-}
-
-/* Refined progress bars */
-.project-card .progress-container,
-.mobile-progress-container {
-    height: 4px;
-    margin: 0.5rem 0;
-    position: relative;
-    width: 100%;
-    background-color: rgba(102, 252, 241, 0.15);
-    border-radius: 2px;
-}
-
-.project-card .progress-bar,
-.mobile-progress-bar {
-    height: 4px;
-    background-color: #66FCF1;
-    border-radius: 2px;
-}
-
-/* Compact and cleaner countdown badges */
-.verbleibende-zeit-badge,
-.mobile-countdown {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    font-weight: 500;
-    text-align: center;
-    background-color: #66FCF1;
-    color: #000;
-    margin-top: 0.3rem;
-}
-
-/* Buttons with exact 50/50 split */
-.project-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.6rem;
-    width: 100%;
-}
-
-.project-actions .btn,
-.btn-download,
-.btn-details {
-    padding: 0.4rem;
-    font-size: 0.85rem;
-    border-radius: 4px;
-    min-height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50%; /* Exact 50% width */
-    box-sizing: border-box;
-}
-
-.btn-download {
-    background-color: #66FCF1;
-    color: #000;
-}
-
-.btn-details {
-    border: 1px solid #66FCF1;
-    color: #66FCF1;
-    background-color: transparent;
-}
-
-/* Fix for button icons alignment */
-.btn-download svg,
-.btn-details svg {
-    margin-right: 0.25rem;
-    width: 16px;
-    height: 16px;
-}
-
-/* Media queries for different screen sizes */
-@media (max-width: 374px) {
-    /* Extra small phones */
-    .project-card-mobile {
-        padding: 0.75rem;
-    }
-    
-    .project-actions .btn {
-        font-size: 0.75rem;
-        padding: 0.35rem;
-        min-height: 30px;
-    }
-    
-    .project-card-header .project-name {
-        font-size: 0.95rem;
-    }
-}
-
-@media (min-width: 375px) and (max-width: 767.98px) {
-    /* Standard mobile phones */
-    .project-actions .btn {
-        padding: 0.4rem;
-        font-size: 0.85rem;
-    }
-}
-
-/* Table view for larger screens */
-@media (min-width: 768px) {
-    .project-card-mobile {
-        display: none;
-    }
-    
-    .aktuelle-projekte .table-responsive {
-        display: block;
-    }
-    
-    /* Table styling refinements */
-    .aktuelle-projekte .table th,
-    .aktuelle-projekte .table td {
-        padding: 0.75rem;
-        vertical-align: middle;
-        background-color: #101018; /* Ensure dark background for table cells */
-    }
-    
-    .aktuelle-projekte .table tbody tr:nth-child(odd) td {
-        background-color: #1A1A24; /* Darker striped rows */
-    }
-    
-    .aktuelle-projekte .table tbody tr:nth-child(even) td {
-        background-color: #101018; /* Maintain dark theme */
-    }
-    
-    /* Progress bar in table view */
-    .verbleibende-zeit-badge {
-        font-size: 0.75rem;
-    }
-    
-    /* Ensure download and details buttons maintain dark theme */
-    .btn-download {
-        background-color: #66FCF1;
-        color: #000;
-    }
-    
-    .btn-details {
-        border: 1px solid #66FCF1;
-        color: #66FCF1;
-        background-color: transparent;
-    }
-}
-
-/* Ensure download and details buttons are exactly 50/50 split */
-.project-card .btn-download,
-.project-card .btn-details {
-    width: 50%;
-    white-space: nowrap;
-    flex: 0 0 auto; /* Prevent flex from overriding width */
-}
-
-/* Improved days remaining display */
-.days-remaining {
-    position: relative;
-    z-index: 1;
-    font-size: 0.7rem;
-    margin-bottom: 0.2rem;
-}
-
-
+ /* Override Bootstrap's default styles */
+.nav-link.active, 
+.nav-pills .nav-link.active {
+    background-color: #0B0C10 !important;
+    color: #66FCF1 !important;
+    border: 1px solid #66FCF1 !important;
+}   
 </style>
+
 <script>
 // JavaScript to enhance project table responsiveness
 document.addEventListener('DOMContentLoaded', function() {

@@ -1,5 +1,326 @@
-/* Kalender Styles */
+/* Calendar Tab Styling */
+/* Based on the home/dashboard aesthetic from the reference CSS */
+
+:root {
+    --primary-dark: #101018;
+    --primary: #1A1A24;
+    --primary-light: #21212e;
+    --accent: #66FCF1;
+    --accent-light: #8bfffa;
+    --text-color: #ffffff;
+    --text-muted: #9fa3b4;
+    --warning: #ecaa54;
+    --success: #58a763;
+    --danger: #e74c3c;
+    --info: #3498db;
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+}
+
+/* Calendar container */
+.calendar-container {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.1) !important;
+    background-color: var(--primary-light);
+    margin-bottom: 2rem;
+}
+
+.calendar-header {
+    background-color: var(--primary-light);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--accent);
+}
+
+.calendar-header h5 {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Calendar navigation buttons */
+.calendar-nav-btn {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+    padding: 0.375rem 0.75rem;
+}
+
+.calendar-nav-btn:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* Calendar weekday headers */
+.d-flex.mb-2 {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: var(--primary-light);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+}
+
+.calendar-weekday {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    padding: 0.75rem 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.weekday-workday {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.weekday-weekend {
+    color: #FF3B3B;
+    font-weight: 600;
+}
+
+/* Calendar grid */
 .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    background-color: var(--primary-light);
+}
+
+/* Calendar days */
+.calendar-day {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid rgba(102, 252, 241, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+    position: relative;
+}
+
+.calendar-day:hover {
+    background-color: rgba(102, 252, 241, 0.05);
+}
+
+.calendar-day.other-month {
+    background-color: rgba(26, 26, 36, 0.7);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.calendar-day.today {
+    background-color: rgba(102, 252, 241, 0.25);
+    font-weight: bold;
+    color: #ffffff;
+    position: relative;
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.calendar-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background-color: var(--accent);
+    border-radius: 50%;
+}
+
+.calendar-day.has-vacation {
+    background-color: rgba(236, 170, 84, 0.3);
+    color: #ffffff;
+    position: relative;
+    box-shadow: inset 0 0 0 1px var(--warning);
+}
+
+.calendar-day.has-holiday {
+    background-color: rgba(88, 167, 99, 0.3);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px var(--success);
+}
+
+/* Vacation list styling */
+.vacation-list-container {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.1) !important;
+    background-color: var(--primary-light);
+}
+
+.vacation-list-header {
+    background-color: var(--primary-light);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vacation-list-header h5 {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Vacation list items */
+.list-group-item {
+    position: relative;
+    padding: 0.75rem 4rem 0.75rem 1rem;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 2px;
+    background-color: var(--primary-light);
+    border: 1px solid rgba(102, 252, 241, 0.15);
+    transition: all 0.2s ease;
+    color: #ffffff;
+}
+
+.list-group-item:hover {
+    background-color: rgba(102, 252, 241, 0.1);
+}
+
+.vacation-actions {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Action buttons in vacation list */
+.btn-vacation-action {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    background-color: rgba(102, 252, 241, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+}
+
+.btn-vacation-edit {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+}
+
+.btn-vacation-edit:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.btn-vacation-delete {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: var(--danger);
+}
+
+.btn-vacation-delete:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Add vacation button */
+.btn-add-vacation {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-add-vacation:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(102, 252, 241, 0.3);
+}
+
+/* Indicators for different calendar day states */
+.calendar-indicator {
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.vacation-indicator {
+    background-color: var(--warning);
+}
+
+.holiday-indicator {
+    background-color: var(--success);
+}
+
+/* Filter bar styling */
+.calendar-filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: var(--primary-light);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+}
+
+.filter-btn {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+    border-radius: var(--border-radius-sm);
+    padding: 0.375rem 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 767.98px) {
+    .calendar-weekday {
+        font-size: 0.75rem;
+        padding: 0.5rem 0;
+    }
+    
+    .calendar-day {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .vacation-actions {
+        right: 0.25rem;
+    }
+    
+    .btn-vacation-action {
+        width: 25px;
+        height: 25px;
+    }
+}
+ /* Kalender Styles */
+ .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     border-radius: var(--border-radius-md); /* Rounded corners for calendar */
@@ -61,4 +382,10 @@
 
 .weekday-weekend {
     color: #FF3B3B;
+}
+/* Styling für die Kalender-Icons in den Datumseingabefeldern */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: var(--accent);
+    opacity: 1;
+    filter: invert(0.7) sepia(1) saturate(5) hue-rotate(175deg);
 }

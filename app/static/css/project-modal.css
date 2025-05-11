@@ -1,0 +1,545 @@
+/* Project Modal View Styling */
+/* Based on the home/dashboard aesthetic from the reference CSS */
+
+:root {
+    --primary-dark: #101018;
+    --primary: #1A1A24;
+    --primary-light: #21212e;
+    --accent: #66FCF1;
+    --accent-light: #8bfffa;
+    --text-color: #ffffff;
+    --text-muted: #9fa3b4;
+    --warning: #ecaa54;
+    --success: #58a763;
+    --danger: #e74c3c;
+    --info: #3498db;
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+}
+
+/* Modal container styling */
+.modal-content {
+    background-color: var(--primary-light);
+    border: 1px solid rgba(102, 252, 241, 0.1);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal header */
+.modal-header {
+    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+    padding: 1.25rem;
+    position: relative;
+}
+
+.modal-title {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Custom close button */
+.btn-close {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+    opacity: 1;
+    padding: 0.25rem;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* Modal body */
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Form control styling */
+.form-label {
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    background-color: var(--primary);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    border-radius: var(--border-radius-md);
+    color: var(--text-color);
+    padding: 0.6rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background-color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(102, 252, 241, 0.15);
+    color: var(--text-color);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Form select styling */
+.form-select {
+    background-color: var(--primary);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    border-radius: var(--border-radius-md);
+    color: var(--text-color);
+    padding: 0.6rem 1rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2366FCF1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    background-color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(102, 252, 241, 0.15);
+    color: var(--text-color);
+}
+
+/* Modal footer */
+.modal-footer {
+    border-top: 1px solid rgba(102, 252, 241, 0.1);
+    padding: 1.25rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* Button styling in modal */
+.btn-modal-cancel {
+    background-color: var(--primary);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    color: var(--accent);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-modal-cancel:hover {
+    background-color: rgba(102, 252, 241, 0.1);
+}
+
+.btn-modal-save {
+    background-color: var(--accent);
+    border: none;
+    color: var(--primary-dark);
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.btn-modal-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(102, 252, 241, 0.3);
+}
+
+.btn-modal-danger {
+    background-color: var(--danger);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.btn-modal-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Project details sections */
+.project-detail-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+}
+
+.project-detail-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.section-title {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: var(--accent);
+}
+
+/* Project status badges */
+.badge-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.badge-active {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.badge-completed {
+    background-color: var(--success);
+    color: white;
+}
+
+.badge-pending {
+    background-color: var(--warning);
+    color: var(--primary-dark);
+}
+
+/* Project progress in modal */
+.progress-container-modal {
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.progress-modal {
+    height: 8px;
+    background-color: var(--primary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-modal {
+    background-color: var(--accent);
+    border-radius: 4px;
+}
+
+.progress-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.progress-percentage {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.remaining-time {
+    color: var(--text-muted);
+}
+
+/* Project members section */
+.project-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(102, 252, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-weight: 600;
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    transition: all 0.2s ease;
+}
+
+.member-avatar:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+.add-member {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(102, 252, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(102, 252, 241, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-member:hover {
+    background-color: rgba(102, 252, 241, 0.2);
+}
+
+/* Project attachment list */
+.attachment-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background-color: var(--primary);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.attachment-item:hover {
+    background-color: rgba(102, 252, 241, 0.05);
+}
+
+.attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.attachment-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background-color: rgba(102, 252, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attachment-icon i {
+    color: var(--accent);
+    font-size: 1rem;
+}
+
+.attachment-name {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.attachment-size {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.attachment-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-attachment-action {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+    background-color: rgba(102, 252, 241, 0.1);
+    border: none;
+    color: var(--accent);
+}
+
+.btn-attachment-action:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* File upload area */
+.file-upload-area {
+    border: 2px dashed rgba(102, 252, 241, 0.3);
+    border-radius: var(--border-radius-md);
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+    background-color: rgba(102, 252, 241, 0.05);
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    background-color: rgba(102, 252, 241, 0.1);
+    border-color: rgba(102, 252, 241, 0.5);
+}
+
+.file-upload-icon {
+    color: var(--accent);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.file-upload-text {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.file-upload-hint {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Comments section */
+.comments-section {
+    margin-top: 1.5rem;
+}
+
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+}
+
+.comment-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+}
+
+.comment-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.commenter-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.commenter-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(102, 252, 241, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-weight: 600;
+    border: 1px solid rgba(102, 252, 241, 0.2);
+}
+
+.commenter-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.comment-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.comment-actions {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.comment-text {
+    padding-left: 3.25rem;
+    font-size: 0.95rem;
+}
+
+/* Comment input area */
+.comment-input-area {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.comment-input {
+    flex: 1;
+    background-color: var(--primary);
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    border-radius: var(--border-radius-md);
+    color: var(--text-color);
+    padding: 0.6rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.comment-input:focus {
+    background-color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(102, 252, 241, 0.15);
+    color: var(--text-color);
+}
+
+.btn-submit-comment {
+    background-color: var(--accent);
+    border: none;
+    color: var(--primary-dark);
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+}
+
+.btn-submit-comment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(102, 252, 241, 0.3);
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 767.98px) {
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1.25rem;
+    }
+    
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+    }
+    
+    .btn-modal-cancel,
+    .btn-modal-save,
+    .btn-modal-danger {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+    }
+    
+    .comment-text {
+        padding-left: 0;
+        margin-top: 0.5rem;
+    }
+}
