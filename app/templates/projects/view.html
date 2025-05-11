@@ -5,8 +5,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/projects_view.css') }}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-<!-- Aktualisierte Aktionsbuttons im gleichen Stil wie STATUS ÄNDERN -->
+<!-- Container für alle Inhalte mit konsistenter Breite -->
 <div class="container-fluid py-3">
+  <!-- Aktualisierte Aktionsbuttons im gleichen Stil wie STATUS ÄNDERN -->
   <div class="row align-items-center">
     <div class="col-12 col-md-6 mb-3 mb-md-0">
       <h1 style="color: var(--accent)">{{ project.name }}</h1>
@@ -33,377 +34,429 @@
       </div>
     </div>
   </div>
-</div>
 
-<!-- app/templates/projects/view.html -->
-<!-- Projektdetails -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-header">
-        <h5 class="mb-0">Projektdetails</h5>
+  <!-- Projektdetails -->
+  <div class="card mb-4 shadow-sm">
+      <div class="card-header">
+          <h5 class="mb-0">Projektdetails</h5>
+      </div>
+      <div class="card-body" style="background-color: #1d1d30;">
+          <div class="row">
+              <div class="col-md-6">
+                  <p><strong>Adresse:</strong> {{ project.name }}</p>
+                  <p><strong>Erstellt von:</strong> {{ project.creator.username }}</p>
+                  <p><strong>Startdatum:</strong> {{ project.start_date.strftime('%d.%m.%Y') }}</p>
+                  <p><strong>Beschreibung:</strong> {{ project.description or 'Keine Beschreibung' }}</p>
+              </div>
+              <div class="col-md-6">
+                  <p><strong>Status:</strong> 
+                      {% if project.status == 'in_bearbeitung' %}
+                          <span class="badge bg-primary">In Bearbeitung</span>
+                      {% elif project.status == 'archiviert' %}
+                          <span class="badge bg-secondary">Archiviert</span>
+                      {% endif %}
+                  </p>
+                  <!-- Countdown Timer und Enddatum -->
+                  {% if project.end_date %}
+                  <p>
+                      <strong>Enddatum:</strong> {{ project.end_date.strftime('%d.%m.%Y') }}
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern" class="text-info">
+                          <i class="fas fa-edit ms-2"></i>
+                      </a>
+                  </p>
+                  <!-- Verbesserter Countdown-Bereich -->
+                  <div class="countdown-container mt-2 mb-3">
+                      <p><strong>Verbleibende Zeit:</strong></p>
+                      <div class="progress" style="height: 16px; background-color: #2f4052;">
+                          <div class="progress-bar" id="project-progress-bar" role="progressbar" 
+                              style="background-color: var(--accent); width: {{ project.get_progress_percentage() }}%;" 
+                              aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <div class="d-flex justify-content-between mt-1">
+                          <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
+                          <span id="countdown-timer" class="badge"  style="color: #000 !important; font-weight: bold;">
+                              {% if project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
+                                  bg-success
+                              {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
+                                  bg-info
+                              {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
+                                  bg-warning
+                              {% else %}
+                                  bg-danger
+                              {% endif %}">
+                              Wird geladen...
+                          </span>
+                          <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
+                      </div>
+                  </div>
+                  {% else %}
+                  <p>
+                      <strong>Enddatum:</strong> Nicht festgelegt
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen" class="text-info">
+                          <span class="fa-stack fa-xs">
+                              <i class="fas fa-calendar fa-stack-1x"></i>
+                          </span>
+                      </a>
+                  </p>
+                  {% endif %}
+              </div>
+          </div>
+          
+          <!-- Status-Änderung (für alle Benutzer, aber Archivieren nur für Admins) -->
+          <div class="mt-3">
+              <form method="POST" action="{{ url_for('projects.update_status', project_id=project.id) }}">
+                  {{ status_form.hidden_tag() }}
+                  <div class="input-group">
+                      {{ status_form.status(class="form-select") }}
+                      <button type="submit" class="btn btn-primary">Status ändern</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Verbesserte Version des Modals mit korrekter Form-Action und weißem Kalendar-Icon -->
+  <div class="modal fade" id="changeEndDateModal_{{ project.id }}" tabindex="-1" aria-labelledby="changeEndDateModalLabel_{{ project.id }}" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content" style="background-color: #14304d; color: #ffffff; border: 1px solid #2f4052;">
+              <div class="modal-header" style="border-bottom: 1px solid #2f4052;">
+                  <h5 class="modal-title" id="changeEndDateModalLabel_{{ project.id }}">Projekt-Enddatum ändern - {{ project.name }}</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+              </div>
+              <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}" id="endDateForm_{{ project.id }}">
+                  <div class="modal-body">
+                      {{ end_date_form.hidden_tag() if end_date_form }}
+                      <div class="mb-3">
+                          <label for="end_date_{{ project.id }}" class="form-label">Neues Enddatum</label>
+                          <div class="input-group">
+                              <input type="date" class="form-control bg-dark text-light border-secondary" 
+                                  id="end_date_{{ project.id }}" name="end_date" 
+                                  value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
+                              <style>
+                                  /* Make the calendar icon white */
+                                  input[type="date"]::-webkit-calendar-picker-indicator {
+                                      filter: invert(1);
+                                  }
+                              </style>
+                          </div>
+                      </div>
+                      <div class="quick-select mb-3">
+                          <label class="form-label">Schnellauswahl:</label>
+                          <div class="d-flex flex-wrap gap-2" role="group">
+                              <!-- Erweiterte Schnellauswahl-Optionen -->
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="hour">+1 Stunde</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="4" data-unit="hour">+4 Stunden</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="8" data-unit="hour">+8 Stunden</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="day">+1 Tag</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="3" data-unit="day">+3 Tage</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="7" data-unit="day">+1 Woche</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="14" data-unit="day">+2 Wochen</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="30" data-unit="day">+1 Monat</button>
+                              <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="90" data-unit="day">+3 Monate</button>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="modal-footer" style="border-top: 1px solid #2f4052;">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                      <!-- Der wichtige Speichern-Button -->
+                      <button type="submit" class="btn btn-info" style="background-color: #00BCD4; border-color: #00BCD4;">Speichern</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Korrigierte Form für die Schnellauswahl-Buttons -->
+  <form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
+      <input type="hidden" name="value" id="adjustValue_{{ project.id }}" value="1">
+      <input type="hidden" name="unit" id="adjustUnit_{{ project.id }}" value="hour">
+  </form>
+
+  <!-- HIER BEGINNEN DIE GEÄNDERTEN TABS - Verbesserte Tab-Navigation für konsistente Breite -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <ul class="nav nav-tabs nav-fill" id="projectTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab" aria-controls="photos" aria-selected="true" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-image me-1"></i> Fotos ({{ photos|length }})
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="videos-tab" data-bs-toggle="tab" data-bs-target="#videos" type="button" role="tab" aria-controls="videos" aria-selected="false" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-video me-1"></i> Videos ({{ videos|length }})
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="timesheets-tab" data-bs-toggle="tab" data-bs-target="#timesheets" type="button" role="tab" aria-controls="timesheets" aria-selected="false" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-file-pdf me-1"></i> Stundenberichte ({{ timesheets|length }})
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-clipboard-check me-1"></i> Prüfberichte ({{ reports|length }})
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab" aria-controls="other" aria-selected="false" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-folder me-1"></i> Sonstiges ({{ other_files|length }})
+              </button>
+          </li>
+          <li class="nav-item" role="presentation">
+              <button class="nav-link" id="timesheet-data-tab" data-bs-toggle="tab" data-bs-target="#timesheet-data" type="button" role="tab" aria-controls="timesheet-data" aria-selected="false" onclick="applyActiveTabStyle(this)">
+                  <i class="fas fa-clipboard-list me-1"></i> Arbeitsstunden ({{ timesheets|length }})
+              </button>
+          </li>
+      </ul>
+
+      <!-- Tab-Inhalte innerhalb derselben Card für konsistente Darstellung -->
+      <div class="tab-content p-3" id="projectTabsContent">
+      
+      <!-- Gemeinsames Card-Layout für alle Tabs -->
+      {% macro file_card(file, file_type) %}
+          <div class="col-md-4 col-lg-3 mb-4">
+              <div class="card h-100 border-0 shadow-sm">
+                  <!-- Card Header mit Dateityp-Indikator -->
+                  <div class="card-header bg-secondary text-white p-2 d-flex justify-content-between align-items-center">
+                      <small class="text-truncate">
+                          <i class="{% if file_type == 'photo' %}fas fa-image
+                                    {% elif file_type == 'video' %}fas fa-video
+                                    {% elif file_type == 'timesheet' %}fas fa-clock
+                                    {% elif file_type == 'report' %}fas fa-clipboard-check
+                                    {% else %}fas fa-file{% endif %}"></i>
+                          {{ file_type|capitalize }}
+                      </small>
+                      <small>{{ file.upload_date.strftime('%d.%m.%Y') }}</small>
+                  </div>
+                  
+                  <!-- Card Vorschau-Container mit einheitlicher Höhe -->
+                  <div class="card-img-container" style="height: 300px; overflow: hidden; background-color: #2c3e50; position: relative;">
+                      <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank" style="width: 100%; height: 100%;">
+                          {% if file_type == 'photo' or file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')) %}
+                              <!-- Bild-Vorschau - füllt die gesamte Card aus -->
+                              <div class="h-100 w-100 overflow-hidden">
+                                  <img src="{{ url_for('files.view_file', filename=file.file_path) }}" alt="{{ file.original_filename }}" 
+                                      class="w-100 h-100" style="object-fit: cover;">
+                              </div>
+                          {% elif file_type == 'video' or file.original_filename.endswith(('.mp4', '.webm', '.ogg')) %}
+                              <!-- Video-Vorschau - füllt die gesamte Card aus -->
+                              <div class="position-relative h-100 w-100">
+                                  <video class="w-100 h-100" style="object-fit: cover;" poster="{{ url_for('files.get_video_thumbnail', filename=file.file_path) if has_video_thumbnail_function else '' }}">
+                                      <source src="{{ url_for('files.view_file', filename=file.file_path) }}" type="video/mp4">
+                                  </video>
+                                  <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
+                                      <i class="fas fa-play-circle fa-3x text-white" style="filter: drop-shadow(0 0 3px rgba(0,0,0,0.7));"></i>
+                                  </div>
+                                  <!-- Video Overlay für besseren Kontrast zum Play-Button -->
+                                  <div class="position-absolute top-0 left-0 w-100 h-100" style="background-color: rgba(0,0,0,0.2);"></div>
+                              </div>
+                          {% elif file_type == 'timesheet' or file_type == 'report' or file.original_filename.endswith('.pdf') %}
+                              <!-- PDF-Vorschau -->
+                              <object data="{{ url_for('files.view_file', filename=file.file_path) }}" type="application/pdf" width="100%" height="100%" style="object-fit: contain;">
+                                  <!-- Fallback für Browser, die keine PDF-Objekte unterstützen -->
+                                  <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                                      <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                                  </div>
+                              </object>
+                          {% else %}
+                              <!-- Andere Dateien mit passendem Icon -->
+                              <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                                  {% if file.original_filename.endswith(('.doc', '.docx')) %}
+                                      <i class="fas fa-file-word fa-4x text-primary"></i>
+                                  {% elif file.original_filename.endswith(('.xls', '.xlsx', '.csv')) %}
+                                      <i class="fas fa-file-excel fa-4x text-success"></i>
+                                  {% elif file.original_filename.endswith(('.ppt', '.pptx')) %}
+                                      <i class="fas fa-file-powerpoint fa-4x text-warning"></i>
+                                  {% elif file.original_filename.endswith(('.pdf',)) %}
+                                      <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                                  {% elif file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.tiff')) %}
+                                      <i class="fas fa-file-image fa-4x text-info"></i>
+                                  {% elif file.original_filename.endswith(('.mp4', '.avi', '.mov', '.wmv', '.mkv', '.webm', '.flv')) %}
+                                      <i class="fas fa-file-video fa-4x text-dark"></i>
+                                  {% elif file.original_filename.endswith(('.mp3', '.wav', '.ogg', '.flac')) %}
+                                      <i class="fas fa-file-audio fa-4x text-warning"></i>
+                                  {% elif file.original_filename.endswith(('.zip', '.rar', '.7z', '.tar', '.gz')) %}
+                                      <i class="fas fa-file-archive fa-4x text-secondary"></i>
+                                  {% elif file.original_filename.endswith(('.txt', '.md', '.log')) %}
+                                      <i class="fas fa-file-alt fa-4x text-muted"></i>
+                                  {% elif file.original_filename.endswith(('.html', '.css', '.js', '.json', '.xml')) %}
+                                      <i class="fas fa-file-code fa-4x text-primary"></i>
+                                  {% elif file.original_filename.endswith(('.py', '.java', '.cpp', '.c', '.rb', '.php', '.go', '.rs')) %}
+                                      <i class="fas fa-file-code fa-4x text-secondary"></i>
+                                  {% else %}
+                                      <i class="fas fa-file fa-4x text-info"></i>
+                                  {% endif %}
+                              </div>
+                          {% endif %}
+                      </a>
+                  </div>
+                  
+                  <!-- Card Body mit Dateiinfos -->
+                  <div class="card-body d-flex flex-column">
+                      <h6 class="card-title text-truncate mb-2">{{ file.original_filename }}</h6>
+                      <p class="card-text mb-3">
+                          <small class="text-muted">
+                              {% if file.file_size > 1024 * 1024 %}
+                                  {{ (file.file_size / 1024 / 1024)|round(2) }} MB
+                              {% else %}
+                                  {{ (file.file_size / 1024)|round(1) }} KB
+                              {% endif %}
+                          </small>
+                      </p>
+                      <!-- Buttons immer am Ende -->
+                      <div class="mt-auto d-flex justify-content-between">
+                          <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                              {% if file_type == 'photo' %}
+                                  <i class="fas fa-image"></i> Anzeigen
+                              {% elif file_type == 'video' %}
+                                  <i class="fas fa-play"></i> Abspielen
+                              {% elif file_type == 'timesheet' %}
+                                  <i class="fas fa-clock"></i> Anzeigen
+                              {% elif file_type == 'report' %}
+                                  <i class="fas fa-clipboard-check"></i> Anzeigen
+                              {% else %}
+                                  <i class="fas fa-file"></i> Anzeigen
+                              {% endif %}
+                          </a>
+                          <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
+                              <i class="fas fa-trash"></i>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      {% endmacro %}
+
+      <!-- Fotos -->
+      <div class="tab-pane fade show active" id="photos" role="tabpanel">
+          <div class="row">
+              {% if photos %}
+                  {% for file in photos %}
+                      {{ file_card(file, 'photo') }}
+                  {% endfor %}
+              {% else %}
+                  <div class="col-12">
+                      <p class="text-light">Keine Fotos vorhanden.</p>
+                  </div>
+              {% endif %}
+          </div>
+      </div>
+
+      <!-- Videos -->
+      <div class="tab-pane fade" id="videos" role="tabpanel">
+          <div class="row">
+              {% if videos %}
+                  {% for file in videos %}
+                      {{ file_card(file, 'video') }}
+                  {% endfor %}
+              {% else %}
+                  <div class="col-12">
+                      <p class="text-light">Keine Videos vorhanden.</p>
+                  </div>
+              {% endif %}
+          </div>
+      </div>
+
+      <!-- Stundenberichte -->
+      <div class="tab-pane fade" id="timesheets" role="tabpanel">
+          <div class="row">
+              {% if timesheets %}
+                  {% for file in timesheets %}
+                      {{ file_card(file, 'timesheet') }}
+                  {% endfor %}
+              {% else %}
+                  <div class="col-12">
+                      <p class="text-light">Keine Stundenberichte vorhanden.</p>
+                  </div>
+              {% endif %}
+          </div>
+      </div>
+
+      <!-- Prüfberichte -->
+      <div class="tab-pane fade" id="reports" role="tabpanel">
+          <div class="row">
+              {% if reports %}
+                  {% for file in reports %}
+                      {{ file_card(file, 'report') }}
+                  {% endfor %}
+              {% else %}
+                  <div class="col-12">
+                      <p class="text-light">Keine Prüfberichte vorhanden.</p>
+                  </div>
+              {% endif %}
+          </div>
+      </div>
+
+      <!-- Sonstige Dateien -->
+      <div class="tab-pane fade" id="other" role="tabpanel">
+          <div class="row">
+              {% if other_files %}
+                  {% for file in other_files %}
+                      {{ file_card(file, 'other') }}
+                  {% endfor %}
+              {% else %}
+                  <div class="col-12">
+                      <p class="text-light">Keine sonstigen Dateien vorhanden.</p>
+                  </div>
+              {% endif %}
+          </div>
+      </div>
+
+      <!-- Arbeitsstunden -->
+      <div class="tab-pane fade" id="timesheet-data" role="tabpanel">
+          <div class="card shadow-sm">
+              <div class="card-header">
+                  <h5 class="mb-0">Erfasste Arbeitsstunden</h5>
+              </div>
+              <div class="card-body">
+                  {% if timesheets_data %}
+                      <div class="table-responsive">
+                          <table class="table table-striped">
+                              <thead>
+                                  <tr>
+                                      <th>Datum</th>
+                                      <th>Mitarbeiter</th>
+                                      <th>Tätigkeit</th>
+                                      <th>Stunden</th>
+                                      <th>PDF</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for timesheet in timesheets_data %}
+                                      <tr>
+                                          <td>{{ timesheet.date.strftime('%d.%m.%Y') }}</td>
+                                          <td>{{ timesheet.employee.username }}</td>
+                                          <td>{{ timesheet.activity }}</td>
+                                          <td>{{ timesheet.hours }}</td>
+                                          <td>
+                                              {% if timesheet.pdf_path %}
+                                                  <a href="{{ url_for('files.view_file', filename=timesheet.pdf_path) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                      <i class="fas fa-file-pdf"></i>
+                                                  </a>
+                                              {% else %}
+                                                  <span class="badge bg-warning">Kein PDF</span>
+                                              {% endif %}
+                                          </td>
+                                      </tr>
+                                  {% endfor %}
+                              </tbody>
+                              <tfoot>
+                                  <tr class="table-primary">
+                                      <th colspan="3">Gesamtstunden:</th>
+                                      <th>{{ timesheets_data|sum(attribute='hours') }}</th>
+                                      <th></th>
+                                  </tr>
+                              </tfoot>
+                          </table>
+                      </div>
+                  {% else %}
+                      <p class="text-muted">Keine Arbeitsstunden erfasst.</p>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
     </div>
-    <div class="card-body" style="background-color:  #1d1d30;">
-        <div class="row">
-            <div class="col-md-6">
-                <p><strong>Adresse:</strong> {{ project.name }}</p>
-                <p><strong>Erstellt von:</strong> {{ project.creator.username }}</p>
-                <p><strong>Startdatum:</strong> {{ project.start_date.strftime('%d.%m.%Y') }}</p>
-                <p><strong>Beschreibung:</strong> {{ project.description or 'Keine Beschreibung' }}</p>
-            </div>
-            <div class="col-md-6">
-                <p><strong>Status:</strong> 
-                    {% if project.status == 'in_bearbeitung' %}
-                        <span class="badge bg-primary">In Bearbeitung</span>
-                    {% elif project.status == 'archiviert' %}
-                        <span class="badge bg-secondary">Archiviert</span>
-                    {% endif %}
-                </p>
-                <!-- Countdown Timer und Enddatum -->
-                {% if project.end_date %}
-                <p>
-                    <strong>Enddatum:</strong> {{ project.end_date.strftime('%d.%m.%Y') }}
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum ändern" class="text-info">
-                        <i class="fas fa-edit ms-2"></i>
-                    </a>
-                </p>
-                <!-- Verbesserter Countdown-Bereich -->
-                <div class="countdown-container mt-2 mb-3">
-                    <p><strong>Verbleibende Zeit:</strong></p>
-                    <div class="progress" style="height: 16px; background-color: #2f4052;">
-                        <div class="progress-bar" id="project-progress-bar" role="progressbar" 
-                            style="background-color: var(--accent); width: {{ project.get_progress_percentage() }}%;" 
-                            aria-valuenow="{{ project.get_progress_percentage() }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <div class="d-flex justify-content-between mt-1">
-                        <small class="text-muted">{{ project.start_date.strftime('%d.%m.%Y') }}</small>
-                        <span id="countdown-timer" class="badge"  style="color: #000 !important; font-weight: bold;">
-                            {% if project.get_remaining_hours() > 168 %}  <!-- More than 7 days (7*24=168) -->
-                                bg-success
-                            {% elif project.get_remaining_hours() > 24 %}   <!-- More than 1 day -->
-                                bg-info
-                            {% elif project.get_remaining_hours() > 0 %}    <!-- More than 0 hours -->
-                                bg-warning
-                            {% else %}
-                                bg-danger
-                            {% endif %}">
-                            Wird geladen...
-                        </span>
-                        <small class="text-muted">{{ project.end_date.strftime('%d.%m.%Y') }}</small>
-                    </div>
-                </div>
-                {% else %}
-                <p>
-                    <strong>Enddatum:</strong> Nicht festgelegt
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#changeEndDateModal_{{ project.id }}" title="Enddatum festlegen" class="text-info">
-                        <span class="fa-stack fa-xs">
-                            <i class="fas fa-calendar fa-stack-1x"></i>
-                            
-                        </span>
-                    </a>
-                </p>
-                {% endif %}
-                
-                
-            </div>
-        </div>
-        
-        <!-- Status-Änderung (für alle Benutzer, aber Archivieren nur für Admins) -->
-        <div class="mt-3">
-            <form method="POST" action="{{ url_for('projects.update_status', project_id=project.id) }}">
-                {{ status_form.hidden_tag() }}
-                <div class="input-group">
-                    {{ status_form.status(class="form-select") }}
-                    <button type="submit" class="btn btn-primary">Status ändern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Verbesserte Version des Modals mit korrekter Form-Action und weißem Kalendar-Icon -->
-<div class="modal fade" id="changeEndDateModal_{{ project.id }}" tabindex="-1" aria-labelledby="changeEndDateModalLabel_{{ project.id }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background-color: #14304d; color: #ffffff; border: 1px solid #2f4052;">
-            <div class="modal-header" style="border-bottom: 1px solid #2f4052;">
-                <h5 class="modal-title" id="changeEndDateModalLabel_{{ project.id }}">Projekt-Enddatum ändern - {{ project.name }}</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
-            </div>
-            <form method="POST" action="{{ url_for('projects.update_end_date', project_id=project.id) }}" id="endDateForm_{{ project.id }}">
-                <div class="modal-body">
-                    {{ end_date_form.hidden_tag() if end_date_form }}
-                    <div class="mb-3">
-                        <label for="end_date_{{ project.id }}" class="form-label">Neues Enddatum</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control bg-dark text-light border-secondary" 
-                                id="end_date_{{ project.id }}" name="end_date" 
-                                value="{{ project.end_date.strftime('%Y-%m-%d') if project.end_date else '' }}" required>
-                            <style>
-                                /* Make the calendar icon white */
-                                input[type="date"]::-webkit-calendar-picker-indicator {
-                                    filter: invert(1);
-                                }
-                            </style>
-                        </div>
-                    </div>
-                    <div class="quick-select mb-3">
-                        <label class="form-label">Schnellauswahl:</label>
-                        <div class="d-flex flex-wrap gap-2" role="group">
-                            <!-- Erweiterte Schnellauswahl-Optionen -->
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="hour">+1 Stunde</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="4" data-unit="hour">+4 Stunden</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="8" data-unit="hour">+8 Stunden</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="1" data-unit="day">+1 Tag</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="3" data-unit="day">+3 Tage</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="7" data-unit="day">+1 Woche</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="14" data-unit="day">+2 Wochen</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="30" data-unit="day">+1 Monat</button>
-                            <button type="button" class="btn btn-outline-info btn-sm quick-select-btn" data-value="90" data-unit="day">+3 Monate</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer" style="border-top: 1px solid #2f4052;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <!-- Der wichtige Speichern-Button -->
-                    <button type="submit" class="btn btn-info" style="background-color: #00BCD4; border-color: #00BCD4;">Speichern</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Korrigierte Form für die Schnellauswahl-Buttons -->
-<form id="adjustForm_{{ project.id }}" method="POST" action="{{ url_for('projects.adjust_end_date', project_id=project.id) }}" style="display: none;">
-    <input type="hidden" name="value" id="adjustValue_{{ project.id }}" value="1">
-    <input type="hidden" name="unit" id="adjustUnit_{{ project.id }}" value="hour">
-</form>
-
-<!-- Tab-Navigation für Dateien und Stundenberichte -->
-<ul class="nav nav-tabs mb-3" id="projectTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">
-            <i class="fas fa-image"></i> Fotos ({{ photos|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="videos-tab" data-bs-toggle="tab" data-bs-target="#videos" type="button" role="tab">
-            <i class="fas fa-video"></i> Videos ({{ videos|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="timesheets-tab" data-bs-toggle="tab" data-bs-target="#timesheets" type="button" role="tab">
-            <i class="fas fa-file-pdf"></i> Stundenberichte ({{ timesheets|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">
-            <i class="fas fa-clipboard-check"></i> Prüfberichte ({{ reports|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
-            <i class="fas fa-folder"></i> Sonstiges ({{ other_files|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="timesheet-data-tab" data-bs-toggle="tab" data-bs-target="#timesheet-data" type="button" role="tab">
-            <i class="fas fa-clipboard-list"></i> Arbeitsstunden ({{ timesheets|length }})
-        </button>
-    </li>
-</ul>
-
-<!-- Tab-Inhalte -->
-<div class="tab-content" id="projectTabsContent">
-    
-<!-- Gemeinsames Card-Layout für alle Tabs -->
-{% macro file_card(file, file_type) %}
-    <div class="col-md-4 col-lg-3 mb-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <!-- Card Header mit Dateityp-Indikator -->
-            <div class="card-header bg-secondary text-white p-2 d-flex justify-content-between align-items-center">
-                <small class="text-truncate">
-                    <i class="{% if file_type == 'photo' %}fas fa-image
-                              {% elif file_type == 'video' %}fas fa-video
-                              {% elif file_type == 'timesheet' %}fas fa-clock
-                              {% elif file_type == 'report' %}fas fa-clipboard-check
-                              {% else %}fas fa-file{% endif %}"></i>
-                    {{ file_type|capitalize }}
-                </small>
-                <small>{{ file.upload_date.strftime('%d.%m.%Y') }}</small>
-            </div>
-            
-            <!-- Card Vorschau-Container mit einheitlicher Höhe -->
-            <div class="card-img-container" style="height: 300px; overflow: hidden; background-color: #2c3e50; position: relative;">
-                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank" style="width: 100%; height: 100%;">
-                    {% if file_type == 'photo' or file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')) %}
-                        <!-- Bild-Vorschau - füllt die gesamte Card aus -->
-                        <div class="h-100 w-100 overflow-hidden">
-                            <img src="{{ url_for('files.view_file', filename=file.file_path) }}" alt="{{ file.original_filename }}" 
-                                class="w-100 h-100" style="object-fit: cover;">
-                        </div>
-                    {% elif file_type == 'video' or file.original_filename.endswith(('.mp4', '.webm', '.ogg')) %}
-                        <!-- Video-Vorschau - füllt die gesamte Card aus -->
-                        <div class="position-relative h-100 w-100">
-                            <video class="w-100 h-100" style="object-fit: cover;" poster="{{ url_for('files.get_video_thumbnail', filename=file.file_path) if has_video_thumbnail_function else '' }}">
-                                <source src="{{ url_for('files.view_file', filename=file.file_path) }}" type="video/mp4">
-                            </video>
-                            <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
-                                <i class="fas fa-play-circle fa-3x text-white" style="filter: drop-shadow(0 0 3px rgba(0,0,0,0.7));"></i>
-                            </div>
-                            <!-- Video Overlay für besseren Kontrast zum Play-Button -->
-                            <div class="position-absolute top-0 left-0 w-100 h-100" style="background-color: rgba(0,0,0,0.2);"></div>
-                        </div>
-                    {% elif file_type == 'timesheet' or file_type == 'report' or file.original_filename.endswith('.pdf') %}
-                        <!-- PDF-Vorschau -->
-                        <object data="{{ url_for('files.view_file', filename=file.file_path) }}" type="application/pdf" width="100%" height="100%" style="object-fit: contain;">
-                            <!-- Fallback für Browser, die keine PDF-Objekte unterstützen -->
-                            <div class="h-100 w-100 d-flex align-items-center justify-content-center">
-                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
-                            </div>
-                        </object>
-                    {% else %}
-                        <!-- Andere Dateien mit passendem Icon -->
-                        <div class="h-100 w-100 d-flex align-items-center justify-content-center">
-                            {% if file.original_filename.endswith(('.doc', '.docx')) %}
-                                <i class="fas fa-file-word fa-4x text-primary"></i>
-                            {% elif file.original_filename.endswith(('.xls', '.xlsx', '.csv')) %}
-                                <i class="fas fa-file-excel fa-4x text-success"></i>
-                            {% elif file.original_filename.endswith(('.ppt', '.pptx')) %}
-                                <i class="fas fa-file-powerpoint fa-4x text-warning"></i>
-                            {% elif file.original_filename.endswith(('.pdf',)) %}
-                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
-                            {% elif file.original_filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.tiff')) %}
-                                <i class="fas fa-file-image fa-4x text-info"></i>
-                            {% elif file.original_filename.endswith(('.mp4', '.avi', '.mov', '.wmv', '.mkv', '.webm', '.flv')) %}
-                                <i class="fas fa-file-video fa-4x text-dark"></i>
-                            {% elif file.original_filename.endswith(('.mp3', '.wav', '.ogg', '.flac')) %}
-                                <i class="fas fa-file-audio fa-4x text-warning"></i>
-                            {% elif file.original_filename.endswith(('.zip', '.rar', '.7z', '.tar', '.gz')) %}
-                                <i class="fas fa-file-archive fa-4x text-secondary"></i>
-                            {% elif file.original_filename.endswith(('.txt', '.md', '.log')) %}
-                                <i class="fas fa-file-alt fa-4x text-muted"></i>
-                            {% elif file.original_filename.endswith(('.html', '.css', '.js', '.json', '.xml')) %}
-                                <i class="fas fa-file-code fa-4x text-primary"></i>
-                            {% elif file.original_filename.endswith(('.py', '.java', '.cpp', '.c', '.rb', '.php', '.go', '.rs')) %}
-                                <i class="fas fa-file-code fa-4x text-secondary"></i>
-                            {% else %}
-                                <i class="fas fa-file fa-4x text-info"></i>
-                            {% endif %}
-                        </div>
-
-                        
-                    {% endif %}
-                </a>
-            </div>
-            
-            <!-- Card Body mit Dateiinfos -->
-            <div class="card-body d-flex flex-column">
-                <h6 class="card-title text-truncate mb-2">{{ file.original_filename }}</h6>
-                <p class="card-text mb-3">
-                    <small class="text-muted">
-                        {% if file.file_size > 1024 * 1024 %}
-                            {{ (file.file_size / 1024 / 1024)|round(2) }} MB
-                        {% else %}
-                            {{ (file.file_size / 1024)|round(1) }} KB
-                        {% endif %}
-                    </small>
-                </p>
-                <!-- Buttons immer am Ende -->
-                <div class="mt-auto d-flex justify-content-between">
-                    <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                        {% if file_type == 'photo' %}
-                            <i class="fas fa-image"></i> Anzeigen
-                        {% elif file_type == 'video' %}
-                            <i class="fas fa-play"></i> Abspielen
-                        {% elif file_type == 'timesheet' %}
-                            <i class="fas fa-clock"></i> Anzeigen
-                        {% elif file_type == 'report' %}
-                            <i class="fas fa-clipboard-check"></i> Anzeigen
-                        {% else %}
-                            <i class="fas fa-file"></i> Anzeigen
-                        {% endif %}
-                    </a>
-                    <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endmacro %}
-
-<!-- Fotos -->
-<div class="tab-pane fade show active" id="photos" role="tabpanel">
-    <div class="row">
-        {% if photos %}
-            {% for file in photos %}
-                {{ file_card(file, 'photo') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine Fotos vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Videos -->
-<div class="tab-pane fade" id="videos" role="tabpanel">
-    <div class="row">
-        {% if videos %}
-            {% for file in videos %}
-                {{ file_card(file, 'video') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine Videos vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Stundenberichte -->
-<div class="tab-pane fade" id="timesheets" role="tabpanel">
-    <div class="row">
-        {% if timesheets %}
-            {% for file in timesheets %}
-                {{ file_card(file, 'timesheet') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine Stundenberichte vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Prüfberichte -->
-<div class="tab-pane fade" id="reports" role="tabpanel">
-    <div class="row">
-        {% if reports %}
-            {% for file in reports %}
-                {{ file_card(file, 'report') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine Prüfberichte vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Sonstige Dateien -->
-<div class="tab-pane fade" id="other" role="tabpanel">
-    <div class="row">
-        {% if other_files %}
-            {% for file in other_files %}
-                {{ file_card(file, 'other') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine sonstigen Dateien vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
+  </div>
+</div> <!-- Ende des Gesamt-Containers -->
 
 <!-- Unterstützte Dateiformate hinzufügen -->
 <div style="display:none">
@@ -413,125 +466,6 @@
     <div id="allowed-timesheets">.pdf,.doc,.docx,.xls,.xlsx</div>
     <div id="allowed-reports">.pdf,.doc,.docx,.xls,.xlsx</div>
     <div id="allowed-other">.txt,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.csv,.json,.xml,.html,.css,.js,.md,.rtf,.odt,.ods,.odp,.wav,.mp3,.psd,.ai,.eps,.indd,.ttf,.otf,.woff,.woff2,.eot,.sql,.db,.tar,.gz,.exe,.dll,.bat,.sh,.iso,.dmg,.apk,.ipa</div>
-</div>
-
-<!-- Stunden (falls benötigt) -->
-<div class="tab-pane fade" id="hours" role="tabpanel">
-    <div class="row">
-        {% if hours %}
-            {% for file in hours %}
-                {{ file_card(file, 'hours') }}
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-light">Keine Arbeitsstunden vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-
-<!-- Arbeitsstunden -->
-<div class="tab-pane fade" id="worktime" role="tabpanel">
-    <div class="row">
-        {% if worktime %}
-            {% for file in worktime %}
-                <div class="col-md-4 col-lg-3 mb-4">
-                    <div class="card h-100">
-                        <div class="card-img-top document-thumbnail">
-                            <a href="{{ url_for('files.view_file', filename=file.file_path) }}" target="_blank">
-                                <div class="position-relative">
-                                    <!-- Dokument-Vorschaubild -->
-                                    <div class="document-preview" style="background-color: #f8f9fa; height: 160px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-file-excel fa-3x text-success"></i>
-                                    </div>
-                                    <div class="position-absolute bottom-0 right-0 p-2 bg-success text-white">
-                                        <i class="fas fa-clock"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-title text-truncate">{{ file.original_filename }}</h6>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    {{ (file.file_size / 1024)|round(1) }} KB - 
-                                    {{ file.upload_date.strftime('%d.%m.%Y') }}
-                                </small>
-                            </p>
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('files.view_file', filename=file.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
-                                    <i class="fas fa-file-excel"></i> Anzeigen
-                                </a>
-                                <a href="{{ url_for('files.delete_file', file_id=file.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Wirklich löschen?')">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <p class="text-muted">Keine Arbeitsstunden vorhanden.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-    <!-- Arbeitsstunden -->
-    <div class="tab-pane fade" id="timesheet-data" role="tabpanel">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <h5 class="mb-0">Erfasste Arbeitsstunden</h5>
-            </div>
-            <div class="card-body">
-                {% if timesheets_data %}
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Datum</th>
-                                    <th>Mitarbeiter</th>
-                                    <th>Tätigkeit</th>
-                                    <th>Stunden</th>
-                                    <th>PDF</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for timesheet in timesheets_data %}
-                                    <tr>
-                                        <td>{{ timesheet.date.strftime('%d.%m.%Y') }}</td>
-                                        <td>{{ timesheet.employee.username }}</td>
-                                        <td>{{ timesheet.activity }}</td>
-                                        <td>{{ timesheet.hours }}</td>
-                                        <td>
-                                            {% if timesheet.pdf_path %}
-                                                <a href="{{ url_for('files.view_file', filename=timesheet.pdf_path) }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </a>
-                                            {% else %}
-                                                <span class="badge bg-warning">Kein PDF</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr class="table-primary">
-                                    <th colspan="3">Gesamtstunden:</th>
-                                    <th>{{ timesheets_data|sum(attribute='hours') }}</th>
-                                    <th></th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                {% else %}
-                    <p class="text-muted">Keine Arbeitsstunden erfasst.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -652,6 +586,28 @@ function updateRemainingTime() {
             $(this).parent().find('input').focus();
         });
     });
-    </script>
-
+</script>
+<script>
+    function applyActiveTabStyle(element) {
+        // Reset all tabs
+        document.querySelectorAll('#projectTabs .nav-link').forEach(tab => {
+            tab.style.backgroundColor = '#1F2833';
+            tab.style.color = '#C5C6C7';
+            tab.style.border = '1px solid #C5C6C7';
+        });
+        
+        // Apply active style to clicked tab
+        element.style.backgroundColor = '#0B0C10';
+        element.style.color = '#66FCF1';
+        element.style.border = '1px solid #66FCF1';
+    }
+    
+    // Initialize the first tab with active style
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeTab = document.querySelector('#projectTabs .nav-link.active');
+        if (activeTab) {
+            applyActiveTabStyle(activeTab);
+        }
+    });
+</script>
 {% endblock %}
