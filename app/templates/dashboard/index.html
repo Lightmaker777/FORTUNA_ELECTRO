@@ -558,7 +558,7 @@
 
 <style>
 
-/* Responsive styling for Aktuelle Projekte */
+/* Improved Mobile Responsive Styling */
 
 /* Base improvements for the project table */
 .table-responsive {
@@ -568,11 +568,12 @@
     border-radius: var(--border-radius-md);
 }
 
+/* Project Cards for Mobile */
 .project-card-mobile {
-    padding: 1rem;
+    padding: 0.875rem;
     background-color: #101018;
     border-radius: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 /* Project header (name and icon) */
@@ -582,203 +583,182 @@
     margin-bottom: 0.5rem;
 }
 
-.project-card-body {
-    padding-left: 3rem; /* Align with the icon */
+.project-card-header .project-icon {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    margin-right: 0.75rem;
 }
 
+.project-card-body {
+    padding-left: 2.5rem; /* Align with the icon */
+}
+
+/* Improved date display */
 .project-meta {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-}
-
-.project-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-}
-
-/* Progress bar container */
-.project-card .progress-container {
-    position: relative;
-    margin-bottom: 16px;
-    width: 100%;
-}
-
-/* Days remaining indicator */
-.project-card .progress-container .days-remaining {
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-}
-.mobile-progress-container {
-    margin: 0.5rem 0;
-}
-.mobile-countdown {
-    margin-top: 0.25rem;
-    background-color:  #66FCF1;
-    color: black;
-}
-.project-actions .btn {
-    flex: 1;
-    margin: 0 0.25rem;
-}
-
-.w-48 {
-    width: 50%;
-}
-/* Full-width progress bar */
-.project-card .progress-bar {
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-/* Common improvements */
-.aktuelle-projekte .table td {
-    padding: 0.75rem; /* Slightly reduce padding */
-    vertical-align: middle;
-}
-
-/* Fix table stripe colors */
-.aktuelle-projekte .table tbody tr:nth-child(odd) td {
-    background-color: var(--primary);
-}
-
-.aktuelle-projekte .table tbody tr:nth-child(even) td {
-    background-color: var(--primary-light);
-}
-
-/* Better spacing for action buttons */
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-/* Compact view for small screens */
-@media (max-width: 767.98px) {
-    /* Hide regular table and show card layout */
-    .aktuelle-projekte .table-responsive {
-        display: none;
-    }
-    
-    .project-card-mobile {
-        display: block;
-    }
-    
-    /* Adjust header spacing */
-    .aktuelle-projekte .card-header {
-        padding: 0.75rem;
-    }
-    
-    /* Smaller, more compact buttons */
-    .btn-sm {
-        padding: 0.2rem 0.4rem;
-        font-size: 0.7rem;
-    }
-    
-    /* Make sure all icons have consistent size */
-    .project-icon {
-        width: 35px;
-        height: 35px;
-        min-width: 35px;
-    }
-    
-    /* Improve the 'Alle anzeigen' button */
-    .btn-outline-primary {
-        padding: 0.3rem 0.6rem;
-    }
-}
-
-/* Medium screens: show more compact table */
-@media (min-width: 768px) and (max-width: 991.98px) {
-    .aktuelle-projekte .table th,
-    .aktuelle-projekte .table td {
-        padding: 0.5rem;
-    }
-    
-    /* More compact buttons */
-    .btn-sm {
-        padding: 0.25rem 0.4rem;
-        font-size: 0.75rem;
-    }
-    
-    .project-icon {
-        width: 40px;
-        height: 40px;
-    }
-}
-
-/* Fix for scrollbar issue on some mobile browsers */
-.row {
-    margin-right: 0;
-    margin-left: 0;
-}
-
-/* Timeline badges with better contrast and sizing */
-.verbleibende-zeit-badge {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: var(--border-radius-sm);
-    font-weight: 500;
-    text-align: center;
-    background-color: var(--accent);
-    color: var(--primary);
-}
-
-/* Small utility classes */
-.project-date {
-    color: var(--text-muted);
+    margin-bottom: 0.4rem;
     font-size: 0.8rem;
 }
 
-.remaining-time {
-    color: var(--accent);
+/* Refined progress bars */
+.project-card .progress-container,
+.mobile-progress-container {
+    height: 4px;
+    margin: 0.5rem 0;
+    position: relative;
+    width: 100%;
+    background-color: rgba(102, 252, 241, 0.15);
+    border-radius: 2px;
+}
+
+.project-card .progress-bar,
+.mobile-progress-bar {
+    height: 4px;
+    background-color: #66FCF1;
+    border-radius: 2px;
+}
+
+/* Compact and cleaner countdown badges */
+.verbleibende-zeit-badge,
+.mobile-countdown {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
     font-weight: 500;
+    text-align: center;
+    background-color: #66FCF1;
+    color: #000;
+    margin-top: 0.3rem;
 }
 
-/* Fix for project listings table pagination */
-.pagination {
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.page-link {
-    background-color: var(--primary-light);
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-.page-link:hover {
-    background-color: var(--accent);
-    color: var(--primary);
-}
-
-.page-item.active .page-link {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    color: var(--primary);
-}
-/* Project action buttons layout */
-.project-card .project-actions {
+/* Buttons with exact 50/50 split */
+.project-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 16px;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    width: 100%;
 }
 
-/* Make buttons equal width */
-.project-card .project-actions .btn,
-.project-card .project-actions a {
-    flex: 1;
+.project-actions .btn,
+.btn-download,
+.btn-details {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    min-height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 50%; /* Exact 50% width */
+    box-sizing: border-box;
+}
+
+.btn-download {
+    background-color: #66FCF1;
+    color: #000;
+}
+
+.btn-details {
+    border: 1px solid #66FCF1;
+    color: #66FCF1;
+    background-color: transparent;
+}
+
+/* Fix for button icons alignment */
+.btn-download svg,
+.btn-details svg {
+    margin-right: 0.25rem;
+    width: 16px;
+    height: 16px;
+}
+
+/* Media queries for different screen sizes */
+@media (max-width: 374px) {
+    /* Extra small phones */
+    .project-card-mobile {
+        padding: 0.75rem;
+    }
+    
+    .project-actions .btn {
+        font-size: 0.75rem;
+        padding: 0.35rem;
+        min-height: 30px;
+    }
+    
+    .project-card-header .project-name {
+        font-size: 0.95rem;
+    }
+}
+
+@media (min-width: 375px) and (max-width: 767.98px) {
+    /* Standard mobile phones */
+    .project-actions .btn {
+        padding: 0.4rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Table view for larger screens */
+@media (min-width: 768px) {
+    .project-card-mobile {
+        display: none;
+    }
+    
+    .aktuelle-projekte .table-responsive {
+        display: block;
+    }
+    
+    /* Table styling refinements */
+    .aktuelle-projekte .table th,
+    .aktuelle-projekte .table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+        background-color: #101018; /* Ensure dark background for table cells */
+    }
+    
+    .aktuelle-projekte .table tbody tr:nth-child(odd) td {
+        background-color: #1A1A24; /* Darker striped rows */
+    }
+    
+    .aktuelle-projekte .table tbody tr:nth-child(even) td {
+        background-color: #101018; /* Maintain dark theme */
+    }
+    
+    /* Progress bar in table view */
+    .verbleibende-zeit-badge {
+        font-size: 0.75rem;
+    }
+    
+    /* Ensure download and details buttons maintain dark theme */
+    .btn-download {
+        background-color: #66FCF1;
+        color: #000;
+    }
+    
+    .btn-details {
+        border: 1px solid #66FCF1;
+        color: #66FCF1;
+        background-color: transparent;
+    }
+}
+
+/* Ensure download and details buttons are exactly 50/50 split */
+.project-card .btn-download,
+.project-card .btn-details {
+    width: 50%;
+    white-space: nowrap;
+    flex: 0 0 auto; /* Prevent flex from overriding width */
+}
+
+/* Improved days remaining display */
+.days-remaining {
+    position: relative;
+    z-index: 1;
+    font-size: 0.7rem;
+    margin-bottom: 0.2rem;
 }
 
 
