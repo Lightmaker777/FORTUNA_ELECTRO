@@ -5,7 +5,7 @@ if os.environ.get("FLASK_ENV") != "production":
     load_dotenv()  # Load .env only for local dev
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'gatIuc5z5xSfaB4EvQeChIppBsuke3kF')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app/static/uploads')
     MAX_CONTENT_LENGTH = 20 * 1024 * 1024

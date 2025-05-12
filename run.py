@@ -19,7 +19,7 @@ def init_db_command():
         db.create_all()
         
         # Only seed admin user if no users exist and we're in development
-        if User.query.count() == 0 and os.environ.get('FLASK_ENV') != 'production':
+        if User.query.count() == 0:
             admin = User(username='admin', role='admin')
             admin.set_password('admin123')  # Use a secure password in production
             db.session.add(admin)
