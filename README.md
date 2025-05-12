@@ -18,7 +18,7 @@
 
 </div>
 
-## 📋 Overview
+## 📋 Overview & More
 
 The FORTUNA ELEKTRO Web App is an efficient and user-friendly project management solution specifically designed for electrical installation professionals. It simplifies daily documentation processes, enhances team coordination, and provides comprehensive reporting capabilities. This application helps you manage projects, track work hours, document installations with photos and videos, and generate professional PDF reports.
 
