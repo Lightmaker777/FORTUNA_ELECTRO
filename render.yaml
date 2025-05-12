@@ -2,7 +2,9 @@ services:
   - type: web
     name: fortuna-elektro-web-app
     env: python
-    buildCommand: pip install -r requirements.txt && flask db upgrade
+    buildCommand: |
+      pip install -r requirements.txt
+      flask db upgrade  # Use migrate instead of recreating tables
     startCommand: gunicorn run:app
     envVars:
       - key: FLASK_ENV
@@ -13,6 +15,10 @@ services:
         fromDatabase:
           name: fortuna-elektro-web-app
           property: connectionString
+    disk:
+      - name: uploads
+        mountPath: /opt/render/project/uploads
+        sizeGB: 10
 
 databases:
   - name: fortuna-elektro-web-app

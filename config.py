@@ -8,6 +8,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'gatIuc5z5xSfaB4EvQeChIppBsuke3kF')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app/static/uploads')
+     # Ensure the upload directory exists
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     MAX_CONTENT_LENGTH = 20 * 1024 * 1024
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')

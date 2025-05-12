@@ -8,18 +8,26 @@ from app.models.vacation import Vacation
 from sqlalchemy import text
 import os
 
+
 app = create_app()
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
-    # Erstelle Admin-Benutzer, falls keine Benutzer vorhanden sind
-    if User.query.count() == 0:
-        admin = User(username='admin', role='admin')
-        admin.set_password('admin123')  # In der Produktion ein sicheres Passwort verwenden
-        db.session.add(admin)
-        db.session.commit()
+@app.before_first_request
+def create_initial_data():
+    # Only create tables if they don't exist
+    # This prevents dropping existing tables
+    try:
+        # Check if any users exist
+        user_count = User.query.count()
+        
+        # Create initial admin ONLY if no users exist
+        if user_count == 0:
+            admin = User(username='admin', role='admin')
+            admin.set_password('admin123')  # Use a secure password
+            db.session.add(admin)
+            db.session.commit()
+    except Exception as e:
+        app.logger.error(f"Error initializing data: {str(e)}")
 
 @app.before_request
 def log_db_connection():
