@@ -19,5 +19,14 @@ def create_tables():
         db.session.add(admin)
         db.session.commit()
 
+@app.before_request
+def log_db_connection():
+    try:
+        # Test the connection before each request
+        result = db.session.execute('SELECT 1').scalar()
+        app.logger.info(f"Database connection working: {result}")
+    except Exception as e:
+        app.logger.error(f"Database connection error: {str(e)}")
+
 if __name__ == '__main__':
     app.run(debug=True)

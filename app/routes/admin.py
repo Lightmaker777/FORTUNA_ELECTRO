@@ -12,6 +12,7 @@ admin = Blueprint('custom_admin', __name__, url_prefix='/custom-admin')
 # Create blueprint with a name that doesn't conflict with Flask-Admin
 #admin = Blueprint('admin', __name__)  # This will be registered as 'custom_admin'
 
+
 @admin.before_request
 def check_admin():
     if not current_user.is_authenticated or not current_user.is_admin():
