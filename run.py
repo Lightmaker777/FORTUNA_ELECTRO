@@ -29,5 +29,17 @@ def log_db_connection():
     except Exception as e:
         app.logger.error(f"Database connection error: {str(e)}")
 
+@app.route('/test-db-connection')
+def test_db_connection():
+    try:
+        result = db.session.execute(text('SELECT 1')).scalar()
+        message = f"Database connection successful: {result}"
+        app.logger.error(message)  # Log with ERROR level for visibility
+        return message
+    except Exception as e:
+        error_message = f"Database connection failed: {str(e)}"
+        app.logger.error(error_message)
+        return error_message, 500  # Return HTTP 500 status code
+
 if __name__ == '__main__':
     app.run(debug=True)
