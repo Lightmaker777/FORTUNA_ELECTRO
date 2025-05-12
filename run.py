@@ -10,23 +10,16 @@ import os
 
 app = create_app()
 
-# Only create an admin user if running in development mode and no users exist
-@app.cli.command("init-db")
-def init_db_command():
-    """Create initial database and seed with admin user."""
-    # Create tables (this is safe to run even if tables exist)
-    with app.app_context():
-        db.create_all()
-        
-        # Only seed admin user if no users exist and we're in development
-        if User.query.count() == 0:
-            admin = User(username='admin', role='admin')
-            admin.set_password('admin123')  # Use a secure password in production
-            db.session.add(admin)
-            db.session.commit()
-            print("Created admin user")
-        
-        print("Database initialized")
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+    # Erstelle Admin-Benutzer, falls keine Benutzer vorhanden sind
+    if User.query.count() == 0:
+        admin = User(username='admin', role='admin')
+        admin.set_password('admin123')  # In der Produktion ein sicheres Passwort verwenden
+        db.session.add(admin)
+        db.session.commit()
 
 @app.before_request
 def log_db_connection():
@@ -51,3 +44,5 @@ def test_db_connection():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
