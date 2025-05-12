@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: fortuna-elektro-web-app
+    env: python
+    buildCommand: pip install -r requirements.txt && flask db upgrade
+    startCommand: gunicorn run:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fortuna-elektro-web-app
+          property: connectionString
+
+databases:
+  - name: fortuna-elektro-web-app
+    plan: free
