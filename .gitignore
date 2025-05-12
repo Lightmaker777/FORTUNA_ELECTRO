@@ -1,4 +1,5 @@
 .env
 __pycache__/
 # Ignore SQLite database file
-elektrofirma.db
+
+instance\elektrofirma.db
