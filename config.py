@@ -2,7 +2,10 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
+if os.environ.get("FLASK_ENV") != "production":
+    from dotenv import load_dotenv
+    load_dotenv()
+  # Load environment variables from .env file
 
 class Config:
     
