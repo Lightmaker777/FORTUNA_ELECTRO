@@ -5,6 +5,7 @@ from app.models.project import Project
 from app.models.file import File
 from app.models.timesheet import Timesheet
 from app.models.vacation import Vacation
+from sqlalchemy import text
 
 app = create_app()
 
@@ -23,7 +24,7 @@ def create_tables():
 def log_db_connection():
     try:
         # Test the connection before each request
-        result = db.session.execute('SELECT 1').scalar()
+        result = db.session.execute(text('SELECT 1')).scalar()
         app.logger.info(f"Database connection working: {result}")
     except Exception as e:
         app.logger.error(f"Database connection error: {str(e)}")
