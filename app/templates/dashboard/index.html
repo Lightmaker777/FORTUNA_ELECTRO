@@ -488,7 +488,7 @@
                                                 <label for="vacationType" class="form-label">Art des Urlaubs</label>
                                                 <select class="form-select" id="vacationType">
                                                     <option value="urlaub">Urlaub</option>
-                                                    <option value="krankheit">Krank</option>
+                                                    <option value="krank">Krank</option>
                                                     <option value="sonstiges">Sonstiges</option>
                                                 </select>
                                             </div>
@@ -1003,8 +1003,8 @@ function getVacationTypeClass(type) {
     switch (type) {
         case 'urlaub':
             return 'vacation-type-urlaub';
-        case 'krankheit':
-            return 'vacation-type-krankheit';
+        case 'krank':
+            return 'vacation-type-krank';
         case 'sonstiges':
             return 'vacation-type-sonstiges';
         default:
@@ -1017,7 +1017,7 @@ function getVacationTypeColor(type) {
     switch (type) {
         case 'urlaub':
             return '#58a763'; // Grün
-        case 'krankheit':
+        case 'krank':
             return '#dc3545'; // Rot
         case 'sonstiges':
             return '#0d6efd'; // Blau
@@ -1030,7 +1030,7 @@ function getVacationTypeName(type) {
     switch(type) {
         case 'urlaub':
             return 'Urlaub';
-        case 'krankheit':
+        case 'krank':
             return 'Krank';
         case 'sonstiges':
             return 'Sonstiges';

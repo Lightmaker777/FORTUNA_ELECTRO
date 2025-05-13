@@ -66,3 +66,100 @@ input[type="checkbox"] {
 input[type="checkbox"]:checked {
     background-color: var(--accent) !important;
 }
+```css
+/* Admin Panel Dark Mode Text Visibility Fix */
+
+/* General input fields - make text visible against dark background */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+input[type="time"],
+input[type="file"],
+textarea,
+select {
+    color: #ffffff !important; /* White text */
+    background-color: #2a2a2a !important; /* Slightly lighter than the background */
+    border: 1px solid #444 !important;
+}
+
+/* Placeholder text color */
+::placeholder {
+    color: #aaaaaa !important;
+    opacity: 1 !important;
+}
+
+/* Labels next to the fields with asterisks */
+label, .form-label, .control-label {
+    color: #ffffff !important;
+}
+
+/* Required asterisks */
+.form-required {
+    color: #ff5555 !important;
+}
+
+/* Table text in the dashboard cards */
+table, th, td, .table {
+    color: #ffffff !important;
+}
+
+/* Fix specifically for file edit forms */
+.form-control {
+    color: #ffffff !important;
+    background-color: #2a2a2a !important;
+}
+
+/* Make sure dropdown menus have visible text */
+.dropdown-menu {
+    background-color: #333 !important;
+}
+
+.dropdown-item {
+    color: #ffffff !important;
+}
+
+.dropdown-item:hover {
+    background-color: #444 !important;
+}
+
+/* Ensure all text in cards is visible */
+.card-body {
+    color: #ffffff !important;
+}
+
+/* Fix for card headers that might have dark text */
+.card-header:not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-warning):not(.bg-danger):not(.bg-secondary) {
+    color: #ffffff !important;
+}
+
+/* Ensure buttons have visible text */
+.btn:not(.btn-primary):not(.btn-success):not(.btn-info):not(.btn-warning):not(.btn-danger):not(.btn-secondary) {
+    color: #ffffff !important;
+}
+
+/* Fix for any nav items that might have visibility issues */
+.nav-link {
+    color: #ffffff !important;
+}
+
+/* Fix specifically for file input fields */
+input[type="file"]::file-selector-button {
+    color: #ffffff !important;
+    background-color: #444 !important;
+    border: 1px solid #555 !important;
+}
+
+/* Fix for any modal dialogs */
+.modal-content {
+    background-color: #222 !important;
+    color: #ffffff !important;
+}
+
+/* Fix any alert messages */
+.alert {
+    color: #ffffff !important;
+}
+```

@@ -14,6 +14,7 @@ from app.models.project import Project
 from app.models.timesheet import Timesheet
 from app.models.vacation import Vacation
 from app.models.file import File
+from wtforms import SelectField
 
 # Base secure model view with access control
 class SecureModelView(ModelView):
@@ -62,7 +63,6 @@ class MyAdminIndexView(AdminIndexView):
         
         return self.render('admin/index.html', stats=stats)
 
-# Custom UserModelView with enhanced configuration
 class UserModelView(SecureModelView):
     column_list = ['username', 'role', 'is_active', 'created_at']
     column_labels = {
@@ -78,8 +78,7 @@ class UserModelView(SecureModelView):
     column_searchable_list = ['username']
     column_sortable_list = ['username', 'role', 'created_at']
     form_excluded_columns = ['password_hash', 'projects', 'files', 'timesheets', 'password']
-    
-    # Override form creation to handle password
+
     def scaffold_form(self):
         form_class = super(UserModelView, self).scaffold_form()
         form_class.password = PasswordField('Passwort', validators=[Optional()],
@@ -90,7 +89,13 @@ class UserModelView(SecureModelView):
         ])
         return form_class
 
-    # Custom field handling for passwords
+    def on_form_prefill(self, form, id):
+        # Force valid 2-element tuples for role field
+        form.role.choices = [
+            ('installateur', 'Installateur'),
+            ('admin', 'Administrator')
+        ]
+
     def on_model_change(self, form, model, is_created):
         if form.password.data:
             model.set_password(form.password.data)
@@ -119,12 +124,15 @@ class ProjectModelView(SecureModelView):
     column_searchable_list = ['name', 'description']
     column_sortable_list = ['name', 'status', 'start_date', 'end_date']
     
-    form_choices = {
-        'status': [
-            ('in_bearbeitung', 'In Bearbeitung'),
-            ('abgeschlossen', 'Abgeschlossen'),
-            ('archiviert', 'Archiviert')
-        ]
+    form_overrides = {
+    'role': SelectField
+    }
+
+    form_args = {
+        'role': {
+            'choices': [('installateur', 'Installateur'), ('admin', 'Administrator')],
+            'coerce': str
+        }
     }
     
     def on_model_change(self, form, model, is_created):
@@ -186,14 +194,21 @@ class FileModelView(SecureModelView):
     column_searchable_list = ['original_filename', 'file_type']
     column_sortable_list = ['original_filename', 'file_type', 'upload_date']
     
-    form_choices = {
-        'file_type': [
-            ('foto', 'Foto'),
-            ('video', 'Video'),
-            ('stundenbericht', 'Stundenbericht'),
-            ('pruefbericht', 'Prüfbericht'),
-            ('sonstiges', 'Sonstiges')
-        ]
+    form_overrides = {
+        'file_type': SelectField
+    }
+
+    form_args = {
+        'file_type': {
+            'choices': [
+                ('foto', 'Foto'),
+                ('video', 'Video'),
+                ('stundenbericht', 'Stundenbericht'),
+                ('pruefbericht', 'Prüfbericht'),
+                ('sonstiges', 'Sonstiges')
+            ],
+            'coerce': str
+        }
     }
 
 def init_admin(app):
