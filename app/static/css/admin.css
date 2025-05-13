@@ -1,52 +1,68 @@
-/* Custom styles for the Admin interface */
+/* Fix for admin panel icons and list colors */
 
-.navbar-brand {
-    font-weight: bold;
+/* Make icons visible with appropriate color */
+.btn-icon,
+.fa,
+.fas,
+.far,
+.table .btn i {
+    color: var(--accent) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-/* Custom table styles */
-.model-list {
-    width: 100%;
+/* Delete/trash icons specific styling */
+.fa-trash-alt,
+.fa-trash,
+.btn-danger i {
+    color: var(--danger) !important;
 }
 
-/* Form styling */
-.form-control {
-    border-radius: 0.25rem;
+/* List button color correction */
+.nav-tabs .nav-link,
+.nav-tabs .nav-item .nav-link,
+.list-group-item {
+    color: var(--accent) !important;
 }
 
-/* Button styling */
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+/* Active list item */
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link,
+.list-group-item.active {
+    background-color: var(--accent-light) !important;
+    color: var(--primary) !important;
+    border-color: var(--accent) !important;
 }
 
-.btn-primary:hover {
-    background-color: #0069d9;
-    border-color: #0062cc;
+/* Make sure the List (6) text has the accent color */
+.list-group-item,
+.list-group a,
+.nav-item a {
+    color: var(--accent) !important;
 }
 
-/* Flash messages */
-.alert-success {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
+/* Ensure action buttons are visible */
+.table .btn {
+    background-color: transparent !important;
+    border: 1px solid var(--accent) !important;
+    color: var(--accent) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-.alert-danger {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
+/* Hover effect for buttons */
+.table .btn:hover {
+    background-color: var(--accent) !important;
+    color: var(--primary) !important;
 }
 
-/* Admin dashboard customization */
-.admin-panel .card {
-    margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+/* Fix checkbox visibility */
+input[type="checkbox"] {
+    border: 1px solid var(--accent) !important;
+    background-color: transparent !important;
 }
 
-.admin-panel .card-header {
-    font-weight: bold;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+/* Make sure checkmarks are visible when checked */
+input[type="checkbox"]:checked {
+    background-color: var(--accent) !important;
 }

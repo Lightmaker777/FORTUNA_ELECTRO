@@ -3,6 +3,8 @@
 
 {% block head_css %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 {% endblock %}
 

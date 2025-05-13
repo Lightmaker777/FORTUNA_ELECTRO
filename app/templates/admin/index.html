@@ -1,0 +1,141 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mt-4 mb-4"></h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Benutzer</h5>
+                    <p class="card-text display-4">{{ stats.user_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Projekte</h5>
+                    <p class="card-text display-4">{{ stats.project_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Arbeitszeiten</h5>
+                    <p class="card-text display-4">{{ stats.timesheet_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Aktive Projekte</h5>
+                    <p class="card-text display-4">{{ stats.active_projects }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Urlaub</h5>
+                    <p class="card-text display-4">{{ stats.vacation_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title">Dateien</h5>
+                    <p class="card-text display-4">{{ stats.file_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Neueste Benutzer</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Benutzername</th>
+                                    <th>Rolle</th>
+                                    <th>Erstellt am</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in stats.recent_users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.role }}</td>
+                                    <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Neueste Projekte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Projektname</th>
+                                    <th>Status</th>
+                                    <th>Startdatum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in stats.recent_projects %}
+                                <tr>
+                                    <td>{{ project.name }}</td>
+                                    <td>
+                                        {% if project.status == 'in_bearbeitung' %}
+                                            In Bearbeitung
+                                        {% elif project.status == 'abgeschlossen' %}
+                                            Abgeschlossen
+                                        {% elif project.status == 'archiviert' %}
+                                            Archiviert
+                                        {% else %}
+                                            {{ project.status }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ project.start_date.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

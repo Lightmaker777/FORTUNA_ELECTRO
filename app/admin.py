@@ -1,4 +1,5 @@
-# app\admin.py
+# app/admin.py - Fixed version
+
 from flask import redirect, url_for, flash, Markup
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -13,6 +14,15 @@ from app.models.project import Project
 from app.models.timesheet import Timesheet
 from app.models.vacation import Vacation
 from app.models.file import File
+
+# Base secure model view with access control
+class SecureModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin()
+
+    def inaccessible_callback(self, name, **kwargs):
+        flash('Sie benötigen Administratorrechte, um auf diese Seite zuzugreifen.', 'danger')
+        return redirect(url_for('auth.login'))
 
 # Helper function for date formatting
 def date_format(view, context, model, name):
@@ -30,23 +40,27 @@ def status_formatter(view, context, model, name):
     }
     return status_map.get(model.status, model.status)
 
-# Custom base ModelView with access control
-class SecureModelView(ModelView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.is_admin()
-    
-    def inaccessible_callback(self, name, **kwargs):
-        flash('Sie benötigen Administratorrechte, um auf diese Seite zuzugreifen.', 'danger')
-        return redirect(url_for('auth.login'))
-
-# Custom AdminIndexView with access control
+# Custom AdminIndexView with access control and dashboard statistics
 class MyAdminIndexView(AdminIndexView):
     @expose('/')
     def index(self):
         if not current_user.is_authenticated or not current_user.is_admin():
             flash('Sie benötigen Administratorrechte, um auf diese Seite zuzugreifen.', 'danger')
             return redirect(url_for('auth.login'))
-        return super(MyAdminIndexView, self).index()
+        
+        # Sammle Statistiken für das Dashboard
+        stats = {
+            'user_count': User.query.count(),
+            'project_count': Project.query.count(),
+            'timesheet_count': Timesheet.query.count(),
+            'active_projects': Project.query.filter_by(status='in_bearbeitung').count(),
+            'vacation_count': Vacation.query.count(),
+            'file_count': File.query.count(),
+            'recent_users': User.query.order_by(User.created_at.desc()).limit(5).all(),
+            'recent_projects': Project.query.order_by(Project.start_date.desc()).limit(5).all()
+        }
+        
+        return self.render('admin/index.html', stats=stats)
 
 # Custom UserModelView with enhanced configuration
 class UserModelView(SecureModelView):
@@ -182,10 +196,6 @@ class FileModelView(SecureModelView):
         ]
     }
 
-# app/admin.py - update the init_admin function
-
-# app/admin.py - updated init_admin function
-
 def init_admin(app):
     """Initialize Flask-Admin with proper configuration."""
     # Create the Admin instance
@@ -194,8 +204,8 @@ def init_admin(app):
         name='Admin Panel',
         template_mode='bootstrap4',
         index_view=MyAdminIndexView(),
-        url='/admin',  # Changed to /admin which is the standard Flask-Admin URL
-        base_template='admin/master.html'  # Make sure this template exists
+        url='/admin',
+        base_template='admin/master.html'
     )
     
     # Add model views
