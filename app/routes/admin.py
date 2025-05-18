@@ -1,4 +1,4 @@
-# app\routes\admin.py - Verbesserte Version
+# app\routes\admin.py - Verbesserte Version mit zusätzlichem Schutz
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models.user import User
@@ -102,6 +102,12 @@ def reset_password():
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user = User.query.get_or_404(form.user_id.data)
+        
+        # NEUE PRÜFUNG: Verhindern, dass das Passwort des Standard-Admin-Accounts zurückgesetzt wird
+        if user.username == 'admin':
+            flash('Das Passwort des Hauptadministrator-Accounts kann nicht geändert werden.', 'danger')
+            return redirect(url_for('custom_admin.list_users'))
+            
         user.set_password(form.new_password.data)
         db.session.commit()
         flash(f'Das Passwort für Benutzer {user.username} wurde zurückgesetzt.', 'success')

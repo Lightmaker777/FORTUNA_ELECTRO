@@ -84,32 +84,26 @@ class UserModelView(SecureModelView):
     # Prevent deletion of the admin user and self-deletion
     can_delete = True  # Allow deletion in general
 
-    # Richtige Formular-Definition für das Role-Feld
-    form_choices = {
-        'role': [
-            ('installateur', 'Installateur'),
-            ('admin', 'Administrator')
-        ]
+    # Korrekte Formular-Definition für das Role-Feld
+    form_overrides = {
+        'role': SelectField
+    }
+
+    form_args = {
+        'role': {
+            'choices': [
+                ('installateur', 'Installateur'),
+                ('admin', 'Administrator')
+            ],
+            'coerce': str
+        }
     }
 
     def scaffold_form(self):
         form_class = super(UserModelView, self).scaffold_form()
         form_class.password = PasswordField('Passwort', validators=[Optional()],
                                            description='Leer lassen, um das Passwort nicht zu ändern')
-        form_class.role = SelectField('Rolle', 
-                                     choices=[
-                                         ('installateur', 'Installateur'),
-                                         ('admin', 'Administrator')
-                                     ],
-                                     coerce=str)
         return form_class
-
-    def on_form_prefill(self, form, id):
-        # Wenn ein Formular vorausgefüllt wird, stellen wir sicher, dass die Choices korrekt gesetzt sind
-        form.role.choices = [
-            ('installateur', 'Installateur'),
-            ('admin', 'Administrator')
-        ]
 
     def create_form(self, obj=None):
         """Überschreibt create_form und stellt sicher, dass alle Felder korrekt initialisiert sind."""
@@ -211,15 +205,7 @@ class ProjectModelView(SecureModelView):
     column_searchable_list = ['name', 'description']
     column_sortable_list = ['name', 'status', 'start_date', 'end_date']
     
-    # Richtige Form-Definition für Status-Feld
-    form_choices = {
-        'status': [
-            ('in_bearbeitung', 'In Bearbeitung'),
-            ('abgeschlossen', 'Abgeschlossen'),
-            ('archiviert', 'Archiviert')
-        ]
-    }
-    
+    # Korrekte Form-Definition für Status-Feld
     form_overrides = {
         'status': SelectField
     }
@@ -276,14 +262,6 @@ class VacationModelView(SecureModelView):
     column_sortable_list = ['name', 'start_date', 'end_date']
     
     # Korrekte Definition für Type-Feld
-    form_choices = {
-        'type': [
-            ('urlaub', 'Urlaub'),
-            ('krank', 'Krankheit'),
-            ('sonstiges', 'Sonstiges')
-        ]
-    }
-    
     form_overrides = {
         'type': SelectField
     }
@@ -319,16 +297,6 @@ class FileModelView(SecureModelView):
     column_sortable_list = ['original_filename', 'file_type', 'upload_date']
     
     # Korrekte Definition für file_type-Feld
-    form_choices = {
-        'file_type': [
-            ('foto', 'Foto'),
-            ('video', 'Video'),
-            ('stundenbericht', 'Stundenbericht'),
-            ('pruefbericht', 'Prüfbericht'),
-            ('sonstiges', 'Sonstiges')
-        ]
-    }
-    
     form_overrides = {
         'file_type': SelectField
     }

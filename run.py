@@ -15,7 +15,7 @@ def create_tables():
     # Erstelle Admin-Benutzer, falls keine Benutzer vorhanden sind
     if User.query.count() == 0:
         admin = User(username='admin', role='admin')
-        admin.set_password('admin123')  # In der Produktion ein sicheres Passwort verwenden
+        admin.set_password('admin1234')  # In der Produktion ein sicheres Passwort verwenden
         db.session.add(admin)
         db.session.commit()
 
