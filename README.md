@@ -5,7 +5,9 @@
 <div align="center">
 
 
-<img src="app/static/img/dashboard1.png" alt="Dashboard" width="80%">
+<img src="app/static/img/dashboard.png" alt="Dashboard" width="80%">
+<p><i>Dashboard Mobile Overview</i></p>
+<img src="app/static/img/home_mobile_view1.png" alt="Dashboard" width="40%"> ##### <img src="app/static/img/home_mobile_view2.png" alt="Dashboard" width="40%">
 
 **A comprehensive project management solution for electrical installation professionals**
 
@@ -145,25 +147,25 @@ six==1.17.0
 
 <div align="center">
    <p><i>Dashboard Overview</i></p>
-  <img src="app/static/img/dashboard1.png" alt="Dashboard" width="80%">
+  <img src="app/static/img/dashboard.png" alt="Dashboard" width="80%">
   
   <p><i>Project Management Interface</i></p>
   <img src="app/static/img/admin.png" alt="Project Management" width="80%">
   
   <p><i>PDF Report Generator</i></p>
-  <img src="app/static/img/pdf_formular.png" alt="PDF Generator" width="80%">
+  <img src="app/static/img/pdf_formular1.png" alt="PDF Generator" width="80%">
   
    <p><i>Calendar Overview</i></p>
-  <img src="app/static/img/kalendar.png" alt="Calendar" width="80%">
+  <img src="app/static/img/kalender.png" alt="Calendar" width="80%">
   
   <p><i>PDF File</i></p>
   <img src="app/static/img/pdfform.png" alt="PDF" width="80%">
   
   <p><i>Projectdetails Page</i></p>
-  <img src="app/static/img/projekt.png" alt="Project" width="80%">
+  <img src="app/static/img/project.png" alt="Project" width="80%">
 
   <p><i>Projectdetails Page Others  </i></p>
-  <img src="app/static/img/projekt1.png" alt="Project1" width="80%">
+  <img src="app/static/img/project1.png" alt="Project1" width="80%">
   
    <p><i>User Password Changing</i></p>
   <img src="app/static/img/userpassword.png" alt="User Password" width="80%">
