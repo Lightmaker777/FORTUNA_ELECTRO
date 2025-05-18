@@ -1,12 +1,12 @@
-# app/admin.py - Fixed version
+# app/admin.py
 
-from flask import redirect, url_for, flash, Markup
+from flask import redirect, url_for, flash, Markup, request, abort
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from flask_login import current_user
 from wtforms import PasswordField, SelectField
-from wtforms.validators import Optional
+from wtforms.validators import Optional, DataRequired
 from datetime import datetime
 from app import db
 from app.models.user import User
@@ -14,7 +14,9 @@ from app.models.project import Project
 from app.models.timesheet import Timesheet
 from app.models.vacation import Vacation
 from app.models.file import File
-from wtforms import SelectField
+from flask import flash
+from werkzeug.exceptions import HTTPException
+from sqlalchemy.orm.exc import NoResultFound
 
 # Base secure model view with access control
 class SecureModelView(ModelView):
@@ -79,22 +81,69 @@ class UserModelView(SecureModelView):
     column_sortable_list = ['username', 'role', 'created_at']
     form_excluded_columns = ['password_hash', 'projects', 'files', 'timesheets', 'password']
 
+    # Prevent deletion of the admin user and self-deletion
+    can_delete = True  # Allow deletion in general
+
+    # Richtige Formular-Definition für das Role-Feld
+    form_choices = {
+        'role': [
+            ('installateur', 'Installateur'),
+            ('admin', 'Administrator')
+        ]
+    }
+
     def scaffold_form(self):
         form_class = super(UserModelView, self).scaffold_form()
         form_class.password = PasswordField('Passwort', validators=[Optional()],
                                            description='Leer lassen, um das Passwort nicht zu ändern')
-        form_class.role = SelectField('Rolle', choices=[
-            ('installateur', 'Installateur'),
-            ('admin', 'Administrator')
-        ])
+        form_class.role = SelectField('Rolle', 
+                                     choices=[
+                                         ('installateur', 'Installateur'),
+                                         ('admin', 'Administrator')
+                                     ],
+                                     coerce=str)
         return form_class
 
     def on_form_prefill(self, form, id):
-        # Force valid 2-element tuples for role field
+        # Wenn ein Formular vorausgefüllt wird, stellen wir sicher, dass die Choices korrekt gesetzt sind
         form.role.choices = [
             ('installateur', 'Installateur'),
             ('admin', 'Administrator')
         ]
+
+    def create_form(self, obj=None):
+        """Überschreibt create_form und stellt sicher, dass alle Felder korrekt initialisiert sind."""
+        form = super(UserModelView, self).create_form(obj)
+        # Wir stellen sicher, dass das Passwortfeld für neue Benutzer erforderlich ist
+        form.password.validators = [DataRequired(message='Ein Passwort ist erforderlich')]
+        return form
+
+    def edit_form(self, obj=None):
+        """Überschreibt edit_form und stellt sicher, dass alle Felder korrekt initialisiert sind."""
+        form = super(UserModelView, self).edit_form(obj)
+        # Für existierende Benutzer ist das Passwort optional
+        form.password.validators = [Optional()]
+        return form
+
+    def delete_model(self, model):
+        """Überschreibe die Standard-Löschmethode mit sicherer Exception-Behandlung"""
+        try:
+            # Überprüfe, ob es sich um den Admin-Account handelt
+            if model.username == 'admin':
+                flash('Der Hauptadministrator-Account kann nicht gelöscht werden.', 'danger')
+                return False
+                
+            # Überprüfe, ob der Benutzer sich selbst löschen möchte
+            if model.id == current_user.id:
+                flash('Sie können Ihren eigenen Benutzer nicht löschen.', 'danger')
+                return False
+                
+            # Standard-Löschen durchführen, wenn kein besonderer Fall vorliegt
+            return super(UserModelView, self).delete_model(model)
+            
+        except Exception as e:
+            flash(f'Der Benutzer konnte nicht gelöscht werden: {str(e)}', 'danger')
+            return False
 
     def on_model_change(self, form, model, is_created):
         if form.password.data:
@@ -103,6 +152,44 @@ class UserModelView(SecureModelView):
         if is_created and not form.password.data:
             flash('Ein Passwort ist für neue Benutzer erforderlich.', 'warning')
             raise ValueError('Passwort ist erforderlich')
+
+    # Abfangen der Löschaktion und korrektes Umleiten
+    @expose('/delete/', methods=('POST',))
+    def delete_view(self):
+        """Überschreibe die Standard-Löschansicht um Exceptions besser zu handhaben"""
+        return_url = request.form.get('url') or url_for('admin.index')
+        
+        if not self.can_delete:
+            flash('Löschen ist nicht erlaubt', 'error')
+            return redirect(return_url)
+            
+        id = request.form.get('id')
+        if id is None:
+            flash('Keine ID angegeben', 'error')
+            return redirect(return_url)
+            
+        model = self.get_one(id)
+        if model is None:
+            flash('Datensatz wurde nicht gefunden', 'error')
+            return redirect(return_url)
+            
+        # Überprüfe, ob es sich um den Admin-Account handelt
+        if hasattr(model, 'username') and model.username == 'admin':
+            flash('Der Hauptadministrator-Account kann nicht gelöscht werden.', 'danger')
+            return redirect(return_url)
+            
+        # Überprüfe, ob der Benutzer sich selbst löschen möchte
+        if hasattr(model, 'id') and model.id == current_user.id:
+            flash('Sie können Ihren eigenen Benutzer nicht löschen.', 'danger')
+            return redirect(return_url)
+            
+        try:
+            self.delete_model(model)
+            flash('Datensatz wurde erfolgreich gelöscht', 'success')
+        except Exception as ex:
+            flash(f'Der Benutzer konnte nicht gelöscht werden: {str(ex)}', 'danger')
+            
+        return redirect(return_url)
 
 # Enhanced Project view
 class ProjectModelView(SecureModelView):
@@ -124,13 +211,26 @@ class ProjectModelView(SecureModelView):
     column_searchable_list = ['name', 'description']
     column_sortable_list = ['name', 'status', 'start_date', 'end_date']
     
+    # Richtige Form-Definition für Status-Feld
+    form_choices = {
+        'status': [
+            ('in_bearbeitung', 'In Bearbeitung'),
+            ('abgeschlossen', 'Abgeschlossen'),
+            ('archiviert', 'Archiviert')
+        ]
+    }
+    
     form_overrides = {
-    'role': SelectField
+        'status': SelectField
     }
 
     form_args = {
-        'role': {
-            'choices': [('installateur', 'Installateur'), ('admin', 'Administrator')],
+        'status': {
+            'choices': [
+                ('in_bearbeitung', 'In Bearbeitung'),
+                ('abgeschlossen', 'Abgeschlossen'),
+                ('archiviert', 'Archiviert')
+            ],
             'coerce': str
         }
     }
@@ -174,6 +274,30 @@ class VacationModelView(SecureModelView):
     column_filters = ['name', 'start_date', 'end_date', 'type']
     column_searchable_list = ['name', 'type']
     column_sortable_list = ['name', 'start_date', 'end_date']
+    
+    # Korrekte Definition für Type-Feld
+    form_choices = {
+        'type': [
+            ('urlaub', 'Urlaub'),
+            ('krank', 'Krankheit'),
+            ('sonstiges', 'Sonstiges')
+        ]
+    }
+    
+    form_overrides = {
+        'type': SelectField
+    }
+
+    form_args = {
+        'type': {
+            'choices': [
+                ('urlaub', 'Urlaub'),
+                ('krank', 'Krankheit'),
+                ('sonstiges', 'Sonstiges')
+            ],
+            'coerce': str
+        }
+    }
 
 # Enhanced File view
 class FileModelView(SecureModelView):
@@ -194,6 +318,17 @@ class FileModelView(SecureModelView):
     column_searchable_list = ['original_filename', 'file_type']
     column_sortable_list = ['original_filename', 'file_type', 'upload_date']
     
+    # Korrekte Definition für file_type-Feld
+    form_choices = {
+        'file_type': [
+            ('foto', 'Foto'),
+            ('video', 'Video'),
+            ('stundenbericht', 'Stundenbericht'),
+            ('pruefbericht', 'Prüfbericht'),
+            ('sonstiges', 'Sonstiges')
+        ]
+    }
+    
     form_overrides = {
         'file_type': SelectField
     }
@@ -210,6 +345,12 @@ class FileModelView(SecureModelView):
             'coerce': str
         }
     }
+
+# Error Handler für Flask-Admin
+class AdminErrorHandler(HTTPException):
+    def __init__(self, description=None, response=None):
+        super(AdminErrorHandler, self).__init__(description, response)
+        self.code = 400
 
 def init_admin(app):
     """Initialize Flask-Admin with proper configuration."""
@@ -232,5 +373,24 @@ def init_admin(app):
     
     # Add menu link
     admin.add_link(MenuLink(name='Zurück zur Anwendung', url='/'))
+    
+    # Füge globale Fehlerbehandlung für Flask-Admin hinzu
+    @app.errorhandler(ValueError)
+    def handle_value_error(e):
+        if "Der Hauptadministrator-Account kann nicht gelöscht werden" in str(e):
+            flash('Der Hauptadministrator-Account kann nicht gelöscht werden.', 'danger')
+            return redirect(request.referrer or url_for('admin.index'))
+        elif "Sie können Ihren eigenen Benutzer nicht löschen" in str(e):
+            flash('Sie können Ihren eigenen Benutzer nicht löschen.', 'danger')
+            return redirect(request.referrer or url_for('admin.index'))
+        # Für andere ValueError-Exceptions
+        flash(f'Fehler: {str(e)}', 'danger')
+        return redirect(request.referrer or url_for('admin.index'))
+        
+    # Fehlerbehandlung für AttributeError (wie 'tuple' object has no attribute 'items')
+    @app.errorhandler(AttributeError)
+    def handle_attribute_error(e):
+        flash(f'Ein Systemfehler ist aufgetreten. Bitte kontaktieren Sie den Administrator: {str(e)}', 'danger')
+        return redirect(request.referrer or url_for('admin.index'))
     
     return admin
